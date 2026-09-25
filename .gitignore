@@ -1,0 +1,12 @@
+# Runtime / local state
+*.log
+*.tmp
+.cache/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
