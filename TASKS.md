@@ -4,7 +4,7 @@ Only the current phase belongs here. Future phases live in `ROADMAP.md` until ac
 
 ## Phase 0 — Repository & Governance
 
-**Status:** Ready to begin
+**Status:** Completed
 
 ### Goal
 Create the official repository structure and project operating rules.
@@ -26,14 +26,14 @@ Create the official repository structure and project operating rules.
 None.
 
 ### Tasks
-- [ ] Create repository structure
-- [ ] Finalize source-of-truth documents
-- [ ] Finalize agent protocol
-- [ ] Add MIT license with owner placeholder
-- [ ] Add README
-- [ ] Add contribution/design proposal guidance
-- [ ] Add GitHub templates
-- [ ] Add initial CI placeholder strategy
+- [x] Create repository structure
+- [x] Finalize source-of-truth documents
+- [x] Finalize agent protocol
+- [x] Add MIT license with owner placeholder
+- [x] Add README
+- [x] Add contribution/design proposal guidance
+- [x] Add GitHub templates
+- [x] Add initial CI placeholder strategy
 
 ### Acceptance Criteria
 A fresh clone clearly explains what BASEUS is, how it should look and behave, what is forbidden, how decisions are made, and how an agent should operate.

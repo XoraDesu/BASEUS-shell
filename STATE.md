@@ -1,13 +1,13 @@
 # BASEUS — Project State
 
 ## Current Phase
-Phase 0 — Repository & Governance
+Phase 0 — Repository & Governance (Completed — Exit gate passed)
 
 ## Project Status
-Fresh-start planning baseline. Previous implementation is not the product baseline.
+Phase 0 governance and source-of-truth baseline established and frozen (CP-0001).
 
 ## Current Objective
-Finalize and freeze the project source of truth and agent governance before implementation begins.
+Phase 0 exit criteria met. Awaiting owner direction to activate Phase 1 (Quickshell Runtime).
 
 ## Confirmed Product Principles
 - Wabi-sabi
@@ -35,12 +35,11 @@ Finalize and freeze the project source of truth and agent governance before impl
 - Hard phase boundaries accepted
 
 ## Implementation Status
-No implementation is considered the fresh-start baseline yet.
+No implementation is considered the fresh-start baseline yet. Phase 0 repository baseline established.
 
 ## Known Open Items
-- Copyright holder/name for MIT LICENSE
-- Exact implementation details that should remain agent-owned until their phase
-- Final CI choices
+- Final CI choices and expansion as implementation begins
+- Phase 1 Quickshell runtime scaffolding
 
 ## Next Action
-Complete Phase 0 repository and agent protocol, then begin Phase 1 only after Phase 0 exit gate passes.
+Phase boundary reached. Awaiting owner direction to activate Phase 1 (Quickshell Runtime).
