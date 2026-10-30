@@ -9,6 +9,7 @@ import Quickshell.Io
 import QtQuick
 import "core" as Core
 import "theme" as ThemeModule
+import "desktop" as DesktopModule
 
 Item {
     id: shell
@@ -126,6 +127,17 @@ Item {
         bridge: shell.activeBridge
     }
 
+    // 11. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    DesktopModule.DesktopHost {
+        id: _desktopHost
+        logger: _logger
+        eventBus: _eventBus
+        shellState: _shellState
+        monitorModel: _monitorModel
+        theme: _theme
+        enabled: _lifecycle.initialized
+    }
+
     // Diagnostic-only action counter (see registerDiagnosticAction IPC).
     property int _diagnosticActionRuns: 0
 
@@ -145,6 +157,7 @@ Item {
     readonly property alias mockBridge: _mockBridge
     readonly property alias navigationController: _navigationController
     readonly property alias actionRegistry: _actionRegistry
+    readonly property alias desktopHost: _desktopHost
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -182,6 +195,11 @@ Item {
                 windowCount: _windowModel.windows.length,
                 minimizedWindowCount: _windowModel.getMinimizedWindows().length,
                 focusedWindow: _windowModel.focusedAddress,
+                desktopHost: {
+                    enabled: _desktopHost.enabled,
+                    surfaceCount: _desktopHost.surfaceCount,
+                    surfaces: _desktopHost.getSurfaceSnapshot()
+                },
                 subscriptions: {
                     monitor: _eventBus.getSubscriptionCount("monitor"),
                     workspace: _eventBus.getSubscriptionCount("workspace"),
@@ -460,6 +478,15 @@ Item {
             res.actionCount = _actionRegistry.actionCount
             return JSON.stringify(res)
         }
+
+        // Returns current active Layer-Shell desktop surfaces (M1-T4)
+        function desktopSurfaces(): string {
+            return JSON.stringify({
+                enabled: _desktopHost.enabled,
+                surfaceCount: _desktopHost.surfaceCount,
+                surfaces: _desktopHost.getSurfaceSnapshot()
+            })
+        }
     }
 
     function _executeActionWithState(id, payload) {
@@ -491,9 +518,12 @@ Item {
         } else {
             _liveBridge.initialize()
         }
+
+        _desktopHost.initialize()
     }
 
     function _teardownSubsystems() {
+        _desktopHost.teardown()
         _actionRegistry.teardown()
         _mockBridge.teardown()
         _liveBridge.teardown()

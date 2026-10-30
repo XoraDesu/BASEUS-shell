@@ -187,10 +187,10 @@ M1-T6 (M1 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint CP-M1-001)
 
 ### Sub-tasks
 
-- [ ] Implement `src/surfaces/DesktopHost.qml` using Quickshell `Variants` over `Quickshell.screens` and `Quickshell.Wayland` `PanelWindow` (`WlrLayershell`), mapping each `ShellScreen` (`name`) to `MonitorModel` monitor index.
-- [ ] Enforce non-intrusive idle behavior (transparent background, pass-through input mask for empty regions, zero polling/timers when idle per `AGENTS.md` §21) and per-monitor native fullscreen recession (`DESIGN.md` §14).
-- [ ] Integrate `DesktopHost` cleanly into `src/Shell.qml` with headful/headless gating and deterministic lifecycle cleanup.
-- [ ] Validate `qmllint 6.12.0` (0 warnings) and live multi-output Layer-Shell mapping inside `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`).
+- [x] Implement `src/desktop/DesktopHost.qml` using Quickshell `Variants` over `Quickshell.screens` and `Quickshell.Wayland` `WlrLayershell`, mapping each `ShellScreen` (`name`) to `MonitorModel` monitor index.
+- [x] Enforce non-intrusive idle behavior (transparent background, pass-through input mask for empty regions, zero polling/timers when idle per `AGENTS.md` §21) and per-monitor native fullscreen recession (`DESIGN.md` §14).
+- [x] Integrate `DesktopHost` cleanly into `src/Shell.qml` with headful/headless gating and deterministic lifecycle cleanup.
+- [x] Validate `qmllint 6.12.0` (0 warnings) and live multi-output Layer-Shell mapping inside `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`).
 
 ---
 
@@ -273,4 +273,5 @@ The agent must **STOP**:
   - `M1-T1` (Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset — `VERIFIED`)
   - `M1-T2` (Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore — `VERIFIED`)
   - `M1-T3` (Action Registry & Desktop Navigation Primitives: `Back` / `Home` / `Overview` — `VERIFIED`)
-- **Next Executable Task:** `M1-T4` (Per-Monitor Layer-Shell Desktop Scaffolding: `DesktopHost`)
+  - `M1-T4` (Per-Monitor Layer-Shell Desktop Scaffolding: `DesktopHost` — `VERIFIED`)
+- **Next Executable Task:** `M1-T5` (Contextual Workspace Indicator & Minimal Top Island Idle Anchor)
