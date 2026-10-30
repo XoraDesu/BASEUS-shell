@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Shell Lifecycle Management
 // Copyright (c) 2026 xoradesu — MIT License
 //

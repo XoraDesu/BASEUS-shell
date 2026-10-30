@@ -39,7 +39,15 @@ Default configuration: `config/baseus.json` (in the project)
             "actionPrefix": ">"
         },
         "workspaces": {
-            "labels": {}
+            "labels": {
+                "1": "HOME",
+                "2": "DEV",
+                "7": "MEDIA"
+            },
+            "tags": {
+                "1": "01",
+                "2": "CODE"
+            }
         },
         "performance": {
             "reducedMotion": false,
@@ -110,4 +118,17 @@ BASEUS should never fail to start due to a configuration error.
 | `notifications.position` | `"top-left"` | string | Notification placement |
 | `performance.reducedMotion` | `false` | bool | Reduce animation for accessibility |
 | `performance.animationDuration` | `250` | 0–2000 ms | Default animation duration |
-| `simulation.enabled` | `false` | bool | Use `MockHyprlandBridge` for offline simulation |
+| `workspaces.labels` | `{}` | key-value map (`1..10` → string) | User-defined workspace names (e.g. `{"1": "HOME", "2": "DEV"}`) |
+| `workspaces.tags` | `{}` | key-value map (`1..10` → string) | Compact alphanumeric indicators (e.g. `{"1": "01", "2": "CODE"}`) |
+
+> [!IMPORTANT]
+> BASEUS strictly enforces a fixed 10-workspace model (`DEC-010`). Any attempt to set `workspaces.count` in configuration is rejected and logged with a warning.
+
+---
+
+## Hyprland Configuration Presets (`config/hypr/`)
+
+BASEUS provides authoritative compositor presets matching the desktop core architecture:
+
+- **`config/hypr/baseus-desktop.lua`**: Modern Lua configuration preset for Hyprland `0.57.0+`. Configures 25 keybinds (22 workspace/window binds + `Super+Escape` Back, `Super+D` Home, `Super+Tab` Overview via Quickshell IPC), 4-finger horizontal workspace gestures (`hl.gesture`), non-wrapping workspace transitions with `fade` context animation (`MASTER.md` §7), default freeform floating + centered window placement (`DEC-008`), `baseus-minimized-hidden` rule suppressing minimized windows without scratchpads (`DEC-038`), and 1px solid tonal borders without blur or neon glow (`DESIGN.md` §34).
+- **`config/hypr/baseus-desktop.conf`**: Hyprlang reference preset maintained for compatibility and cross-version audit.

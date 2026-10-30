@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Inverse Corner Radius (ICR) Component
 // Copyright (c) 2026 xoradesu — MIT License
 //

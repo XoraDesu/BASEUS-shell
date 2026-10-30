@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Spacing Tokens
 // Copyright (c) 2026 xoradesu — MIT License
 //

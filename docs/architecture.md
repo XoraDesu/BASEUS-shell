@@ -56,9 +56,22 @@ Root composition. Instantiates all foundation singletons in dependency order:
 6. **HyprlandBridge / MockHyprlandBridge** — Hyprland integration boundary with offline simulation support (depends on Logger, EventBus, ShellState)
 7. **MonitorModel** — monitor tracking (depends on Logger, EventBus)
 8. **WorkspaceModel** — workspace tracking (depends on Logger, EventBus)
-9. **WindowModel** — window tracking (depends on Logger, EventBus)
-10. **Theme** — unified design tokens (Colors, Typography, Spacing, Geometry, Motion)
-11. **Diagnostic IPC (`IpcHandler`)** — Quickshell IPC target `baseus` (`status`, `restart`, `switchWorkspace`) for runtime inspection and lifecycle testing
+9. **WindowModel** — freeform window tracking (depends on Logger, EventBus)
+10. **ActionRegistry** (`src/core/ActionRegistry.qml`) — Discover → Customize → Execute action boundary (`DEC-028`)
+11. **NavigationController** (`src/core/NavigationController.qml`) — `Back` / `Home` / `Overview` navigation primitives (`DEC-024`)
+12. **Theme** — unified design tokens (Colors, Typography, Spacing, Geometry, Motion)
+13. **DesktopHost** (`src/desktop/DesktopHost.qml`) — per-monitor layer-shell scaffolding hosting `TopIslandAnchor` and `WorkspaceIndicator`
+14. **Diagnostic IPC (`IpcHandler`)** — Quickshell IPC target `baseus` exposing diagnostic and automation endpoints (`status`, `restart`, `switchWorkspace`, `switchMonitorWorkspace`, `nextWorkspace`, `previousWorkspace`, `workspaces`, `windows`, `focusWindow`, `closeWindow`, `centerWindow`, `moveWindow`, `resizeWindow`, `toggleFloating`, `toggleMaximize`, `toggleFullscreen`, `minimizeWindow`, `restoreWindow`, `moveWindowToWorkspace`, `moveWindowToMonitor`, `listActions`, `getAction`, `shortcutOwners`, `executeAction`, `executeActionWithPayload`, `desktopSurfaces`, `triggerWorkspaceIndicator`, `setWorkspaceLabel`)
+
+---
+
+## Desktop Surfaces Architecture (`src/desktop/`)
+
+BASEUS introduces desktop visual surfaces following the **Capability → Surface** pattern (`DEC-045`):
+
+- **DesktopHost (`DesktopHost.qml`)**: Multi-monitor Wayland layer-shell host scaffolding using Quickshell `Variants` over `Quickshell.screens` and `WlrLayershell.layer: Top`. It anchors across screen bounds, maintains transparent background geometry, and constrains the layer-shell input region strictly to interactive surface bodies (`mask: Region { item: topIsland.anchorItem }`), guaranteeing 100% click-through for idle desktop space.
+- **TopIslandAnchor (`TopIslandAnchor.qml`)**: Edge-integrated top-center solid Wabi-sabi idle anchor (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets. Displays a quiet typographic clock updated on minute boundaries without polling, and recedes (`visible: false`) during per-monitor native application fullscreen (`DESIGN.md` §14).
+- **WorkspaceIndicator (`WorkspaceIndicator.qml`)**: Contextual workspace HUD triggered on workspace switch events, auto-hiding after ~2000ms (`DEC-029`). Employs hierarchical scaling (*"Focus grows. Context recedes."*), morphs into a compact labeled pill (`2 — WEB`) when user labels exist, updates/resets in place without animation stacking during rapid switches, and suppresses initial compositor startup discovery bursts.
 
 ---
 

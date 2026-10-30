@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Hyprland Integration Bridge
 // Copyright (c) 2026 xoradesu — MIT License
 //

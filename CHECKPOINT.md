@@ -404,6 +404,93 @@ This checkpoint represents the conceptual/documentation baseline from which the 
 
 ---
 
+# 15. M1 Desktop Core Checkpoint
+
+## CP-M1-001 — Desktop Core Baseline
+
+**Status:** VERIFIED (Static `qmllint 6.12.0` across 25 QML files, zero ANTI-SLOP violations, Quickshell 0.3.2 Runtime, and Live Hyprland 0.57.0 Dual-Monitor Compositor E2E Verified on WSL2 Arch Linux)  
+**Date:** 2026-10-30  
+**Phase:** M1 — Desktop Core  
+**Scope:** Fixed 10-workspace per-monitor capability (`DEC-010`), freeform floating/centering window lifecycle (`DEC-008`), geometric maximize vs native fullscreen recession (`DEC-023`), scratchpad-free minimization offscreen parking and centered cross-monitor restore (`DEC-038`), POP workspace/monitor hooks (`MASTER.md` §35), Action Registry (`DEC-028`) with 22 core actions, universal navigation primitives (`Back`, `Home`, `Overview` per `DEC-024`), multi-monitor `DesktopHost` layer-shell scaffolding, edge-integrated `TopIslandAnchor` with `InverseCorner` organic fillets and minute-aligned idle clock (`DESIGN.md` §9, §10, §14), transient contextual `WorkspaceIndicator` HUD with hierarchical scaling and labeled pill morphing (`DEC-029`), zero-process `.socket.sock` FIFO request pipeline, and authoritative `config/hypr/baseus-desktop.lua` preset.
+
+### Repository
+
+- **Commit:** `dd85f4b8b9f3870e80748626d30bb9e30ff9dcc5` (`feat(m1): complete M1-T6 e2e validation, anti-slop audit, and checkpoint CP-M1-001`)
+- **Branch:** `main`
+- **Working tree:** Implementation files present (`shell.qml`, `src/`, `config/`, `docs/`, `scripts/`)
+- **Repository structure:** Matches `MASTER.md` §59 and `TASKS.md` §7
+
+### Environment
+
+- **Host OS:** Windows with WSL2 Linux runtime (`/mnt/d/Linux/BASEUS`)
+- **Linux Distribution & Kernel:** `Arch Linux` on WSL2 (`Linux 6.18.54.1-microsoft-standard-WSL2`)
+- **Display Connection:** WSLg Wayland (`WAYLAND_DISPLAY=wayland-0`) and nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128` → live Hyprland child `WAYLAND_DISPLAY=wayland-1`)
+- **Shell Runtime:** `Quickshell 0.3.2` (`quickshell-git`, rev `9b0f339b19057f4731bf3b48293307d7ef241671`)
+- **Qt / QML Tooling:** Qt 6 (`qmllint 6.12.0` at `/usr/lib/qt6/bin/qmllint`)
+- **Live Compositor:** `Hyprland 0.57.0` (commit `0aa6745f705f2c4b0a5004eb019ef76e5bbdb426`, `Aquamarine 0.15.1`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`, Lua config manager `Hyprland.usingLua == true`, dual headless outputs `VIRTUAL-1` and `VIRTUAL-2`)
+
+### Implementation
+
+- **Workspace Capability (`WorkspaceModel.qml` & `HyprlandBridge.qml`)**:
+  - Exactly 10 workspaces enforced (`DEC-010`); out-of-range bounds clamped; `workspaces.count` overrides in config rejected.
+  - Per-monitor independent active and previous workspaces (`activeWorkspaces`, `previousWorkspaces`).
+  - Optional user-defined workspace `labels` and `tags` loaded from config or set via IPC.
+  - Hotplug removal of monitors cleanly reconciles active/previous workspace tracking.
+- **Freeform Window Capability (`WindowModel.qml` & `HyprlandBridge.qml`)**:
+  - Newly mapped Wayland client windows open floating and centered by default (`DEC-008`).
+  - Live window geometry tracking (`x`, `y`, `width`, `height`) and MRU `focusHistory`.
+  - Geometric maximize preserves `16px` layout margins (`+baseus_maximized`) while keeping shell mode `"desktop"` (`DEC-023`).
+  - Native compositor fullscreen toggles shell mode to `"fullscreen"` and scopes fullscreen state per monitor (`DEC-023`).
+  - Scratchpad-free minimize parks windows offscreen (`[-16000, -16000]`) on normal workspaces tagged `+baseus_minimized`, handoffs focus to MRU visible window, and survives shell restart (`DEC-038`).
+  - Centered restore repositions windows to the exact geometric center of the target monitor (`MASTER.md` §36).
+  - POP workspace/monitor moves (`moveWindowToWorkspace`, `moveWindowToMonitor`) preserve focus semantics (`MASTER.md` §35).
+- **Action Registry & Navigation Primitives (`ActionRegistry.qml` & `NavigationController.qml`)**:
+  - Declarative action schema (`id`, `category`, `title`, `description`, `defaultShortcut`, `isEnabled`, `callback`).
+  - 22 core actions registered across `navigation` (3), `workspace` (12), and `window` (7).
+  - Navigation primitives: `Home` (navigates active monitor to Workspace 1), `Back` (dismisses overlay, or navigates to previous workspace, or toggles previous window focus via MRU history), `Overview` (toggles overview mode, mutually exclusive with native fullscreen).
+- **DesktopHost Layer Scaffolding (`DesktopHost.qml`)**:
+  - Multi-monitor Quickshell `Variants` over `Quickshell.screens` with `WlrLayershell.layer: Top`.
+  - Layer-shell input region strictly constrained to interactive surface bodies (`mask: Region { item: topIsland.anchorItem }`), keeping idle desktop space 100% click-through.
+  - Per-monitor native application fullscreen recession (`visible: false` on fullscreen monitor, remaining visible on non-fullscreen monitor).
+- **Contextual Surfaces (`TopIslandAnchor.qml` & `WorkspaceIndicator.qml`)**:
+  - `TopIslandAnchor`: Edge-integrated solid Wabi-sabi anchor with `InverseCorner` (`ICR`) organic fillets, displaying minute-aligned typographic clock without high-frequency polling.
+  - `WorkspaceIndicator`: Transient workspace HUD (~2000ms auto-hide), hierarchical scaling (*"Focus grows. Context recedes."*), morphs to compact labeled pill (`2 — WEB`), resets in place during rapid switches without animation stacking.
+- **Design Token Discipline & Anti-Slop**:
+  - All 25 QML files enforce `pragma ComponentBehavior: Bound`.
+  - Strict 4-color palette tokens (`dominant`, `secondary`, `accent`, `neutral`) per `DEC-011`.
+  - Zero hardcoded hex colors, zero glassmorphism, zero blur filters, zero glow/neon drop shadows.
+- **Compositor Presets**:
+  - `config/hypr/baseus-desktop.lua` loaded with 0 config errors; 25 keybinds; default floating window rules; 4-finger gestures.
+
+### Validation
+
+| Area | Status | Evidence |
+|---|---|---|
+| Anti-Slop & Visual Architecture | VERIFIED | `scratch/audit_m1_anti_slop.py` scanned all 25 QML files: 0 violations, zero hardcoded hex colors, zero blur/glass/shadows, 100% `pragma ComponentBehavior: Bound` |
+| QML Static & Type Linting | VERIFIED | `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` 6.12.0) and `scripts/validate.ps1 -All` passed with 0 errors and 0 warnings across all 25 QML files |
+| Configuration Validation | VERIFIED | `config/baseus.json` validated JSON; layered loading, labels/tags, `DEC-010` rejection verified |
+| Hyprland Configuration Preset | VERIFIED | `Hyprland 0.57.0 -c config/hypr/baseus-desktop.lua` booted with 0 config errors (`hyprctl -j configerrors` == `[""]`) |
+| Offline Simulation Suite | VERIFIED | `verify_m1_t1.py` through `verify_m1_t5.py` Phase A tests passed 100% with `BASEUS_SIMULATION=1` |
+| Multi-Monitor Workspace Navigation | VERIFIED | Live dual-monitor (`VIRTUAL-1`, `VIRTUAL-2`) independent switching, boundary clamping (1..10), HUD containment verified |
+| Freeform Window Lifecycle | VERIFIED | Live Wayland client windows verified centered floating spawn (760, 390, 400, 300), geometric maximize boundary (16, 16, 1888, 1048), unmaximize restore |
+| Per-Monitor Fullscreen Recession | VERIFIED | Live native fullscreen on Mon 1 causes only Mon 1 surface to recede (`visible: false`), while Mon 0 remains visible (`visible: true`), and vice-versa |
+| Minimize & Centered Restore | VERIFIED | Scratchpad-free minimize offscreen parking on normal workspaces (`DEC-038`) and cross-monitor centered restore onto Mon 1 ws 6 verified live |
+| Navigation Primitives | VERIFIED | Live execution of `navigation.home`, `navigation.back`, and `navigation.overview` verified |
+| Contextual Surfaces & Auto-Hide | VERIFIED | `TopIslandAnchor` minute clock and `WorkspaceIndicator` 2000ms auto-hide and labeled pill morph verified live |
+| Lifecycle & Restart Stability | VERIFIED | `quickshell ipc call baseus restart` cleanly recovers 2 surfaces and preserves stable subscriptions (`monitor: 3, workspace: 2, window: 2, theme: 1`) |
+| Comprehensive E2E Test Suite | VERIFIED | `scratch/verify_m1_e2e.py` executed all Steps A through G against live dual-monitor Hyprland 0.57.0 with 100% PASS |
+
+### Known Limitations
+
+- **WSL2 virtual scanout:** Physical multi-monitor DRM master hardware scanout, physical 4-finger touchpad gestures, and hardware GPU performance benchmarks require bare-metal Linux.
+- **WSL2 `quickshell-git` daemon teardown quirk:** Daemon termination under WSL2 can park in `futex_do_wait` after clean destruction; handled cleanly by test harnesses.
+
+### Recovery / Resume Meaning
+
+`CP-M1-001` is the authoritative, verified **M1 — Desktop Core** baseline. From this checkpoint, the repository safely transitions to **M2 — Primary Surfaces** (Dock, App Drawer, Top Island interactive menus).
+
+---
+
 # 15. Recovery Principle
 
 A checkpoint is useful only if it can be returned to or reconstructed.
@@ -724,6 +811,7 @@ If any critical answer is no, keep the checkpoint as `CANDIDATE` or fix the reco
 |---|---|---|
 | `CP-000` | VERIFIED | Documentation baseline |
 | `CP-M0-001` | VERIFIED | M0 Foundation (static `qmllint 6.12.0`, `Quickshell 0.3.2` runtime, and live `Hyprland 0.57.0` compositor IPC verified on WSL2 Arch Linux) |
+| `CP-M1-001` | VERIFIED | M1 Desktop Core (fixed 10 workspaces, per-monitor navigation, freeform floating/centering, maximize vs native fullscreen, scratchpad-free minimize & restore, Action Registry, navigation primitives, DesktopHost layer scaffolding, TopIslandAnchor with ICR, contextual WorkspaceIndicator HUD, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
 
 This index should grow as verified states are created.
 

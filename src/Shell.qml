@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Root Shell Component
 // Copyright (c) 2026 xoradesu — MIT License
 //

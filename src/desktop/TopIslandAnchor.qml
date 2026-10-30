@@ -20,6 +20,8 @@ Item {
     // Dependencies & Configuration
     // =========================================================
     property var theme: null
+    readonly property ThemeModule.Theme defaultTheme: ThemeModule.Theme {}
+    readonly property ThemeModule.Theme currentTheme: topIslandAnchor.theme ? topIslandAnchor.theme : topIslandAnchor.defaultTheme
     property bool isFullscreen: false
 
     // Dimensions
@@ -36,7 +38,7 @@ Item {
     anchors.top: parent ? parent.top : undefined
     anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
     height: islandHeight
-    width: islandBody.width + (theme ? (theme.geometry.islandIcr * 2) : 24)
+    width: islandBody.width + (topIslandAnchor.currentTheme.geometry.islandIcr * 2)
 
     // Fullscreen recession (DESIGN.md §14)
     opacity: topIslandAnchor.isFullscreen ? 0.0 : 1.0
@@ -44,7 +46,7 @@ Item {
 
     Behavior on opacity {
         NumberAnimation {
-            duration: topIslandAnchor.theme ? (topIslandAnchor.theme.motion.reducedMotion ? 0 : topIslandAnchor.theme.motion.durationNormal) : 200
+            duration: topIslandAnchor.currentTheme.motion.reducedMotion ? 0 : topIslandAnchor.currentTheme.motion.durationNormal
             easing.type: Easing.OutCubic
         }
     }
@@ -56,8 +58,8 @@ Item {
         id: leftIcr
         anchors.right: islandBody.left
         anchors.top: islandBody.top
-        cornerRadius: topIslandAnchor.theme ? topIslandAnchor.theme.geometry.islandIcr : 12
-        fillColor: topIslandAnchor.theme ? topIslandAnchor.theme.colors.surfaceSolid : "#1f2335"
+        cornerRadius: topIslandAnchor.currentTheme.geometry.islandIcr
+        fillColor: topIslandAnchor.currentTheme.colors.surfaceSolid
         position: "top-left"
     }
 
@@ -71,27 +73,27 @@ Item {
         height: topIslandAnchor.islandHeight
         width: Math.max(clockLabel.width + 36, topIslandAnchor.minIslandWidth)
 
-        color: topIslandAnchor.theme ? topIslandAnchor.theme.colors.surfaceSolid : "#1f2335"
+        color: topIslandAnchor.currentTheme.colors.surfaceSolid
 
         // Edge integration: flush top corners (0), rounded bottom corners (12)
-        topLeftRadius: topIslandAnchor.theme ? topIslandAnchor.theme.geometry.islandRadiusTop : 0
-        topRightRadius: topIslandAnchor.theme ? topIslandAnchor.theme.geometry.islandRadiusTop : 0
-        bottomLeftRadius: topIslandAnchor.theme ? topIslandAnchor.theme.geometry.islandRadiusBottom : 12
-        bottomRightRadius: topIslandAnchor.theme ? topIslandAnchor.theme.geometry.islandRadiusBottom : 12
+        topLeftRadius: topIslandAnchor.currentTheme.geometry.islandRadiusTop
+        topRightRadius: topIslandAnchor.currentTheme.geometry.islandRadiusTop
+        bottomLeftRadius: topIslandAnchor.currentTheme.geometry.islandRadiusBottom
+        bottomRightRadius: topIslandAnchor.currentTheme.geometry.islandRadiusBottom
 
         // Hairline boundary (no neon glow)
-        border.width: topIslandAnchor.theme ? topIslandAnchor.theme.geometry.borderWidth : 1
-        border.color: topIslandAnchor.theme ? topIslandAnchor.theme.colors.borderSubtle : "#292e42"
+        border.width: topIslandAnchor.currentTheme.geometry.borderWidth
+        border.color: topIslandAnchor.currentTheme.colors.borderSubtle
 
         // Typographic idle clock (monospace, calm tonal contrast)
         Text {
             id: clockLabel
             anchors.centerIn: parent
             text: topIslandAnchor._timeText
-            font.family: topIslandAnchor.theme ? topIslandAnchor.theme.typography.fontFamilyMono : "monospace"
-            font.pixelSize: topIslandAnchor.theme ? topIslandAnchor.theme.typography.sizeCaption : 11
+            font.family: topIslandAnchor.currentTheme.typography.fontFamilyMono
+            font.pixelSize: topIslandAnchor.currentTheme.typography.sizeCaption
             font.weight: Font.Medium
-            color: topIslandAnchor.theme ? topIslandAnchor.theme.colors.textPrimary : "#c0caf5"
+            color: topIslandAnchor.currentTheme.colors.textPrimary
         }
     }
 
@@ -102,8 +104,8 @@ Item {
         id: rightIcr
         anchors.left: islandBody.right
         anchors.top: islandBody.top
-        cornerRadius: topIslandAnchor.theme ? topIslandAnchor.theme.geometry.islandIcr : 12
-        fillColor: topIslandAnchor.theme ? topIslandAnchor.theme.colors.surfaceSolid : "#1f2335"
+        cornerRadius: topIslandAnchor.currentTheme.geometry.islandIcr
+        fillColor: topIslandAnchor.currentTheme.colors.surfaceSolid
         position: "top-right"
     }
 

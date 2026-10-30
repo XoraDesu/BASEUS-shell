@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Design System Theme Root
 // Copyright (c) 2026 xoradesu — MIT License
 //

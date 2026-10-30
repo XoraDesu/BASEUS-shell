@@ -219,10 +219,10 @@ M1-T6 (M1 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint CP-M1-001)
 
 ### Sub-tasks
 
-- [ ] Run comprehensive live `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` end-to-end verification covering 10-workspace per-monitor switching, freeform window floating/centering, maximize vs native fullscreen recession, minimize + centered restore, `Back`/`Home`/`Overview` navigation primitives, `WorkspaceIndicator` & `TopIslandAnchor` behavior, and repeated shell restarts.
-- [ ] Perform formal `DESIGN.md` §45 and `ANTI-SLOP.md` audit across all M1 surfaces and configurations.
-- [ ] Update `docs/architecture.md` and `docs/configuration.md` to document M1 capabilities and `config/hypr/` presets accurately.
-- [ ] Update `STATE.md`, record verified checkpoint `CP-M1-001` in `CHECKPOINT.md`, report concisely, and **STOP** before M2 (`DEC-042`, `AGENTS.md` §48).
+- [x] Run comprehensive live `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` end-to-end verification covering 10-workspace per-monitor switching, freeform window floating/centering, maximize vs native fullscreen recession, minimize + centered restore, `Back`/`Home`/`Overview` navigation primitives, `WorkspaceIndicator` & `TopIslandAnchor` behavior, and repeated shell restarts.
+- [x] Perform formal `DESIGN.md` §45 and `ANTI-SLOP.md` audit across all M1 surfaces and configurations.
+- [x] Update `docs/architecture.md` and `docs/configuration.md` to document M1 capabilities and `config/hypr/` presets accurately.
+- [x] Update `STATE.md`, record verified checkpoint `CP-M1-001` in `CHECKPOINT.md`, report concisely, and **STOP** before M2 (`DEC-042`, `AGENTS.md` §48).
 
 ---
 
@@ -275,4 +275,6 @@ The agent must **STOP**:
   - `M1-T3` (Action Registry & Desktop Navigation Primitives: `Back` / `Home` / `Overview` — `VERIFIED`)
   - `M1-T4` (Per-Monitor Layer-Shell Desktop Scaffolding: `DesktopHost` — `VERIFIED`)
   - `M1-T5` (Contextual Workspace Indicator & Minimal Top Island Idle Anchor — `VERIFIED`)
-- **Next Executable Task:** `M1-T6` (M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`)
+  - `M1-T6` (M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001` — `VERIFIED`)
+- **Milestone M1 Status:** `100% COMPLETE & VERIFIED` (`CP-M1-001`)
+- **Next Executable Task:** `M2 Kickoff` (Milestone Gate M1 → M2 — awaiting user authorization per `AGENTS.md` §48)

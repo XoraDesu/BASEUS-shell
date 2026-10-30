@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Color Tokens & Palette System
 // Copyright (c) 2026 xoradesu — MIT License
 //

@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Central Shell State
 // Copyright (c) 2026 xoradesu — MIT License
 //

@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Window Model
 // Copyright (c) 2026 xoradesu — MIT License
 //

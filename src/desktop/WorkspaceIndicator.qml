@@ -12,6 +12,7 @@
 
 pragma ComponentBehavior: Bound
 import QtQuick
+import "../theme" as ThemeModule
 
 Item {
     id: workspaceIndicator
@@ -20,6 +21,8 @@ Item {
     // Dependencies & Configuration
     // =========================================================
     property var theme: null
+    readonly property ThemeModule.Theme defaultTheme: ThemeModule.Theme {}
+    readonly property ThemeModule.Theme currentTheme: workspaceIndicator.theme ? workspaceIndicator.theme : workspaceIndicator.defaultTheme
     property var workspaceModel: null
     property int monitorIndex: 0
 
@@ -42,14 +45,14 @@ Item {
 
     Behavior on opacity {
         NumberAnimation {
-            duration: workspaceIndicator.theme ? (workspaceIndicator.theme.motion.reducedMotion ? 0 : workspaceIndicator.theme.motion.durationNormal) : 200
+            duration: workspaceIndicator.currentTheme.motion.reducedMotion ? 0 : workspaceIndicator.currentTheme.motion.durationNormal
             easing.type: Easing.OutCubic
         }
     }
 
     Behavior on scale {
         NumberAnimation {
-            duration: workspaceIndicator.theme ? (workspaceIndicator.theme.motion.reducedMotion ? 0 : workspaceIndicator.theme.motion.durationNormal) : 200
+            duration: workspaceIndicator.currentTheme.motion.reducedMotion ? 0 : workspaceIndicator.currentTheme.motion.durationNormal
             easing.type: Easing.OutCubic
         }
     }
@@ -143,26 +146,26 @@ Item {
         height: 42
         width: Math.max(contentLayout.width + 36, 76)
 
-        color: workspaceIndicator.theme ? workspaceIndicator.theme.colors.surfaceSolid : "#1f2335"
+        color: workspaceIndicator.currentTheme.colors.surfaceSolid
 
         // Morphing radius: pill when label exists, large rounded rect otherwise
         radius: (workspaceIndicator.workspaceLabel !== "")
-            ? (workspaceIndicator.theme ? workspaceIndicator.theme.geometry.radiusPill : 9999)
-            : (workspaceIndicator.theme ? workspaceIndicator.theme.geometry.radiusLarge : 12)
+            ? workspaceIndicator.currentTheme.geometry.radiusPill
+            : workspaceIndicator.currentTheme.geometry.radiusLarge
 
-        border.width: workspaceIndicator.theme ? workspaceIndicator.theme.geometry.borderWidth : 1
-        border.color: workspaceIndicator.theme ? workspaceIndicator.theme.colors.borderSubtle : "#292e42"
+        border.width: workspaceIndicator.currentTheme.geometry.borderWidth
+        border.color: workspaceIndicator.currentTheme.colors.borderSubtle
 
         Behavior on width {
             NumberAnimation {
-                duration: workspaceIndicator.theme ? (workspaceIndicator.theme.motion.reducedMotion ? 0 : workspaceIndicator.theme.motion.durationFast) : 120
+                duration: workspaceIndicator.currentTheme.motion.reducedMotion ? 0 : workspaceIndicator.currentTheme.motion.durationFast
                 easing.type: Easing.OutCubic
             }
         }
 
         Behavior on radius {
             NumberAnimation {
-                duration: workspaceIndicator.theme ? (workspaceIndicator.theme.motion.reducedMotion ? 0 : workspaceIndicator.theme.motion.durationFast) : 120
+                duration: workspaceIndicator.currentTheme.motion.reducedMotion ? 0 : workspaceIndicator.currentTheme.motion.durationFast
             }
         }
 
@@ -172,21 +175,21 @@ Item {
         Row {
             id: contentLayout
             anchors.centerIn: parent
-            spacing: workspaceIndicator.theme ? workspaceIndicator.theme.spacing.sm : 8
+            spacing: workspaceIndicator.currentTheme.spacing.sm
 
             // Mode A: Contextual Label Present ("2 — WEB")
             Row {
                 id: labeledMode
                 visible: workspaceIndicator.workspaceLabel !== ""
-                spacing: workspaceIndicator.theme ? workspaceIndicator.theme.spacing.xs : 4
+                spacing: workspaceIndicator.currentTheme.spacing.xs
                 anchors.verticalCenter: parent.verticalCenter
 
                 Text {
                     text: workspaceIndicator.currentWorkspace + " — " + workspaceIndicator.workspaceLabel
-                    font.family: workspaceIndicator.theme ? workspaceIndicator.theme.typography.fontFamilyMono : "monospace"
-                    font.pixelSize: workspaceIndicator.theme ? workspaceIndicator.theme.typography.sizeTitle : 14
+                    font.family: workspaceIndicator.currentTheme.typography.fontFamilyMono
+                    font.pixelSize: workspaceIndicator.currentTheme.typography.sizeTitle
                     font.weight: Font.Bold
-                    color: workspaceIndicator.theme ? workspaceIndicator.theme.colors.dominant : "#7aa2f7"
+                    color: workspaceIndicator.currentTheme.colors.dominant
                 }
             }
 
@@ -194,7 +197,7 @@ Item {
             Row {
                 id: scalingMode
                 visible: workspaceIndicator.workspaceLabel === ""
-                spacing: workspaceIndicator.theme ? workspaceIndicator.theme.spacing.md : 12
+                spacing: workspaceIndicator.currentTheme.spacing.md
                 anchors.verticalCenter: parent.verticalCenter
 
                 // Previous workspace (receding context)
@@ -209,10 +212,10 @@ Item {
                         id: prevLabel
                         anchors.centerIn: parent
                         text: String(workspaceIndicator.previousWorkspace)
-                        font.family: workspaceIndicator.theme ? workspaceIndicator.theme.typography.fontFamilyMono : "monospace"
-                        font.pixelSize: workspaceIndicator.theme ? workspaceIndicator.theme.typography.sizeBody : 13
+                        font.family: workspaceIndicator.currentTheme.typography.fontFamilyMono
+                        font.pixelSize: workspaceIndicator.currentTheme.typography.sizeBody
                         font.weight: Font.Normal
-                        color: workspaceIndicator.theme ? workspaceIndicator.theme.colors.textMuted : "#565f89"
+                        color: workspaceIndicator.currentTheme.colors.textMuted
                         scale: 0.85
                         opacity: 0.5
                     }
@@ -224,9 +227,9 @@ Item {
                     visible: workspaceIndicator.previousWorkspace !== workspaceIndicator.currentWorkspace
                     anchors.verticalCenter: parent.verticalCenter
                     text: "→"
-                    font.family: workspaceIndicator.theme ? workspaceIndicator.theme.typography.fontFamilyMono : "monospace"
-                    font.pixelSize: workspaceIndicator.theme ? workspaceIndicator.theme.typography.sizeCaption : 11
-                    color: workspaceIndicator.theme ? workspaceIndicator.theme.colors.textMuted : "#565f89"
+                    font.family: workspaceIndicator.currentTheme.typography.fontFamilyMono
+                    font.pixelSize: workspaceIndicator.currentTheme.typography.sizeCaption
+                    color: workspaceIndicator.currentTheme.colors.textMuted
                 }
 
                 // Current workspace (focused growth)
@@ -235,17 +238,17 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     width: currLabel.width + 16
                     height: 28
-                    radius: workspaceIndicator.theme ? workspaceIndicator.theme.geometry.radiusSmall : 4
-                    color: workspaceIndicator.theme ? workspaceIndicator.theme.colors.surfaceHighlight : "#292e42"
+                    radius: workspaceIndicator.currentTheme.geometry.radiusSmall
+                    color: workspaceIndicator.currentTheme.colors.surfaceHighlight
 
                     Text {
                         id: currLabel
                         anchors.centerIn: parent
                         text: String(workspaceIndicator.currentWorkspace)
-                        font.family: workspaceIndicator.theme ? workspaceIndicator.theme.typography.fontFamilyMono : "monospace"
-                        font.pixelSize: workspaceIndicator.theme ? workspaceIndicator.theme.typography.sizeHeadline : 18
+                        font.family: workspaceIndicator.currentTheme.typography.fontFamilyMono
+                        font.pixelSize: workspaceIndicator.currentTheme.typography.sizeHeadline
                         font.weight: Font.Bold
-                        color: workspaceIndicator.theme ? workspaceIndicator.theme.colors.dominant : "#7aa2f7"
+                        color: workspaceIndicator.currentTheme.colors.dominant
                         scale: 1.05
                     }
                 }

@@ -80,11 +80,11 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Tasks `M1-T1`, `M1-T2`, `M1-T3`, `M1-T4`, and `M1-T5` COMPLETE and VERIFIED; Task `M1-T6` NOT STARTED.**
+**COMPLETE — Milestone M1 (Tasks `M1-T1` through `M1-T6`) 100% COMPLETE and VERIFIED; Anchored at verified checkpoint `CP-M1-001`; STOPPED at M1 → M2 phase gate per `AGENTS.md` §46.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
-Active execution is in **M1 — Desktop Core**. Tasks `M1-T1` (*Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset*, commit `72a2410`), `M1-T2` (*Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore*, commit `d201fa5`), `M1-T3` (*Action Registry & Desktop Navigation Primitives: Back / Home / Overview*, commit `8f970c1`), `M1-T4` (*Per-Monitor Layer-Shell Desktop Scaffolding: DesktopHost*, commit `4fa89ec`), and `M1-T5` (*Contextual Workspace Indicator & Minimal Top Island Idle Anchor*) are implemented, statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 25 QML files), and runtime-verified under both offline simulation (`MockHyprlandBridge`) and a live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` session with real Wayland client windows on WSL2 Arch Linux.
+Active execution in **M1 — Desktop Core** is complete. Tasks `M1-T1` (*Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset*, commit `72a2410`), `M1-T2` (*Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore*, commit `d201fa5`), `M1-T3` (*Action Registry & Desktop Navigation Primitives: Back / Home / Overview*, commit `8f970c1`), `M1-T4` (*Per-Monitor Layer-Shell Desktop Scaffolding: DesktopHost*, commit `4fa89ec`), `M1-T5` (*Contextual Workspace Indicator & Minimal Top Island Idle Anchor*, commit `d6908f2`), and `M1-T6` (*M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M1-001*) are implemented, audited (0 anti-slop violations, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 25 QML files), and runtime-verified under both offline simulation (`MockHyprlandBridge`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux. The M1 milestone is anchored at verified checkpoint `CP-M1-001`.
 
 ---
 
@@ -97,7 +97,7 @@ Active execution is in **M1 — Desktop Core**. Tasks `M1-T1` (*Workspace Capabi
 3. **`M1-T3` — Action Registry & Desktop Navigation Primitives (`Back` / `Home` / `Overview`):** `COMPLETE / VERIFIED`
 4. **`M1-T4` — Per-Monitor Layer-Shell Desktop Scaffolding (`DesktopHost`):** `COMPLETE / VERIFIED`
 5. **`M1-T5` — Contextual Workspace Indicator & Minimal Top Island Idle Anchor:** `COMPLETE / VERIFIED`
-6. **`M1-T6` — M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`:** `NOT STARTED`
+6. **`M1-T6` — M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`:** `COMPLETE / VERIFIED`
 
 No M1 task should be considered complete merely because it has been designed or documented.
 
@@ -124,7 +124,8 @@ Current factual implementation status:
 - `TopIslandAnchor.qml` (`src/desktop/TopIslandAnchor.qml`) implements an edge-integrated top-center solid Wabi-sabi idle anchor (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets, displaying a quiet typographic clock updated on minute boundaries without polling, smoothly receding during per-monitor native fullscreen (`DESIGN.md` §14);
 - `WorkspaceIndicator.qml` (`src/desktop/WorkspaceIndicator.qml`) implements contextual workspace HUD presentation triggered on workspace switch events from `EventBus`, auto-hiding after ~2000ms (`DEC-029`), displaying active workspace context against the fixed 10-workspace bounds with hierarchical scaling (*"Focus grows. Context recedes."*), morphing into a compact labeled pill (`Theme.geometry.radiusPill`) when a label exists, resetting in place without animation stacking during rapid switches (`AGENTS.md` §20), suppressing initial compositor startup discovery bursts via a 600ms ready guard, and respecting `Theme.motion.reducedMotion`;
 - Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 25 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- M1 task `M1-T6` (E2E multi-monitor validation, anti-slop audit & checkpoint `CP-M1-001`) is not yet started;
+- M1 task `M1-T6` (E2E multi-monitor validation, anti-slop audit & checkpoint `CP-M1-001`) is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across all live dual-monitor E2E tests;
+- Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;
 - No performance baseline is claimed;
 - Release readiness is NOT APPLICABLE.
 
@@ -197,11 +198,11 @@ Runtime conditions **VERIFIED** on WSL2 Arch Linux (`Quickshell 0.3.2` + live `H
 - `HyprlandBridge` detects missing `HYPRLAND_INSTANCE_SIGNATURE`, logs a clear `WARN` diagnostic, reports `bridgeConnected: false`, and safely rejects live workspace/window dispatch without crashing;
 - failure diagnostics and structured log levels (`debug`, `info`, `warn`, `error`) work as configured.
 
-Runtime conditions remaining **NOT YET VERIFIED** (scheduled for upcoming M1 tasks or physical hardware milestones):
+Runtime conditions remaining **NOT YET VERIFIED** (scheduled for future physical hardware or distribution milestones):
 
 
 - physical multi-monitor DRM hardware scanout, physical 4-finger touchpad hardware input, and hardware GPU desktop performance baseline;
-- interactive surface accessibility validation (`M1-T6`+).
+- interactive surface accessibility validation (`M2`+).
 
 ---
 
@@ -338,7 +339,7 @@ This table must be updated from evidence, not assumptions.
 
 # 14. Current Blockers
 
-- **None for M1 — Desktop Core (`M1-T1`, `M1-T2`, `M1-T3`, `M1-T4`, and `M1-T5` complete; `M1-T6` unblocked).** Live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) multi-output execution in WSL2 runs deterministically via the user-space nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`) with headless outputs `VIRTUAL-1` and `VIRTUAL-2`, and `HyprlandBridge.qml` queries `j/monitors` & `j/clients` and dispatches batched commands directly over `.socket.sock` (`Quickshell.Io.Socket` + `SplitParser`). (Physical multi-monitor DRM hardware scanout, physical 4-finger touchpad hardware gestures, and hardware GPU performance measurement still require a native Linux desktop machine.)
+- **None.** All tasks in **M1 — Desktop Core** (`M1-T1` through `M1-T6`) are complete, validated, and anchored at verified checkpoint `CP-M1-001`. The repository is halted at the M1 → M2 phase gate awaiting user kickoff per `AGENTS.md` §46. Live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) multi-output execution in WSL2 runs deterministically via the user-space nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`) with headless outputs `VIRTUAL-1` and `VIRTUAL-2`, and `HyprlandBridge.qml` queries `j/monitors` & `j/clients` and dispatches batched commands directly over `.socket.sock` (`Quickshell.Io.Socket` + `SplitParser`). (Physical multi-monitor DRM hardware scanout, physical 4-finger touchpad hardware gestures, and hardware GPU performance measurement still require a native Linux desktop machine.)
 
 ---
 
@@ -530,9 +531,9 @@ Implementation must not modify product intent simply because current reality dif
 
 The immediate execution target is:
 
-> **Task `M1-T6` — M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`** inside active phase **M1 — Desktop Core**. Tasks `M1-T1`, `M1-T2`, `M1-T3`, `M1-T4`, and `M1-T5` are complete, verified against `qmllint 6.12.0` and live dual-monitor `Hyprland 0.57.0` + `Quickshell 0.3.2`, committed atomically, and stopped cleanly per the `ORIENT → PLAN → ATOMIC COMMIT → AUDIT → STOP` loop.
+> **Phase Gate M1 → M2 Transition** per `AGENTS.md` §46 and `DEC-042`. Milestone **M1 — Desktop Core** is 100% complete, verified across all acceptance criteria (`TASKS.md` §8), audited against `ANTI-SLOP.md` (0 violations), and anchored at verified checkpoint `CP-M1-001`.
 
-The agent must inspect actual repository state and `TASKS.md` before beginning `M1-T6`.
+The agent must **STOP** and await user authorization before beginning **M2 — Primary Surfaces**.
 
 ---
 
@@ -581,7 +582,8 @@ BASEUS
 ├── Agent protocol           LOCKED
 ├── Current tasks            ACTIVE (M1 — Desktop Core: M1-T1..M1-T6)
 │
-├── Active phase             M1 — Desktop Core (IN PROGRESS: M1-T1..M1-T5 VERIFIED, M1-T6 next)
+├── Active phase             M1 — Desktop Core (COMPLETE: M1-T1..M1-T6 VERIFIED, CP-M1-001)
+├── Desktop Core baseline    CP-M1-001 (VERIFIED)
 ├── Foundation baseline      CP-M0-001 (VERIFIED — commit 9a37a142)
 ├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings)
 ├── Quickshell runtime       VERIFIED (Quickshell 0.3.2 / WSL2 Arch Linux)

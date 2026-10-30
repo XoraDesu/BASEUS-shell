@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 // BASEUS — Navigation Controller
 // Copyright (c) 2026 xoradesu — MIT License
 //
