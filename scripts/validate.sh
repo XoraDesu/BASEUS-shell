@@ -107,6 +107,8 @@ validate_structure() {
     check_file "src/core/Config.qml"
     check_file "src/core/Logger.qml"
     check_file "src/core/MockHyprlandBridge.qml"
+    check_file "src/core/ActionRegistry.qml"
+    check_file "src/core/NavigationController.qml"
     check_dir "src/theme"
     check_file "src/theme/Theme.qml"
     check_file "src/theme/Colors.qml"
@@ -171,10 +173,11 @@ validate_qml() {
         while IFS= read -r qml_file; do
             local relpath="${qml_file#$BASEUS_ROOT/}"
             local lint_output
-            if lint_output=$("$qmllint_bin" "${qmllint_args[@]}" "$qml_file" 2>&1); then
+            if lint_output=$("$qmllint_bin" "${qmllint_args[@]}" "$qml_file" 2>&1) \
+                && ! grep -q -E '^(Warning|Error):' <<< "$lint_output"; then
                 pass "$relpath"
             else
-                fail "$relpath — qmllint errors"
+                fail "$relpath — qmllint errors or warnings (zero-warning policy)"
                 echo "$lint_output" | sed 's/^/      /'
             fi
         done < <(find "$BASEUS_ROOT" -name "*.qml" -not -path "*/.git/*" | sort)

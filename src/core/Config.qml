@@ -209,7 +209,7 @@ QtObject {
         }
 
         try {
-            var parsed = JSON.parse(raw)
+            let parsed = JSON.parse(raw)
             _mergeLayer(parsed, path)
             return true
         } catch (e) {
@@ -257,7 +257,7 @@ QtObject {
         var userPath = _resolveUserConfigPath()
         configPath = userPath
         if (userPath.length > 0) {
-            var loadedUser = _loadFileLayer(_userFile, userPath, explicitCustom.length === 0)
+            let loadedUser = _loadFileLayer(_userFile, userPath, explicitCustom.length === 0)
             if (explicitCustom.length > 0 && !loadedUser && lastError.length === 0) {
                 lastError = "Explicit config path not found or empty: " + explicitCustom
                 usedFallback = true

@@ -144,3 +144,30 @@ end
 -- Freeform pointer drag and resize
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+
+-- Navigation primitives — Back / Home / Overview (DEC-024, DEC-028).
+-- Binds execute registered BASEUS actions through Quickshell IPC; the action registry owns
+-- action identity, so the same action can later gain other triggers (gestures, UI).
+-- The BASEUS root is derived from this file's location (config/hypr/) so the IPC call targets
+-- the matching Quickshell instance; if it cannot be derived, the default Quickshell config is used.
+local function baseusIpcPrefix()
+    local source = debug and debug.getinfo and debug.getinfo(1, "S").source or ""
+    if source:sub(1, 1) == "@" then
+        local root = source:sub(2):match("^(.*)/config/hypr/[^/]+$")
+        if root then
+            return 'quickshell ipc -p "' .. root .. '" call baseus executeAction '
+        end
+    end
+    return "quickshell ipc call baseus executeAction "
+end
+
+local baseusAction = baseusIpcPrefix()
+
+-- Published (global) so diagnostics can inspect the resolved IPC command prefix:
+--   hyprctl eval 'return BASEUS_ACTION_IPC'
+BASEUS_ACTION_IPC = baseusAction
+
+hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(baseusAction .. "navigation.back"),     { description = "BASEUS Back" })
+hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd(baseusAction .. "navigation.home"),     { description = "BASEUS Home" })
+hl.bind(mainMod .. " + Tab",    hl.dsp.exec_cmd(baseusAction .. "navigation.overview"), { description = "BASEUS Overview" })

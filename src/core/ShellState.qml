@@ -32,12 +32,48 @@ QtObject {
     //                  "app-drawer", "power-menu"
     property string mode: "desktop"
 
+    // Modes that overlay the desktop context and are dismissed by Back / Home (DEC-024).
+    readonly property var overlayModes: ["overview", "command-center", "app-drawer", "power-menu"]
+
+    // Overview ("Helicopter View") is a primitive shell mode only in M1; its surface arrives in M5.
+    readonly property bool overviewActive: mode === "overview"
+
     function setMode(newMode) {
         if (mode === newMode) return
         var oldMode = mode
         mode = newMode
         if (logger) logger.debug("ShellState",
             "Mode changed: %1 → %2".arg(oldMode).arg(newMode))
+    }
+
+    function isOverlayMode() {
+        return overlayModes.indexOf(mode) >= 0
+    }
+
+    // Dismisses whichever overlay is active and returns to the desktop context.
+    // Re-evaluates native fullscreen so an overlay closing over a fullscreen app
+    // restores "fullscreen" rather than "desktop" (DEC-023).
+    function dismissOverlay() {
+        if (!isOverlayMode()) return false
+        setMode("desktop")
+        _recomputeFullscreenState()
+        return true
+    }
+
+    // Overview is mutually exclusive with native fullscreen (DEC-023 / DEC-024):
+    // it can only be entered from the plain desktop context.
+    // Returns { ok, reason } where reason is "" on success.
+    function enterOverview() {
+        if (mode === "overview") return { ok: true, reason: "already-active" }
+        if (hasFullscreenApp || mode === "fullscreen") return { ok: false, reason: "fullscreen" }
+        if (mode !== "desktop") return { ok: false, reason: "mode-" + mode }
+        setMode("overview")
+        return { ok: true, reason: "" }
+    }
+
+    function exitOverview() {
+        if (mode !== "overview") return false
+        return dismissOverlay()
     }
 
     // =========================================================
@@ -80,7 +116,8 @@ QtObject {
         hasFullscreenApp = activeFs
 
         if (activeFs) {
-            if (mode === "desktop") {
+            // Native fullscreen always wins over desktop and Overview (mutual exclusion).
+            if (mode === "desktop" || mode === "overview") {
                 setMode("fullscreen")
             }
         } else if (mode === "fullscreen") {

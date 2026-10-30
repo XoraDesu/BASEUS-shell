@@ -104,6 +104,31 @@ Item {
         windowModel: _windowModel
     }
 
+    // 9. Navigation primitives (Back / Home / Overview — DEC-024)
+    Core.NavigationController {
+        id: _navigationController
+        logger: _logger
+        shellState: _shellState
+        workspaceModel: _workspaceModel
+        windowModel: _windowModel
+        bridge: shell.activeBridge
+    }
+
+    // 10. Action registry (Discover → Customize → Execute — DEC-028)
+    Core.ActionRegistry {
+        id: _actionRegistry
+        logger: _logger
+        eventBus: _eventBus
+        shellState: _shellState
+        workspaceModel: _workspaceModel
+        windowModel: _windowModel
+        navigationController: _navigationController
+        bridge: shell.activeBridge
+    }
+
+    // Diagnostic-only action counter (see registerDiagnosticAction IPC).
+    property int _diagnosticActionRuns: 0
+
     // =========================================================
     // Public Subsystem References
     // =========================================================
@@ -118,6 +143,8 @@ Item {
     readonly property alias windowModel: _windowModel
     readonly property alias liveBridge: _liveBridge
     readonly property alias mockBridge: _mockBridge
+    readonly property alias navigationController: _navigationController
+    readonly property alias actionRegistry: _actionRegistry
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -142,8 +169,10 @@ Item {
                 bridgeConnected: bridge.connected,
                 bridgeError: bridge.lastError,
                 mode: _shellState.mode,
+                overviewActive: _shellState.overviewActive,
                 hasFullscreenApp: _shellState.hasFullscreenApp,
                 fullscreenMonitors: _shellState.fullscreenMonitors,
+                actionCount: _actionRegistry.actionCount,
                 activeMonitor: _shellState.activeMonitorIndex,
                 activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex),
                 previousWorkspace: _workspaceModel.getPreviousWorkspace(_shellState.activeMonitorIndex),
@@ -370,6 +399,78 @@ Item {
                 window: _windowModel.getWindowByAddress(addr)
             })
         }
+
+        // -----------------------------------------------------
+        // M1-T3: Action Registry & navigation primitives
+        // -----------------------------------------------------
+
+        function listActions(category: string, query: string): string {
+            var actions = _actionRegistry.list({ category: category, query: query })
+            return JSON.stringify({
+                count: actions.length,
+                categories: _actionRegistry.getCategories(),
+                actions: actions
+            })
+        }
+
+        function getAction(id: string): string {
+            return JSON.stringify({ action: _actionRegistry.get(id) })
+        }
+
+        function shortcutOwners(shortcut: string): string {
+            return JSON.stringify({
+                shortcut: shortcut,
+                normalized: _actionRegistry.normalizeShortcut(shortcut),
+                owners: _actionRegistry.findShortcutOwners(shortcut)
+            })
+        }
+
+        function executeAction(id: string): string {
+            return JSON.stringify(shell._executeActionWithState(id, undefined))
+        }
+
+        // payload: JSON object string, e.g. {"address":"0x1a2b"}
+        function executeActionWithPayload(id: string, payload: string): string {
+            var parsed
+            try {
+                parsed = JSON.parse(payload)
+            } catch (e) {
+                return JSON.stringify({ ok: false, id: id, error: "invalid-payload" })
+            }
+            return JSON.stringify(shell._executeActionWithState(id, parsed))
+        }
+
+        // Registers a no-op action owned by "diagnostic" (exercises registry integrity rules).
+        function registerDiagnosticAction(id: string, category: string, shortcut: string): string {
+            var res = _actionRegistry.register({
+                id: id,
+                category: category,
+                title: "Diagnostic " + id,
+                description: "Diagnostic no-op action.",
+                defaultShortcut: shortcut,
+                callback: function() { shell._diagnosticActionRuns++; return { ran: shell._diagnosticActionRuns } }
+            }, "diagnostic")
+            res.actionCount = _actionRegistry.actionCount
+            return JSON.stringify(res)
+        }
+
+        // Can only remove actions owned by "diagnostic"; core actions are protected.
+        function unregisterAction(id: string): string {
+            var res = _actionRegistry.unregister(id, "diagnostic")
+            res.actionCount = _actionRegistry.actionCount
+            return JSON.stringify(res)
+        }
+    }
+
+    function _executeActionWithState(id, payload) {
+        var res = _actionRegistry.execute(id, payload)
+        res.mode = _shellState.mode
+        res.overviewActive = _shellState.overviewActive
+        res.activeMonitor = _shellState.activeMonitorIndex
+        res.activeWorkspace = _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex)
+        res.previousWorkspace = _workspaceModel.getPreviousWorkspace(_shellState.activeMonitorIndex)
+        res.focusedWindow = _windowModel.focusedAddress
+        return res
     }
 
     // =========================================================
@@ -383,6 +484,7 @@ Item {
         _monitorModel.initialize()
         _workspaceModel.initialize()
         _windowModel.initialize()
+        _actionRegistry.initialize()
 
         if (_config.simulationEnabled) {
             _mockBridge.initialize()
@@ -392,6 +494,7 @@ Item {
     }
 
     function _teardownSubsystems() {
+        _actionRegistry.teardown()
         _mockBridge.teardown()
         _liveBridge.teardown()
         _windowModel.teardown()

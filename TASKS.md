@@ -174,10 +174,10 @@ M1-T6 (M1 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint CP-M1-001)
 
 ### Sub-tasks
 
-- [ ] Implement `src/core/ActionRegistry.qml` registering core M1 desktop, workspace, window, and navigation actions with human-readable metadata, categories (`Navigation`, `Workspaces`, `Windows`), default trigger descriptors, conflict detection helpers, and `execute(actionId, payload)`.
-- [ ] Implement `src/core/NavigationController.qml` managing desktop context history and `Back` (exit active overlay mode → `"desktop"`, or return to monitor's `previousWorkspace` when in `"desktop"`), `Home` (return cleanly to `"desktop"` context), and `Overview` (toggle `"overview"` mode state foundation for M5).
-- [ ] Wire `ActionRegistry` and `NavigationController` into `src/Shell.qml` lifecycle and diagnostic IPC, maintaining stable `EventBus` subscription counts across restarts.
-- [ ] Validate statically (`qmllint 6.12.0`) and at runtime under both `MockHyprlandBridge` and live `Hyprland 0.57.0`.
+- [x] Implement `src/core/ActionRegistry.qml` registering core M1 desktop, workspace, window, and navigation actions with human-readable metadata, categories (`navigation`, `workspace`, `window`, `system`), default trigger descriptors, conflict detection helpers, and `execute(actionId, payload)`.
+- [x] Implement `src/core/NavigationController.qml` managing desktop context history and `Back` (exit active overlay mode → `"desktop"`, or return to monitor's `previousWorkspace` when in `"desktop"`, or focus previous window on active workspace via MRU focus history), `Home` (return cleanly to `"desktop"` context on Workspace 1), and `Overview` (toggle `"overview"` mode state foundation for M5, mutually exclusive with native fullscreen).
+- [x] Wire `ActionRegistry` and `NavigationController` into `src/Shell.qml` lifecycle and diagnostic IPC (`listActions`, `getAction`, `shortcutOwners`, `executeAction`, `executeActionWithPayload`, `registerDiagnosticAction`, `unregisterAction`), maintaining stable `EventBus` subscription counts across restarts.
+- [x] Validate statically (`qmllint 6.12.0`) and at runtime under both `MockHyprlandBridge` and live `Hyprland 0.57.0`.
 
 ---
 
@@ -272,4 +272,5 @@ The agent must **STOP**:
 - **Completed Tasks:**
   - `M1-T1` (Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset — `VERIFIED`)
   - `M1-T2` (Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore — `VERIFIED`)
-- **Next Executable Task:** `M1-T3` (Action Registry & Desktop Navigation Primitives: `Back` / `Home` / `Overview`)
+  - `M1-T3` (Action Registry & Desktop Navigation Primitives: `Back` / `Home` / `Overview` — `VERIFIED`)
+- **Next Executable Task:** `M1-T4` (Per-Monitor Layer-Shell Desktop Scaffolding: `DesktopHost`)
