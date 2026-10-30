@@ -80,11 +80,11 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Task `M1-T1` COMPLETE and VERIFIED; Tasks `M1-T2` through `M1-T6` NOT STARTED.**
+**IN PROGRESS — Tasks `M1-T1` and `M1-T2` COMPLETE and VERIFIED; Tasks `M1-T3` through `M1-T6` NOT STARTED.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
-Active execution has formally transitioned to **M1 — Desktop Core**. Task `M1-T1` (*Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset*) is implemented, statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings), and runtime-verified under both offline multi-monitor simulation (`MockHyprlandBridge`) and a live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` session on WSL2 Arch Linux.
+Active execution is in **M1 — Desktop Core**. Tasks `M1-T1` (*Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset*, commit `72a2410`) and `M1-T2` (*Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore*) are implemented, statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings), and runtime-verified under both offline multi-monitor simulation (`MockHyprlandBridge`) and a live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` session with real Wayland client windows on WSL2 Arch Linux.
 
 ---
 
@@ -93,7 +93,7 @@ Active execution has formally transitioned to **M1 — Desktop Core**. Task `M1-
 `TASKS.md` defines the executable **M1 — Desktop Core** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
 
 1. **`M1-T1` — Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset:** `COMPLETE / VERIFIED`
-2. **`M1-T2` — Freeform Window Capability (Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore):** `NOT STARTED`
+2. **`M1-T2` — Freeform Window Capability (Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore):** `COMPLETE / VERIFIED`
 3. **`M1-T3` — Action Registry & Desktop Navigation Primitives (`Back` / `Home` / `Overview`):** `NOT STARTED`
 4. **`M1-T4` — Per-Monitor Layer-Shell Desktop Scaffolding (`DesktopHost`):** `NOT STARTED`
 5. **`M1-T5` — Contextual Workspace Indicator & Minimal Top Island Idle Anchor:** `NOT STARTED`
@@ -107,17 +107,19 @@ No M1 task should be considered complete merely because it has been designed or 
 
 Current factual implementation status:
 
-- M0 Foundation (`CP-M0-001`, commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) and `M1-T1` workspace capability source/configuration files exist and have been runtime-tested under `Quickshell 0.3.2` and live `Hyprland 0.57.0` on WSL2 Arch Linux;
+- M0 Foundation (`CP-M0-001`, commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`), `M1-T1` workspace capability (commit `72a2410`), and `M1-T2` freeform window capability source/configuration files exist and have been runtime-tested under `Quickshell 0.3.2` and live `Hyprland 0.57.0` on WSL2 Arch Linux;
 - Repository structure matches `MASTER.md` §59, augmented with `config/hypr/baseus-desktop.lua` (`Hyprland 0.57+` Lua preset) and `config/hypr/baseus-desktop.conf` (`< 0.57` Hyprlang reference preset);
-- Quickshell entrypoint `shell.qml` loads root `Shell` from `src/Shell.qml` and exposes diagnostic `Quickshell.Io` `IpcHandler` target `baseus` (`status`, `restart`, `switchWorkspace`, `switchMonitorWorkspace`, `nextWorkspace`, `previousWorkspace`, `workspaces`);
-- Core singletons (`Logger`, `EventBus`, `Config`, `Lifecycle`, `ShellState`, `Theme`, `MonitorModel`, `WorkspaceModel`, `WindowModel`, `HyprlandBridge` / `MockHyprlandBridge`) initialize and tear down in deterministic dependency order with stable `EventBus` subscription counts (`monitor: 3, workspace: 1, window: 2, theme: 1`);
+- Quickshell entrypoint `shell.qml` loads root `Shell` from `src/Shell.qml` and exposes diagnostic `Quickshell.Io` `IpcHandler` target `baseus` (`status`, `restart`, `switchWorkspace`, `switchMonitorWorkspace`, `nextWorkspace`, `previousWorkspace`, `workspaces`, `windows`, `focusWindow`, `closeWindow`, `centerWindow`, `moveWindow`, `resizeWindow`, `toggleFloating`, `toggleMaximize`, `toggleFullscreen`, `minimizeWindow`, `restoreWindow`, `moveWindowToWorkspace`, `moveWindowToMonitor`, `setMockMonitors`, `spawnMockWindow`);
+- Core singletons (`Logger`, `EventBus`, `Config`, `Lifecycle`, `ShellState`, `Theme`, `MonitorModel`, `WorkspaceModel`, `WindowModel`, `HyprlandBridge` / `MockHyprlandBridge`) initialize and tear down in deterministic dependency order with stable `EventBus` subscription counts (`monitor: 3, workspace: 2, window: 2, theme: 1`);
 - `Config.qml` loads layered JSON synchronously via `Quickshell.Io` `FileView`, supports optional `workspaces.labels` and `workspaces.tags` (`1..10`), explicitly rejects and logs `WARN` on `workspaces.count` override attempts (`DEC-010`) and stray `"theme"` blocks (`DEC-012`), and falls back safely on missing or malformed JSON;
 - `WorkspaceModel.qml` enforces the fixed 10-workspace model (`DEC-010`), tracks per-monitor `activeWorkspaces` and `previousWorkspaces`, manages optional workspace `labels` and `tags`, provides bounded `1..10` relative stepping (`getRelativeWorkspace`, `canStepWorkspace`), computes workspace occupancy and full 10-workspace snapshots from `WindowModel`, reconciles monitor hotplug changes via `"monitor"` events, and emits normalized `{ source: "model", type: "changed", monitorIndex, previous, current, label, tag }` transitions;
-- `HyprlandBridge.qml` synchronizes multi-monitor topology and per-monitor active workspaces directly over `Hyprland.requestSocketPath` (`.socket.sock` `j/monitors` via `Quickshell.Io` `Socket` + `SplitParser`, zero child processes spawned, compatible with `Hyprland 0.57.0`'s updated `specialWorkspace` JSON schema), resolves monitor ownership by output name across `focusedmon`/`focusedmonv2`/`workspace`/`workspacev2`/`moveworkspace`/`moveworkspacev2`/`monitoradded`/`monitorremoved`, and dispatches monitor-targeted direct and relative `1..10` workspace navigation in both Lua (`0.57+`) and legacy Hyprlang (`< 0.57`) modes;
-- `MockHyprlandBridge.qml` provides multi-monitor per-monitor workspace simulation parity without injecting unconfigured fake workspace labels;
-- `config/hypr/baseus-desktop.lua` loads cleanly in live `Hyprland 0.57.0` with zero configuration errors (`hyprctl -j configerrors` == `[""]`), configuring 22 keybinds (`Super+1..0`, `Super+Shift+1..0`, freeform pointer drag/resize), 4-finger horizontal workspace swipe (`hl.gesture`), non-wrapping workspace transitions with `fade` context animation (`MASTER.md` §7), default freeform floating + centered window rules (`DEC-008`), 1px solid tonal borders without blur/glow (`DESIGN.md` §34), and zero scratchpad bindings (`DEC-038`);
+- `WindowModel.qml` tracks live freeform window properties (`address`, `title`, `appClass`, `workspace`, `originWorkspace`, `monitor`, `x`, `y`, `width`, `height`, `savedGeometry`, `floating`, `fullscreen`, `maximized`, `minimized`, `focused`, `focusOrder`), maintains MRU `focusHistory`, separates geometric `maximized` from native compositor `fullscreen` (`DEC-023`), tracks scratchpad-free `minimized` windows (`DEC-038`), provides workspace/monitor/focus queries (`getWindowsByWorkspace`, `getVisibleWindowsByWorkspace`, `getWindowsByMonitor`, `getMinimizedWindows`, `getNextFocusableWindow`, `hasFullscreenWindow`, `hasMaximizedWindow`, `getSnapshot`), and re-emits normalized `{ source: "model", ... }` window transitions including `{ type: "moved", transition: "pop" }` (`MASTER.md` §35);
+- `ShellState.qml` tracks per-monitor native fullscreen occupancy (`fullscreenMonitors`, `isMonitorFullscreen(monitorIndex)`) across `"monitor"`, `"workspace"`, and `"window"` events so only native fullscreen applications on a monitor's active workspace toggle `mode` (`"desktop"` <-> `"fullscreen"`), while geometric maximize leaves `mode` in `"desktop"` (`DEC-023`);
+- `HyprlandBridge.qml` synchronizes multi-monitor topology (`j/monitors`), live client windows (`j/clients`), and batched compositor commands (`dispatch ...` / `[[BATCH]]dispatch ...`) directly over `Hyprland.requestSocketPath` (`.socket.sock` via `Quickshell.Io` `Socket` + `SplitParser` FIFO queue, zero child processes spawned), enforces default freeform floating + monitor-centered placement for newly mapped windows (`DEC-008`), implements dual `Hyprland 0.57+` Lua / `< 0.57` Hyprlang window capabilities (`focusWindow`, `closeWindow`, `moveWindow`, `resizeWindow`, `centerWindow`, `setFloating` / `toggleFloating`, layout-margin geometric `setMaximized` / `toggleMaximize` via `+baseus_maximized`, native compositor `setFullscreen` / `toggleFullscreen`, scratchpad-free `minimizeWindow` via `+baseus_minimized` + offscreen parking on regular `1..10` workspaces with MRU focus handoff and cross-monitor centered `restoreWindow`, and POP `moveWindowToWorkspace` / `moveWindowToMonitor` hooks preserving focus semantics);
+- `MockHyprlandBridge.qml` provides multi-monitor workspace and freeform window simulation parity (`spawnWindow`, freeform move/resize/center/float, geometric maximize vs native fullscreen, scratchpad-free minimize & centered restore, POP workspace/monitor moves) without injecting unconfigured fake workspace labels;
+- `config/hypr/baseus-desktop.lua` loads cleanly in live `Hyprland 0.57.0` with zero configuration errors (`hyprctl -j configerrors` == `[""]`), configuring 22 keybinds (`Super+1..0`, `Super+Shift+1..0`, freeform pointer drag/resize), 4-finger horizontal workspace swipe (`hl.gesture`), non-wrapping workspace transitions with `fade` context animation (`MASTER.md` §7), default freeform floating + centered window rules (`DEC-008`), `baseus-minimized-hidden` rule suppressing minimized windows without special workspaces (`DEC-038`), 1px solid tonal borders without blur/glow (`DESIGN.md` §34), and zero scratchpad bindings (`DEC-038`);
 - Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 20 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- M1 tasks `M1-T2` (window maximize vs native fullscreen, minimize + centered restore), `M1-T3` (`ActionRegistry` & `NavigationController`), `M1-T4` (`DesktopHost`), and `M1-T5` (`WorkspaceIndicator` & `TopIslandAnchor`) are not yet implemented;
+- M1 tasks `M1-T3` (`ActionRegistry` & `NavigationController`), `M1-T4` (`DesktopHost`), and `M1-T5` (`WorkspaceIndicator` & `TopIslandAnchor`) are not yet implemented;
 - No performance baseline is claimed;
 - Release readiness is NOT APPLICABLE.
 
@@ -162,16 +164,21 @@ Runtime conditions **VERIFIED** on WSL2 Arch Linux (`Quickshell 0.3.2` + live `H
 - live multi-monitor per-monitor workspace navigation (`switchMonitorWorkspace 1 7`, `switchMonitorWorkspace 0 3`, `nextWorkspace` → `4`, `previousWorkspace` → `3`, `1..10` boundary clamping at `1` and `10`, and cross-monitor focus `switchWorkspace 7` returning focus to `VIRTUAL-2` without altering `VIRTUAL-1`'s workspace `3`) updates `WorkspaceModel` (`activeWorkspaces`, `previousWorkspaces`) and `ShellState` deterministically;
 - live `workspaces` snapshot reflects user-configured `labels` and `tags`, `visibleOnMonitor`, and `WindowModel`-derived `windowCount` for live Wayland client windows (`floating: true`);
 - live monitor hotplug removal (`hyprctl output remove VIRTUAL-2`) reconciles `MonitorModel` (`monitorCount: 2 → 1`), `WorkspaceModel` (`activeWorkspaces`, `previousWorkspaces`), and `ShellState`;
-- live Wayland client window lifecycle inside Hyprland (`openwindow` with `floating: true`, `fullscreen>>1` → `ShellState.mode: "fullscreen"`, `fullscreen>>0` → `ShellState.mode: "desktop"`, `closewindow` + `activewindowv2>>` → `windowCount: 0, focusedWindow: ""`) is observed accurately;
-- shell lifecycle (`uninitialized` → `initializing` → `running` → `tearing_down` → `terminated`) behaves deterministically, including live restart while connected to Hyprland (`restartCount: 1`, `bridgeConnected: true`, `subscriptions: { monitor: 3, workspace: 1, window: 2, theme: 1 }`) and 6 consecutive standalone restarts without duplicate `EventBus` subscriptions;
+- live Wayland client window lifecycle and `M1-T2` freeform window capabilities inside dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) are verified end-to-end:
+  - newly mapped Wayland windows (`org.qt-project.qml6`) open floating and centered on their target monitor (`(760, 390)` for `400x300`, `(710, 380)` for `500x320` on `1920x1080`) with live MRU `focusHistory` tracking (`DEC-008`);
+  - freeform `moveWindow`, `resizeWindow` (top-left anchored despite Hyprland center-anchor resize), and `toggleFloating` (`floating: true -> false -> true`) synchronize accurately between Hyprland `j/clients` and `WindowModel`;
+  - geometric `toggleMaximize` expands to `(16, 16, 1888, 1048)` preserving `16px` layout margins (`+baseus_maximized`) while keeping `ShellState.mode == "desktop"` and `hasFullscreenApp == false`, and unmaximize restores exact pre-maximize `(120, 140, 600, 400)` geometry (`DEC-023`);
+  - native compositor `toggleFullscreen` (`hyprctl` `fullscreen == 2`) toggles `ShellState.mode` `"desktop"` <-> `"fullscreen"` and scopes `fullscreenMonitors` per monitor (`{"0": true, "1": false}`, so focusing `VIRTUAL-2` reports `mode == "desktop"` while `VIRTUAL-1` remains fullscreen per `DEC-023`);
+  - scratchpad-free `minimizeWindow` creates **zero** `special:*` workspaces (`DEC-038`), keeps the window on its normal `1..10` workspace tagged `+baseus_minimized` and parked offscreen (`[-16000, -16000]`), transfers focus to the next MRU visible window, survives live `quickshell ipc call baseus restart`, and `restoreWindow` onto `VIRTUAL-2` workspace `6` repositions the window to the exact geometric center `(2580, 340)` with size `(600, 400)` (`MASTER.md` §36);
+  - POP workspace/monitor move hooks (`moveWindowToWorkspace` with `followFocus=false` using Lua `follow = false`, and cross-monitor `moveWindowToMonitor` with `followFocus=true` centering at `(660, 340)` on `VIRTUAL-1`) and `closeWindow` MRU focus handoff behave deterministically (`MASTER.md` §35);
+- shell lifecycle (`uninitialized` → `initializing` → `running` → `tearing_down` → `terminated`) behaves deterministically, including live restart while connected to Hyprland with active minimized windows (`restartCount: 1`, `bridgeConnected: true`, `minimizedWindowCount: 1`, `subscriptions: { monitor: 3, workspace: 2, window: 2, theme: 1 }`) and 6 consecutive standalone restarts without duplicate `EventBus` subscriptions;
 - configuration loads synchronously via `FileView`, reloads updated disk files on restart, rejects `workspaces.count` overrides (`DEC-010`) and stray `"theme"` keys (`DEC-012`) with `WARN` diagnostics, and falls back safely on missing, malformed, or out-of-range JSON;
 - `EventBus` routes workspace, window, monitor, and theme events to domain models under both live `HyprlandBridge` and `MockHyprlandBridge` (`BASEUS_SIMULATION=1`) and enforces the fixed 10-workspace boundary (`DEC-010`);
-- `HyprlandBridge` detects missing `HYPRLAND_INSTANCE_SIGNATURE`, logs a clear `WARN` diagnostic, reports `bridgeConnected: false`, and safely rejects live workspace dispatch without crashing;
+- `HyprlandBridge` detects missing `HYPRLAND_INSTANCE_SIGNATURE`, logs a clear `WARN` diagnostic, reports `bridgeConnected: false`, and safely rejects live workspace/window dispatch without crashing;
 - failure diagnostics and structured log levels (`debug`, `info`, `warn`, `error`) work as configured.
 
 Runtime conditions remaining **NOT YET VERIFIED** (scheduled for upcoming M1 tasks or physical hardware milestones):
 
-- maximize vs native fullscreen mode distinction and scratchpad-free minimize + centered restore (`M1-T2`);
 - `ActionRegistry` and `Back` / `Home` / `Overview` navigation primitives (`M1-T3`);
 - per-monitor Layer-Shell `DesktopHost`, contextual `WorkspaceIndicator`, and minimal `TopIslandAnchor` surfaces (`M1-T4`–`M1-T5`);
 - physical multi-monitor DRM hardware scanout, physical 4-finger touchpad hardware input, and hardware GPU desktop performance baseline;
@@ -294,15 +301,15 @@ Current validation status based on direct verification:
 |---|---|---|
 | Repository validation | VERIFIED | `scripts/validate.sh --all` (WSL2 Arch Linux) and `scripts/validate.ps1` (Windows) passed with 0 errors including `config/hypr/baseus-desktop.{lua,conf}` |
 | Quickshell syntax / config | VERIFIED | `/usr/lib/qt6/bin/qmllint` (`6.12.0`) passed all 20 `.qml` files with 0 errors and 0 warnings; `config/baseus.json` validated JSON; `Hyprland 0.57.0 -c config/hypr/baseus-desktop.lua` passed with 0 `configerrors` |
-| Quickshell runtime startup & IPC | VERIFIED | `quickshell -p /mnt/d/Linux/BASEUS` (`0.3.2`) launched cleanly on WSL2 `wayland-0` and inside live Hyprland (`wayland-1`); `baseus` IPC methods (`status`, `restart`, `switchWorkspace`, `switchMonitorWorkspace`, `nextWorkspace`, `previousWorkspace`, `workspaces`) verified |
-| Hyprland runtime validation | VERIFIED | Live `Hyprland 0.57.0` (`config/hypr/baseus-desktop.lua`, `.socket.sock` + `.socket2.sock`, `VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` verified direct `j/monitors` sync, per-monitor workspace switching (`1..10`), relative stepping, cross-monitor focus, floating Wayland window occupancy, monitor hotplug removal, and live restart resync |
-| Lifecycle validation | VERIFIED | Deterministic init/teardown, 6 consecutive standalone restarts, and live dual-monitor Hyprland restart verified with stable `EventBus` subscriptions |
-| State architecture validation | VERIFIED | `ShellState`, `MonitorModel`, `WorkspaceModel` (fixed 1–10 per-monitor `activeWorkspaces`, `previousWorkspaces`, `labels`, `tags`, `WindowModel` occupancy, hotplug reconciliation), and `WindowModel` verified under both `BASEUS_SIMULATION=1` and live Hyprland |
-| Event architecture validation | VERIFIED | `EventBus` routing, non-circular `source` filtering, and stable subscription counts (`monitor: 3, workspace: 1, window: 2, theme: 1`) across restarts verified at runtime |
+| Quickshell runtime startup & IPC | VERIFIED | `quickshell -p /mnt/d/Linux/BASEUS` (`0.3.2`) launched cleanly on WSL2 `wayland-0` and inside live Hyprland (`wayland-1`); `baseus` workspace and freeform window IPC methods (`status`, `restart`, `switchWorkspace`, `switchMonitorWorkspace`, `nextWorkspace`, `previousWorkspace`, `workspaces`, `windows`, `focusWindow`, `closeWindow`, `centerWindow`, `moveWindow`, `resizeWindow`, `toggleFloating`, `toggleMaximize`, `toggleFullscreen`, `minimizeWindow`, `restoreWindow`, `moveWindowToWorkspace`, `moveWindowToMonitor`) verified |
+| Hyprland runtime validation | VERIFIED | Live `Hyprland 0.57.0` (`config/hypr/baseus-desktop.lua`, `.socket.sock` + `.socket2.sock`, `VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` verified direct `j/monitors` & `j/clients` sync, FIFO `[[BATCH]]` socket dispatch, per-monitor workspace switching (`1..10`), default centered floating Wayland windows (`DEC-008`), geometric maximize vs per-monitor native fullscreen (`DEC-023`), scratchpad-free minimize + cross-monitor centered restore (`DEC-038`), POP workspace/monitor moves (`MASTER.md` §35), monitor hotplug removal, and live restart resync |
+| Lifecycle validation | VERIFIED | Deterministic init/teardown, 6 consecutive standalone restarts, and live dual-monitor Hyprland restarts (including active minimized window recovery) verified with stable `EventBus` subscriptions |
+| State architecture validation | VERIFIED | `ShellState` (per-monitor `fullscreenMonitors` & `"desktop"`/`"fullscreen"` mode), `MonitorModel`, `WorkspaceModel` (fixed 1–10 per-monitor `activeWorkspaces`, `previousWorkspaces`, `labels`, `tags`, `WindowModel` occupancy, hotplug reconciliation), and `WindowModel` (geometry, MRU `focusHistory`, `maximized` vs `fullscreen`, scratchpad-free `minimized`, `originWorkspace`) verified under both `BASEUS_SIMULATION=1` and live Hyprland |
+| Event architecture validation | VERIFIED | `EventBus` routing, non-circular `source` filtering, POP window move transition payloads, and stable subscription counts (`monitor: 3, workspace: 2, window: 2, theme: 1`) across restarts verified at runtime |
 | Configuration validation | VERIFIED | Layered `FileView` loading, `workspaces.labels` & `workspaces.tags`, `DEC-010` `workspaces.count` override warning/rejection, `DEC-012` `"theme"` block rejection, missing/malformed JSON fallback, and live disk reload on restart verified at runtime |
 | Logging validation | VERIFIED | Structured `[LEVEL] [Subsystem]` diagnostics verified via `quickshell log` across `info`, `debug`, `warn`, and `error` paths |
 | Performance baseline | NOT YET VERIFIED | Requires live native Linux + Hyprland desktop session |
-| Multi-monitor validation | PARTIALLY VERIFIED | Dual virtual headless outputs (`VIRTUAL-1` + `VIRTUAL-2`) per-monitor workspace state, cross-monitor focus, and hotplug removal `VERIFIED` live in `Hyprland 0.57.0`; Layer-Shell UI surface placement (`M1-T4`–`M1-T5`) and physical DRM multi-head hardware `NOT YET VERIFIED` |
+| Multi-monitor validation | PARTIALLY VERIFIED | Dual virtual headless outputs (`VIRTUAL-1` + `VIRTUAL-2`) per-monitor workspace state, cross-monitor focus, per-monitor native fullscreen scoping, cross-monitor centered window restore & POP window moves, and hotplug removal `VERIFIED` live in `Hyprland 0.57.0`; Layer-Shell UI surface placement (`M1-T4`–`M1-T5`) and physical DRM multi-head hardware `NOT YET VERIFIED` |
 | Accessibility validation | NOT YET VERIFIED | Requires interactive desktop surfaces (`M1-T5`+) |
 | Release validation | NOT APPLICABLE | Desktop Core phase |
 
@@ -312,7 +319,7 @@ This table must be updated from evidence, not assumptions.
 
 # 14. Current Blockers
 
-- **None for M1 — Desktop Core (`M1-T1` complete; `M1-T2` unblocked).** Live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) multi-output execution in WSL2 runs deterministically via the user-space nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`) with headless outputs `VIRTUAL-1` and `VIRTUAL-2`, and `HyprlandBridge.qml` queries `j/monitors` directly over `.socket.sock` (`Quickshell.Io.Socket` + `SplitParser`) to stay compatible with `Hyprland 0.57.0`'s monitor JSON schema. (Physical multi-monitor DRM hardware scanout, physical 4-finger touchpad hardware gestures, and hardware GPU performance measurement still require a native Linux desktop machine.)
+- **None for M1 — Desktop Core (`M1-T1` and `M1-T2` complete; `M1-T3` unblocked).** Live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) multi-output execution in WSL2 runs deterministically via the user-space nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`) with headless outputs `VIRTUAL-1` and `VIRTUAL-2`, and `HyprlandBridge.qml` queries `j/monitors` & `j/clients` and dispatches batched commands directly over `.socket.sock` (`Quickshell.Io.Socket` + `SplitParser`). (Physical multi-monitor DRM hardware scanout, physical 4-finger touchpad hardware gestures, and hardware GPU performance measurement still require a native Linux desktop machine.)
 
 ---
 
@@ -504,9 +511,9 @@ Implementation must not modify product intent simply because current reality dif
 
 The immediate execution target is:
 
-> **Task `M1-T2` — Freeform Window Capability (Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore)** inside active phase **M1 — Desktop Core**. Task `M1-T1` is complete, verified against `qmllint 6.12.0` and live dual-monitor `Hyprland 0.57.0` + `Quickshell 0.3.2`, committed atomically, and stopped cleanly per the `ORIENT → PLAN → ATOMIC COMMIT → AUDIT → STOP` loop.
+> **Task `M1-T3` — Action Registry & Desktop Navigation Primitives (`Back` / `Home` / `Overview`)** inside active phase **M1 — Desktop Core**. Tasks `M1-T1` and `M1-T2` are complete, verified against `qmllint 6.12.0` and live dual-monitor `Hyprland 0.57.0` + `Quickshell 0.3.2`, committed atomically, and stopped cleanly per the `ORIENT → PLAN → ATOMIC COMMIT → AUDIT → STOP` loop.
 
-The agent must inspect actual repository state and `TASKS.md` before beginning `M1-T2`.
+The agent must inspect actual repository state and `TASKS.md` before beginning `M1-T3`.
 
 ---
 
@@ -555,11 +562,11 @@ BASEUS
 ├── Agent protocol           LOCKED
 ├── Current tasks            ACTIVE (M1 — Desktop Core: M1-T1..M1-T6)
 │
-├── Active phase             M1 — Desktop Core (IN PROGRESS: M1-T1 VERIFIED, M1-T2 next)
+├── Active phase             M1 — Desktop Core (IN PROGRESS: M1-T1 & M1-T2 VERIFIED, M1-T3 next)
 ├── Foundation baseline      CP-M0-001 (VERIFIED — commit 9a37a142)
 ├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings)
 ├── Quickshell runtime       VERIFIED (Quickshell 0.3.2 / WSL2 Arch Linux)
-├── Hyprland live IPC        VERIFIED (Hyprland 0.57.0 + VIRTUAL-1 & VIRTUAL-2)
+├── Hyprland live IPC        VERIFIED (Hyprland 0.57.0 + VIRTUAL-1 & VIRTUAL-2 + Wayland clients)
 ├── Multi-monitor state      PARTIALLY VERIFIED (dual virtual outputs VERIFIED; UI/DRM pending)
 ├── Performance              NOT YET VERIFIED
 └── Release readiness        NOT APPLICABLE

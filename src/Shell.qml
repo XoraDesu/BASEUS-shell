@@ -46,11 +46,13 @@ Item {
         onTeardownSubsystems: function() { shell._teardownSubsystems() }
     }
 
-    // 5. ShellState — central shell state (depends on Logger, EventBus)
+    // 5. ShellState — central shell state (depends on Logger, EventBus, WorkspaceModel, WindowModel)
     Core.ShellState {
         id: _shellState
         logger: _logger
         eventBus: _eventBus
+        workspaceModel: _workspaceModel
+        windowModel: _windowModel
     }
 
     // 6. Design System Theme & Tokens (depends on Logger, EventBus)
@@ -89,6 +91,7 @@ Item {
         shellState: _shellState
         workspaceModel: _workspaceModel
         monitorModel: _monitorModel
+        windowModel: _windowModel
     }
 
     Core.MockHyprlandBridge {
@@ -98,6 +101,7 @@ Item {
         shellState: _shellState
         workspaceModel: _workspaceModel
         monitorModel: _monitorModel
+        windowModel: _windowModel
     }
 
     // =========================================================
@@ -138,6 +142,8 @@ Item {
                 bridgeConnected: bridge.connected,
                 bridgeError: bridge.lastError,
                 mode: _shellState.mode,
+                hasFullscreenApp: _shellState.hasFullscreenApp,
+                fullscreenMonitors: _shellState.fullscreenMonitors,
                 activeMonitor: _shellState.activeMonitorIndex,
                 activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex),
                 previousWorkspace: _workspaceModel.getPreviousWorkspace(_shellState.activeMonitorIndex),
@@ -145,6 +151,7 @@ Item {
                 previousWorkspaces: _workspaceModel.previousWorkspaces,
                 monitorCount: _monitorModel.getMonitorCount(),
                 windowCount: _windowModel.windows.length,
+                minimizedWindowCount: _windowModel.getMinimizedWindows().length,
                 focusedWindow: _windowModel.focusedAddress,
                 subscriptions: {
                     monitor: _eventBus.getSubscriptionCount("monitor"),
@@ -214,6 +221,154 @@ Item {
 
         function workspaces(): string {
             return JSON.stringify(_workspaceModel.getSnapshot(_shellState.activeMonitorIndex))
+        }
+
+        function windows(): string {
+            return JSON.stringify(_windowModel.getSnapshot())
+        }
+
+        function focusWindow(address: string): string {
+            var ok = shell.activeBridge.focusWindow(address)
+            return JSON.stringify({
+                focused: ok,
+                focusedWindow: _windowModel.focusedAddress,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function closeWindow(address: string): string {
+            var ok = shell.activeBridge.closeWindow(address)
+            return JSON.stringify({
+                closed: ok,
+                windowCount: _windowModel.windows.length,
+                focusedWindow: _windowModel.focusedAddress
+            })
+        }
+
+        function centerWindow(address: string, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            var ok = shell.activeBridge.centerWindow(address, monArg)
+            return JSON.stringify({
+                centered: ok,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function moveWindow(address: string, x: int, y: int): string {
+            var ok = shell.activeBridge.moveWindow(address, x, y)
+            return JSON.stringify({
+                moved: ok,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function resizeWindow(address: string, width: int, height: int): string {
+            var ok = shell.activeBridge.resizeWindow(address, width, height)
+            return JSON.stringify({
+                resized: ok,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function toggleFloating(address: string): string {
+            var ok = shell.activeBridge.toggleFloating(address)
+            return JSON.stringify({
+                toggled: ok,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function toggleMaximize(address: string): string {
+            var ok = shell.activeBridge.toggleMaximize(address)
+            return JSON.stringify({
+                toggled: ok,
+                mode: _shellState.mode,
+                hasFullscreenApp: _shellState.hasFullscreenApp,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function toggleFullscreen(address: string): string {
+            var ok = shell.activeBridge.toggleFullscreen(address)
+            return JSON.stringify({
+                toggled: ok,
+                mode: _shellState.mode,
+                hasFullscreenApp: _shellState.hasFullscreenApp,
+                fullscreenMonitors: _shellState.fullscreenMonitors,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function minimizeWindow(address: string): string {
+            var targetAddr = address || _windowModel.focusedAddress
+            var ok = shell.activeBridge.minimizeWindow(targetAddr)
+            return JSON.stringify({
+                minimized: ok,
+                mode: _shellState.mode,
+                focusedWindow: _windowModel.focusedAddress,
+                minimizedCount: _windowModel.getMinimizedWindows().length,
+                window: _windowModel.getWindowByAddress(targetAddr)
+            })
+        }
+
+        function restoreWindow(address: string, targetWorkspaceId: int, targetMonitorIndex: int): string {
+            var wsArg = (targetWorkspaceId >= 1 && targetWorkspaceId <= 10) ? targetWorkspaceId : undefined
+            var monArg = targetMonitorIndex >= 0 ? targetMonitorIndex : undefined
+            var ok = shell.activeBridge.restoreWindow(address, wsArg, monArg)
+            return JSON.stringify({
+                restored: ok,
+                activeMonitor: _shellState.activeMonitorIndex,
+                activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex),
+                focusedWindow: _windowModel.focusedAddress,
+                minimizedCount: _windowModel.getMinimizedWindows().length,
+                window: _windowModel.getWindowByAddress(address || _windowModel.focusedAddress)
+            })
+        }
+
+        function moveWindowToWorkspace(address: string, workspaceId: int, followFocus: bool): string {
+            var targetAddr = address || _windowModel.focusedAddress
+            var ok = shell.activeBridge.moveWindowToWorkspace(targetAddr, workspaceId, followFocus)
+            return JSON.stringify({
+                moved: ok,
+                transition: "pop",
+                activeMonitor: _shellState.activeMonitorIndex,
+                activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex),
+                focusedWindow: _windowModel.focusedAddress,
+                window: _windowModel.getWindowByAddress(targetAddr)
+            })
+        }
+
+        function moveWindowToMonitor(address: string, monitorIndex: int, followFocus: bool): string {
+            var targetAddr = address || _windowModel.focusedAddress
+            var ok = shell.activeBridge.moveWindowToMonitor(targetAddr, monitorIndex, followFocus)
+            return JSON.stringify({
+                moved: ok,
+                transition: "pop",
+                activeMonitor: _shellState.activeMonitorIndex,
+                activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex),
+                focusedWindow: _windowModel.focusedAddress,
+                window: _windowModel.getWindowByAddress(targetAddr)
+            })
+        }
+
+        function setMockMonitors(count: int): string {
+            var ok = _config.simulationEnabled ? _mockBridge.setMockMonitorCount(count) : false
+            return JSON.stringify({
+                updated: ok,
+                monitorCount: _monitorModel.getMonitorCount(),
+                activeWorkspaces: _workspaceModel.activeWorkspaces
+            })
+        }
+
+        function spawnMockWindow(title: string, appClass: string, workspaceId: int, width: int, height: int): string {
+            var addr = _config.simulationEnabled
+                ? _mockBridge.addMockWindow(title, appClass, workspaceId, width, height)
+                : ""
+            return JSON.stringify({
+                spawned: addr.length > 0,
+                address: addr,
+                window: _windowModel.getWindowByAddress(addr)
+            })
         }
     }
 

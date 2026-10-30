@@ -110,6 +110,20 @@ hl.window_rule({
     center = true,
 })
 
+-- Scratchpad-free minimized window suppression (DEC-038):
+-- Minimized windows remain associated with their normal 1..10 workspace without
+-- ever entering a special workspace, while becoming non-interactive and invisible.
+hl.window_rule({
+    name        = "baseus-minimized-hidden",
+    match       = { tag = "baseus_minimized" },
+    opacity     = "0.0 override",
+    no_focus    = true,
+    no_anim     = true,
+    no_shadow   = true,
+    no_blur     = true,
+    border_size = 0,
+})
+
 -- 4-finger horizontal workspace navigation (MASTER.md §7, DEC-010)
 hl.gesture({
     fingers   = 4,

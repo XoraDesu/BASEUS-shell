@@ -161,10 +161,10 @@ M1-T6 (M1 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint CP-M1-001)
 
 ### Sub-tasks
 
-- [ ] Extend `src/core/WindowModel.qml` to track window geometry (`x`, `y`, `width`, `height`), `originWorkspace` for minimized windows, explicit `maximized` vs `fullscreen` booleans (`DEC-023`), per-monitor fullscreen queries (`hasFullscreenWindow(monitorIndex)`), and workspace/monitor window filtering excluding minimized windows where appropriate.
-- [ ] Extend `src/core/ShellState.qml` so `hasFullscreenApp` and `fullscreenMonitors` track native application fullscreen per monitor accurately (ignoring maximized windows per `DEC-023`).
-- [ ] Extend `src/core/HyprlandBridge.qml` and `src/core/MockHyprlandBridge.qml` with dual Lua/Hyprlang window operations: `focusWindow`, `closeWindow`, `centerWindow`, `toggleFloating`, `setMaximized` / `toggleMaximize` (Hyprland fullscreen mode `1`), `setFullscreen` / `toggleFullscreen` (Hyprland fullscreen mode `0`), scratchpad-free `minimizeWindow` + `restoreWindow` (restoring centered onto the target workspace per `MASTER.md` §36 and `DEC-038`), and `moveWindowToWorkspace` emitting normalized POP-transition metadata (`MASTER.md` §35).
-- [ ] Expose window capability commands on `baseus` diagnostic IPC in `src/Shell.qml` and verify live with real Wayland client windows inside `Hyprland 0.57.0`.
+- [x] Extend `src/core/WindowModel.qml` to track window geometry (`x`, `y`, `width`, `height`), `originWorkspace` and `savedGeometry` for minimized/maximized windows, MRU `focusHistory`, explicit `maximized` vs `fullscreen` booleans (`DEC-023`), per-monitor fullscreen/maximize queries (`hasFullscreenWindow(monitorIndex)`, `hasMaximizedWindow(monitorIndex)`), and workspace/monitor window filtering (`getVisibleWindowsByWorkspace`, `getMinimizedWindows`, `getNextFocusableWindow`, `getSnapshot`).
+- [x] Extend `src/core/ShellState.qml` so `hasFullscreenApp`, `fullscreenMonitors`, and `isMonitorFullscreen(monitorIndex)` track native application fullscreen per monitor accurately (`"desktop"` <-> `"fullscreen"`, ignoring geometric maximized windows per `DEC-023`).
+- [x] Extend `src/core/HyprlandBridge.qml` (with direct zero-process `.socket.sock` `j/clients` sync + FIFO `[[BATCH]]dispatch` socket pipeline and `DEC-008` newly-mapped floating/center enforcement), `config/hypr/baseus-desktop.{lua,conf}` (`baseus-minimized-hidden` rule), and `src/core/MockHyprlandBridge.qml` with dual Lua/Hyprlang window operations: `focusWindow`, `closeWindow`, `moveWindow`, `resizeWindow`, `centerWindow`, `setFloating` / `toggleFloating`, `setMaximized` / `toggleMaximize` (geometric maximize preserving `16px` layout boundaries), `setFullscreen` / `toggleFullscreen` (native compositor fullscreen), scratchpad-free `minimizeWindow` + `restoreWindow` (restoring centered onto the target monitor & workspace per `MASTER.md` §36 and `DEC-038`), and `moveWindowToWorkspace` / `moveWindowToMonitor` emitting normalized POP-transition metadata (`MASTER.md` §35).
+- [x] Expose window capability commands on `baseus` diagnostic IPC in `src/Shell.qml` and verify live with real Wayland client windows inside dual-monitor `Hyprland 0.57.0`.
 
 ---
 
@@ -269,5 +269,7 @@ The agent must **STOP**:
 # 11. Current Status
 
 - **Active Phase:** `M1 — Desktop Core` (*`ROADMAP.md` §8: `M1 — Desktop Foundation`*)
-- **Completed Tasks:** `M1-T1` (Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset — `VERIFIED`)
-- **Next Executable Task:** `M1-T2` (Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore)
+- **Completed Tasks:**
+  - `M1-T1` (Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset — `VERIFIED`)
+  - `M1-T2` (Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore — `VERIFIED`)
+- **Next Executable Task:** `M1-T3` (Action Registry & Desktop Navigation Primitives: `Back` / `Home` / `Overview`)
