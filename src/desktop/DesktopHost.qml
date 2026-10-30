@@ -1,7 +1,7 @@
 // BASEUS — Desktop Host
 // Copyright (c) 2026 xoradesu — MIT License
 //
-// Multi-monitor Wayland Layer-Shell host scaffolding (M1-T4, DEC-045).
+// Multi-monitor Wayland Layer-Shell host scaffolding (M1-T4, M1-T5, DEC-045).
 // Anchors foundational desktop overlay surfaces per monitor bounds
 // while maintaining zero-cost click-through at idle and per-monitor
 // native fullscreen recession (DEC-023, DESIGN.md §14).
@@ -10,7 +10,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
-import "../theme" as ThemeModule
 
 Scope {
     id: desktopHost
@@ -22,6 +21,7 @@ Scope {
     property var eventBus: null
     property var shellState: null
     property var monitorModel: null
+    property var workspaceModel: null
     property var theme: null
 
     // =========================================================
@@ -62,10 +62,31 @@ Scope {
                 height: s.height,
                 visible: s.visible,
                 isFullscreen: s.isFullscreen,
-                layer: desktopHost.layer === WlrLayer.Top ? "top" : "overlay"
+                layer: desktopHost.layer === WlrLayer.Top ? "top" : "overlay",
+                topIsland: {
+                    timeText: s.topIslandRef ? s.topIslandRef.timeText : "",
+                    visible: s.topIslandRef ? s.topIslandRef.visible : false
+                },
+                workspaceIndicator: {
+                    active: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.active : false,
+                    currentWorkspace: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.currentWorkspace : 1,
+                    previousWorkspace: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.previousWorkspace : 1,
+                    workspaceLabel: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.workspaceLabel : ""
+                }
             })
         }
         return snapshot
+    }
+
+    function triggerWorkspaceIndicator(monitorIndex: int, prevWs: int, currWs: int, label: string): bool {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.workspaceIndicatorRef) {
+                s.workspaceIndicatorRef.showIndicator(prevWs, currWs, label)
+                return true
+            }
+        }
+        return false
     }
 
     function _registerSurface(surface: var) {
@@ -174,8 +195,11 @@ Scope {
                 keyboardFocus: WlrKeyboardFocus.None
                 exclusiveZone: 0
 
-                // Zero-cost click-through at idle: empty mask passes all input to windows below
-                mask: Region {}
+                // Constrain layer-shell input region strictly to the top island anchor body,
+                // ensuring all other desktop space remains completely click-through (DEC-029)
+                mask: Region {
+                    item: topIsland.anchorItem
+                }
 
                 readonly property string screenName: modelData ? modelData.name : ""
                 readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
@@ -188,11 +212,21 @@ Scope {
                 readonly property bool isFullscreen: desktopHost.shellState ? desktopHost.shellState.isMonitorFullscreen(layerWindow.monitorIndex) : false
                 visible: desktopHost.enabled && !layerWindow.isFullscreen
 
-                // Host container for upcoming M1-T5 surfaces (WorkspaceIndicator & TopIslandAnchor)
-                Item {
-                    id: desktopContainer
-                    anchors.fill: parent
-                    // Quiet and transparent at idle per ANTI-SLOP & DEC-029
+                readonly property var topIslandRef: topIsland
+                readonly property var workspaceIndicatorRef: workspaceIndicator
+
+                // Foundational M1 Desktop Surfaces (DEC-045)
+                TopIslandAnchor {
+                    id: topIsland
+                    theme: desktopHost.theme
+                    isFullscreen: layerWindow.isFullscreen
+                }
+
+                WorkspaceIndicator {
+                    id: workspaceIndicator
+                    theme: desktopHost.theme
+                    workspaceModel: desktopHost.workspaceModel
+                    monitorIndex: layerWindow.monitorIndex
                 }
 
                 Component.onCompleted: {
@@ -206,4 +240,3 @@ Scope {
         }
     }
 }
-

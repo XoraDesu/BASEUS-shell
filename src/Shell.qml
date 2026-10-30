@@ -134,6 +134,7 @@ Item {
         eventBus: _eventBus
         shellState: _shellState
         monitorModel: _monitorModel
+        workspaceModel: _workspaceModel
         theme: _theme
         enabled: _lifecycle.initialized
     }
@@ -479,12 +480,34 @@ Item {
             return JSON.stringify(res)
         }
 
-        // Returns current active Layer-Shell desktop surfaces (M1-T4)
+        // Returns current active Layer-Shell desktop surfaces (M1-T4, M1-T5)
         function desktopSurfaces(): string {
             return JSON.stringify({
                 enabled: _desktopHost.enabled,
                 surfaceCount: _desktopHost.surfaceCount,
                 surfaces: _desktopHost.getSurfaceSnapshot()
+            })
+        }
+
+        // Diagnostic trigger for workspace indicator (M1-T5)
+        function triggerWorkspaceIndicator(monitorIndex: int, prevWs: int, currWs: int, label: string): string {
+            var ok = _desktopHost.triggerWorkspaceIndicator(monitorIndex, prevWs, currWs, label)
+            return JSON.stringify({
+                ok: ok,
+                monitorIndex: monitorIndex,
+                current: currWs,
+                previous: prevWs,
+                label: label
+            })
+        }
+
+        // Sets user-defined workspace label (MASTER.md §7)
+        function setWorkspaceLabel(workspaceId: int, label: string): string {
+            var ok = _workspaceModel.setLabel(workspaceId, label)
+            return JSON.stringify({
+                ok: ok,
+                workspaceId: workspaceId,
+                label: label
             })
         }
     }

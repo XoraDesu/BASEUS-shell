@@ -200,16 +200,16 @@ M1-T6 (M1 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint CP-M1-001)
 
 ### Sub-tasks
 
-- [ ] Implement `src/surfaces/WorkspaceIndicator.qml` (`MASTER.md` §11, `DESIGN.md` §12, `DEC-029`):
+- [x] Implement `src/desktop/WorkspaceIndicator.qml` (`MASTER.md` §11, `DESIGN.md` §12, `DEC-029`):
   - Completely hidden at idle (never permanently showing workspace numbers).
   - Appears transiently (~2 seconds) on the switched monitor upon `WorkspaceModel` `"changed"` events.
   - Uses solid Wabi-sabi `Theme.colors.surfaceSolid` + `borderSubtle` (no glass/blur/gradients/neon glow), `Theme.typography.fontFamilyMono`, and hierarchical scaling (*"Focus grows. Context recedes."*: `previous` shrinks/dims, `current` grows/focuses).
   - Morphs cleanly into a compact pill (`2 — WEB`, `Theme.geometry.radiusPill`) when a user-defined workspace label is present, updates/resets in place during rapid consecutive switches without animation stacking (`AGENTS.md` §20), and respects `Theme.motion.reducedMotion`.
-- [ ] Implement `src/surfaces/TopIslandAnchor.qml` (`MASTER.md` §9, §12; `DESIGN.md` §9, §10, §13, §14):
+- [x] Implement `src/desktop/TopIslandAnchor.qml` (`MASTER.md` §9, §12; `DESIGN.md` §9, §10, §13, §14):
   - Edge-integrated top-center solid Wabi-sabi surface (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets.
   - Displays only quiet typographic idle clock time (minute-aligned event/timer updates — no high-frequency polling), receding smoothly when a native fullscreen application occupies that monitor (`DESIGN.md` §14).
   - Keeps M2 hover-menu expansion, quick controls, and active-system drawers strictly out of M1 scope.
-- [ ] Add M1 surface preview harness toggle in `src/dev/DesignStage.qml` and perform full `ANTI-SLOP.md` §14 removal/identity review + `qmllint 6.12.0` + live `Hyprland 0.57.0` + `Quickshell 0.3.2` runtime validation.
+- [x] Add M1 surface preview harness toggle in `src/dev/DesignStage.qml` and perform full `ANTI-SLOP.md` §14 removal/identity review + `qmllint 6.12.0` + live `Hyprland 0.57.0` + `Quickshell 0.3.2` runtime validation.
 
 ---
 
@@ -274,4 +274,5 @@ The agent must **STOP**:
   - `M1-T2` (Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore — `VERIFIED`)
   - `M1-T3` (Action Registry & Desktop Navigation Primitives: `Back` / `Home` / `Overview` — `VERIFIED`)
   - `M1-T4` (Per-Monitor Layer-Shell Desktop Scaffolding: `DesktopHost` — `VERIFIED`)
-- **Next Executable Task:** `M1-T5` (Contextual Workspace Indicator & Minimal Top Island Idle Anchor)
+  - `M1-T5` (Contextual Workspace Indicator & Minimal Top Island Idle Anchor — `VERIFIED`)
+- **Next Executable Task:** `M1-T6` (M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`)

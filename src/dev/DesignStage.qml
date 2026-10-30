@@ -11,45 +11,65 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import "../theme" as ThemeModule
+import "../desktop" as DesktopModule
 
 Rectangle {
     id: stage
     width: 1280
     height: 720
-    color: theme.colors.surfaceBase
+    color: stageTheme.colors.surfaceBase
 
     // Reference Theme tokens
     ThemeModule.Theme {
-        id: theme
+        id: stageTheme
     }
 
     // Active simulated state
     property int activeWorkspace: 1
+    property int prevWorkspace: 1
     property bool isFullscreen: false
+    property bool showM1SurfacesPreview: true
 
     // =========================================================
-    // 1. TOP ISLAND (DESIGN.md §13)
+    // 1. M1 PRODUCTION SURFACES PREVIEW (M1-T5)
     // =========================================================
-    // Top-center, edge-integrated, flush with top, ICR fillets.
+    DesktopModule.TopIslandAnchor {
+        id: liveTopIsland
+        theme: stageTheme
+        isFullscreen: stage.isFullscreen
+        visible: stage.showM1SurfacesPreview && !stage.isFullscreen
+    }
 
+    DesktopModule.WorkspaceIndicator {
+        id: liveWorkspaceIndicator
+        theme: stageTheme
+        currentWorkspace: stage.activeWorkspace
+        previousWorkspace: stage.prevWorkspace
+        workspaceLabel: stage.activeWorkspace === 2 ? "WEB" : (stage.activeWorkspace === 3 ? "DEV" : "")
+        visible: stage.showM1SurfacesPreview && liveWorkspaceIndicator.active
+    }
+
+    // =========================================================
+    // 2. DESIGN CONCEPT MOCK (Toggled off when M1 surfaces are active)
+    // =========================================================
     Item {
         id: topIslandContainer
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         height: 36
-        visible: !stage.isFullscreen
-        opacity: stage.isFullscreen ? theme.motion.recedeOpacity : 1.0
+        visible: !stage.showM1SurfacesPreview && !stage.isFullscreen
+        opacity: stage.isFullscreen ? stageTheme.motion.recedeOpacity : 1.0
 
         Behavior on opacity {
-            NumberAnimation { duration: theme.motion.durationNormal; easing.type: theme.motion.easingStandard }
+            NumberAnimation { duration: stageTheme.motion.durationNormal; easing.type: stageTheme.motion.easingStandard }
         }
 
         // Left ICR Fillet
         ThemeModule.InverseCorner {
             anchors.right: islandBody.left
             anchors.top: parent.top
-            cornerRadius: theme.geometry.islandIcr
-            fillColor: theme.colors.surfaceSolid
+            cornerRadius: stageTheme.geometry.islandIcr
+            fillColor: stageTheme.colors.surfaceSolid
             position: "top-left"
         }
 
@@ -60,36 +80,36 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             width: 220
             height: parent.height
-            color: theme.colors.surfaceSolid
+            color: stageTheme.colors.surfaceSolid
 
             // Flush top corners, rounded bottom corners
-            radius: theme.geometry.islandRadiusBottom
+            radius: stageTheme.geometry.islandRadiusBottom
 
             Row {
                 anchors.centerIn: parent
-                spacing: theme.spacing.md
+                spacing: stageTheme.spacing.md
 
                 Text {
                     text: stage.activeWorkspace === 1 ? "MAIN" : (stage.activeWorkspace === 2 ? "DEV" : "WS " + stage.activeWorkspace)
-                    font.family: theme.typography.fontFamilyMono
-                    font.pixelSize: theme.typography.sizeCaption
-                    font.weight: theme.typography.weightBold
-                    color: theme.colors.dominant
+                    font.family: stageTheme.typography.fontFamilyMono
+                    font.pixelSize: stageTheme.typography.sizeCaption
+                    font.weight: stageTheme.typography.weightBold
+                    color: stageTheme.colors.dominant
                 }
 
                 Rectangle {
                     width: 1
                     height: 12
                     anchors.verticalCenter: parent.verticalCenter
-                    color: theme.colors.borderSubtle
+                    color: stageTheme.colors.borderSubtle
                 }
 
                 Text {
                     text: "08:42"
-                    font.family: theme.typography.fontFamilyMono
-                    font.pixelSize: theme.typography.sizeCaption
-                    font.weight: theme.typography.weightRegular
-                    color: theme.colors.textPrimary
+                    font.family: stageTheme.typography.fontFamilyMono
+                    font.pixelSize: stageTheme.typography.sizeCaption
+                    font.weight: stageTheme.typography.weightRegular
+                    color: stageTheme.colors.textPrimary
                 }
             }
         }
@@ -98,35 +118,33 @@ Rectangle {
         ThemeModule.InverseCorner {
             anchors.left: islandBody.right
             anchors.top: parent.top
-            cornerRadius: theme.geometry.islandIcr
-            fillColor: theme.colors.surfaceSolid
+            cornerRadius: stageTheme.geometry.islandIcr
+            fillColor: stageTheme.colors.surfaceSolid
             position: "top-right"
         }
     }
 
     // =========================================================
-    // 2. DOCK (MASTER.md §10, DESIGN.md §11)
+    // 3. DOCK CONCEPT (M2 roadmap target, hidden in M1 focus mode)
     // =========================================================
-    // Bottom-center, edge-integrated, flush with bottom, ICR fillets.
-
     Item {
         id: dockContainer
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         height: 48
-        visible: !stage.isFullscreen
-        opacity: stage.isFullscreen ? theme.motion.recedeOpacity : 1.0
+        visible: !stage.showM1SurfacesPreview && !stage.isFullscreen
+        opacity: stage.isFullscreen ? stageTheme.motion.recedeOpacity : 1.0
 
         Behavior on opacity {
-            NumberAnimation { duration: theme.motion.durationNormal; easing.type: theme.motion.easingStandard }
+            NumberAnimation { duration: stageTheme.motion.durationNormal; easing.type: stageTheme.motion.easingStandard }
         }
 
         // Left ICR Fillet (flares into bottom edge)
         ThemeModule.InverseCorner {
             anchors.right: dockBody.left
             anchors.bottom: parent.bottom
-            cornerRadius: theme.geometry.dockIcr
-            fillColor: theme.colors.surfaceSolid
+            cornerRadius: stageTheme.geometry.dockIcr
+            fillColor: stageTheme.colors.surfaceSolid
             position: "bottom-left"
         }
 
@@ -137,19 +155,19 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             width: 440
             height: parent.height
-            color: theme.colors.surfaceSolid
+            color: stageTheme.colors.surfaceSolid
 
             // Rounded top corners, flush bottom corners
-            radius: theme.geometry.dockRadiusTop
+            radius: stageTheme.geometry.dockRadiusTop
 
             Row {
                 anchors.centerIn: parent
-                spacing: theme.spacing.lg
+                spacing: stageTheme.spacing.lg
 
                 // Workspace Indicator Pips (10 fixed workspaces, DEC-010)
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: theme.spacing.xs
+                    spacing: stageTheme.spacing.xs
 
                     Repeater {
                         model: 10
@@ -158,20 +176,24 @@ Rectangle {
                             required property int index
                             width: (wsPip.index + 1) === stage.activeWorkspace ? 18 : 6
                             height: 6
-                            radius: theme.geometry.radiusPill
-                            color: (wsPip.index + 1) === stage.activeWorkspace ? theme.colors.dominant : theme.colors.surfaceRecessed
+                            radius: stageTheme.geometry.radiusPill
+                            color: (wsPip.index + 1) === stage.activeWorkspace ? stageTheme.colors.dominant : stageTheme.colors.surfaceRecessed
 
                             Behavior on width {
-                                NumberAnimation { duration: theme.motion.durationFast; easing.type: theme.motion.easingFocus }
+                                NumberAnimation { duration: stageTheme.motion.durationFast; easing.type: stageTheme.motion.easingFocus }
                             }
                             Behavior on color {
-                                ColorAnimation { duration: theme.motion.durationFast }
+                                ColorAnimation { duration: stageTheme.motion.durationFast }
                             }
 
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: stage.activeWorkspace = wsPip.index + 1
+                                onClicked: {
+                                    stage.prevWorkspace = stage.activeWorkspace
+                                    stage.activeWorkspace = wsPip.index + 1
+                                    liveWorkspaceIndicator.showIndicator(stage.prevWorkspace, stage.activeWorkspace, stage.activeWorkspace === 2 ? "WEB" : (stage.activeWorkspace === 3 ? "DEV" : ""))
+                                }
                             }
                         }
                     }
@@ -182,13 +204,13 @@ Rectangle {
                     width: 1
                     height: 18
                     anchors.verticalCenter: parent.verticalCenter
-                    color: theme.colors.borderSubtle
+                    color: stageTheme.colors.borderSubtle
                 }
 
                 // Sample App Launcher / Pinned Slots
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: theme.spacing.sm
+                    spacing: stageTheme.spacing.sm
 
                     Repeater {
                         model: ["term", "web", "code", "files"]
@@ -197,16 +219,16 @@ Rectangle {
                             required property string modelData
                             width: 28
                             height: 28
-                            radius: theme.geometry.radiusSmall
-                            color: theme.colors.surfaceRecessed
+                            radius: stageTheme.geometry.radiusSmall
+                            color: stageTheme.colors.surfaceRecessed
 
                             Text {
                                 anchors.centerIn: parent
                                 text: appSlot.modelData[0].toUpperCase()
-                                font.family: theme.typography.fontFamilyMono
-                                font.pixelSize: theme.typography.sizeCaption
-                                font.weight: theme.typography.weightBold
-                                color: theme.colors.textSecondary
+                                font.family: stageTheme.typography.fontFamilyMono
+                                font.pixelSize: stageTheme.typography.sizeCaption
+                                font.weight: stageTheme.typography.weightBold
+                                color: stageTheme.colors.textSecondary
                             }
                         }
                     }
@@ -218,52 +240,51 @@ Rectangle {
         ThemeModule.InverseCorner {
             anchors.left: dockBody.right
             anchors.bottom: parent.bottom
-            cornerRadius: theme.geometry.dockIcr
-            fillColor: theme.colors.surfaceSolid
+            cornerRadius: stageTheme.geometry.dockIcr
+            fillColor: stageTheme.colors.surfaceSolid
             position: "bottom-right"
         }
     }
 
     // =========================================================
-    // 3. OFFLINE SIMULATION CONTROLLER (Floating Test Palette)
+    // 4. TEST HARNESS CONTROLLER (Floating Test Palette)
     // =========================================================
-
     Rectangle {
         id: controlPanel
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: theme.spacing.lg
+        anchors.margins: stageTheme.spacing.lg
         width: 260
-        height: 200
-        color: theme.colors.surfaceSolid
-        radius: theme.geometry.radiusMedium
-        border.color: theme.colors.borderSubtle
-        border.width: theme.geometry.borderWidth
+        height: 250
+        color: stageTheme.colors.surfaceSolid
+        radius: stageTheme.geometry.radiusMedium
+        border.color: stageTheme.colors.borderSubtle
+        border.width: stageTheme.geometry.borderWidth
 
         Column {
             anchors.fill: parent
-            anchors.margins: theme.spacing.md
-            spacing: theme.spacing.sm
+            anchors.margins: stageTheme.spacing.md
+            spacing: stageTheme.spacing.sm
 
             Text {
                 text: "BASEUS DESIGN STAGE"
-                font.family: theme.typography.fontFamilyMono
-                font.pixelSize: theme.typography.sizeMicro
-                font.weight: theme.typography.weightBold
-                font.letterSpacing: theme.typography.letterSpacingCaps
-                color: theme.colors.textMuted
+                font.family: stageTheme.typography.fontFamilyMono
+                font.pixelSize: stageTheme.typography.sizeMicro
+                font.weight: stageTheme.typography.weightBold
+                font.letterSpacing: stageTheme.typography.letterSpacingCaps
+                color: stageTheme.colors.textMuted
             }
 
             Text {
                 text: "Workspace Navigation (1–10)"
-                font.family: theme.typography.fontFamily
-                font.pixelSize: theme.typography.sizeCaption
-                color: theme.colors.textSecondary
+                font.family: stageTheme.typography.fontFamily
+                font.pixelSize: stageTheme.typography.sizeCaption
+                color: stageTheme.colors.textSecondary
             }
 
             Grid {
                 columns: 5
-                spacing: theme.spacing.xs
+                spacing: stageTheme.spacing.xs
 
                 Repeater {
                     model: 10
@@ -272,24 +293,53 @@ Rectangle {
                         required property int index
                         width: 40
                         height: 24
-                        radius: theme.geometry.radiusSmall
-                        color: (wsGridCell.index + 1) === stage.activeWorkspace ? theme.colors.dominant : theme.colors.surfaceRecessed
+                        radius: stageTheme.geometry.radiusSmall
+                        color: (wsGridCell.index + 1) === stage.activeWorkspace ? stageTheme.colors.dominant : stageTheme.colors.surfaceRecessed
 
                         Text {
                             anchors.centerIn: parent
                             text: String(wsGridCell.index + 1)
-                            font.family: theme.typography.fontFamilyMono
-                            font.pixelSize: theme.typography.sizeCaption
-                            font.weight: theme.typography.weightBold
-                            color: (wsGridCell.index + 1) === stage.activeWorkspace ? theme.colors.textInverse : theme.colors.textPrimary
+                            font.family: stageTheme.typography.fontFamilyMono
+                            font.pixelSize: stageTheme.typography.sizeCaption
+                            font.weight: stageTheme.typography.weightBold
+                            color: (wsGridCell.index + 1) === stage.activeWorkspace ? stageTheme.colors.textInverse : stageTheme.colors.textPrimary
                         }
 
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: stage.activeWorkspace = wsGridCell.index + 1
+                            onClicked: {
+                                stage.prevWorkspace = stage.activeWorkspace
+                                stage.activeWorkspace = wsGridCell.index + 1
+                                liveWorkspaceIndicator.showIndicator(stage.prevWorkspace, stage.activeWorkspace, stage.activeWorkspace === 2 ? "WEB" : (stage.activeWorkspace === 3 ? "DEV" : ""))
+                            }
                         }
                     }
+                }
+            }
+
+            // M1 Surface Preview Toggle
+            Rectangle {
+                width: parent.width
+                height: 28
+                radius: stageTheme.geometry.radiusSmall
+                color: stage.showM1SurfacesPreview ? stageTheme.colors.surfaceHighlight : stageTheme.colors.surfaceRecessed
+                border.width: stageTheme.geometry.borderWidth
+                border.color: stage.showM1SurfacesPreview ? stageTheme.colors.dominant : stageTheme.colors.borderSubtle
+
+                Text {
+                    anchors.centerIn: parent
+                    text: stage.showM1SurfacesPreview ? "M1 Surface Preview: Active" : "M1 Surface Preview: Off"
+                    font.family: stageTheme.typography.fontFamily
+                    font.pixelSize: stageTheme.typography.sizeCaption
+                    font.weight: stageTheme.typography.weightMedium
+                    color: stage.showM1SurfacesPreview ? stageTheme.colors.dominant : stageTheme.colors.textSecondary
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: stage.showM1SurfacesPreview = !stage.showM1SurfacesPreview
                 }
             }
 
@@ -297,16 +347,16 @@ Rectangle {
             Rectangle {
                 width: parent.width
                 height: 28
-                radius: theme.geometry.radiusSmall
-                color: stage.isFullscreen ? theme.colors.accent : theme.colors.surfaceRecessed
+                radius: stageTheme.geometry.radiusSmall
+                color: stage.isFullscreen ? stageTheme.colors.accent : stageTheme.colors.surfaceRecessed
 
                 Text {
                     anchors.centerIn: parent
                     text: stage.isFullscreen ? "Exit Fullscreen" : "Simulate Fullscreen App"
-                    font.family: theme.typography.fontFamily
-                    font.pixelSize: theme.typography.sizeCaption
-                    font.weight: theme.typography.weightMedium
-                    color: stage.isFullscreen ? theme.colors.textInverse : theme.colors.textPrimary
+                    font.family: stageTheme.typography.fontFamily
+                    font.pixelSize: stageTheme.typography.sizeCaption
+                    font.weight: stageTheme.typography.weightMedium
+                    color: stage.isFullscreen ? stageTheme.colors.textInverse : stageTheme.colors.textPrimary
                 }
 
                 MouseArea {

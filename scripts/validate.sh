@@ -111,6 +111,8 @@ validate_structure() {
     check_file "src/core/NavigationController.qml"
     check_dir "src/desktop"
     check_file "src/desktop/DesktopHost.qml"
+    check_file "src/desktop/TopIslandAnchor.qml"
+    check_file "src/desktop/WorkspaceIndicator.qml"
     check_dir "src/theme"
     check_file "src/theme/Theme.qml"
     check_file "src/theme/Colors.qml"
