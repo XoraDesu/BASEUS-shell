@@ -137,6 +137,9 @@ Item {
         shellState: _shellState
         monitorModel: _monitorModel
         workspaceModel: _workspaceModel
+        windowModel: _windowModel
+        config: _config
+        bridge: shell.activeBridge
         theme: _theme
         enabled: _lifecycle.initialized
     }
@@ -538,6 +541,24 @@ Item {
             return JSON.stringify({
                 monitorIndex: monitorIndex,
                 revealed: _desktopHost.isDockRevealed(monitorIndex)
+            })
+        }
+
+        // Queries Dock items on specified monitor (M2-T2)
+        function dockItems(monitorIndex: int): string {
+            return JSON.stringify({
+                monitorIndex: monitorIndex,
+                items: _desktopHost.getDockItems(monitorIndex)
+            })
+        }
+
+        // Activates/clicks Dock item by ID on specified monitor (M2-T2)
+        function clickDockItem(monitorIndex: int, itemId: string): string {
+            var ok = _desktopHost.clickDockItem(monitorIndex, itemId)
+            return JSON.stringify({
+                ok: ok,
+                monitorIndex: monitorIndex,
+                itemId: itemId
             })
         }
     }

@@ -170,10 +170,10 @@ M2-T6 (M2 Integration, Anti-Slop Audit & Checkpoint CP-M2-001)
 
 ### Sub-tasks
 
-- [ ] Implement `src/core/DockModel.qml` managing global pinned application definitions and workspace-specific active clients derived from `WindowModel`.
-- [ ] Implement `src/desktop/DockItem.qml` rendering solid Wabi-sabi application tiles, running indicator pips, active workspace window count badges, and click/launch dispatch.
-- [ ] Support pin management (pin/unpin from config or context menu).
-- [ ] Validate multi-monitor and multi-workspace window association.
+- [x] Implement `src/desktop/DockModel.qml` managing global pinned application definitions and workspace-specific active clients derived from `WindowModel`.
+- [x] Implement `src/desktop/DockItem.qml` rendering solid Wabi-sabi application tiles, running indicator pips, active workspace window count badges, and click/launch dispatch.
+- [x] Support pin management (persistent pinned apps from `config/baseus.json` via `Config.qml`, global pin matching, dynamic aggregation).
+- [x] Validate multi-monitor and multi-workspace window association (zero leakage across monitors/workspaces in dual-monitor Hyprland 0.57.0 runtime).
 
 ---
 
@@ -280,5 +280,6 @@ The agent must **STOP**:
   - `M1 — Desktop Core` (`CP-M1-001` `VERIFIED`)
 - **Completed Tasks in Phase:**
   - `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding — `COMPLETE / VERIFIED`)
-- **Active Task:** `M2-T1` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M2-T2` (Dock Application State & Pinning — awaiting user prompt).
+  - `M2-T2` (Dock Application State & Pinning — `COMPLETE / VERIFIED`)
+- **Active Task:** `M2-T2` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M2-T3` (Top Island Hover Expansion & Contextual Header — awaiting user prompt).

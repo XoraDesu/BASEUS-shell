@@ -1835,6 +1835,13 @@ QtObject {
         return moveWindowToWorkspace(windowAddress, targetWs, followFocus)
     }
 
+    function launchApp(command) {
+        var cmd = String(command || "").trim()
+        if (cmd.length === 0) return false
+        if (logger) logger.info("HyprlandBridge", "Launching application: %1".arg(cmd))
+        return _dispatchBatch(["exec " + cmd], true, false)
+    }
+
     // =========================================================
     // Monitor Queries & Teardown
     // =========================================================

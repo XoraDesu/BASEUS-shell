@@ -114,6 +114,8 @@ validate_structure() {
     check_file "src/desktop/TopIslandAnchor.qml"
     check_file "src/desktop/WorkspaceIndicator.qml"
     check_file "src/desktop/DockAnchor.qml"
+    check_file "src/desktop/DockModel.qml"
+    check_file "src/desktop/DockItem.qml"
     check_dir "src/theme"
     check_file "src/theme/Theme.qml"
     check_file "src/theme/Colors.qml"

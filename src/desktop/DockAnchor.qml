@@ -25,6 +25,12 @@ Item {
     readonly property ThemeModule.Theme currentTheme: dockAnchor.theme ? dockAnchor.theme : dockAnchor.defaultTheme
     property bool isFullscreen: false
 
+    property var config: null
+    property var windowModel: null
+    property var workspaceModel: null
+    property var bridge: null
+    property int monitorIndex: 0
+
     // Dimensions
     readonly property int dockHeight: 48
     readonly property int minDockWidth: 160
@@ -32,6 +38,34 @@ Item {
 
     // State Machine
     property bool revealed: false
+
+    // Dock Model & Telemetry (M2-T2)
+    DockModel {
+        id: dockModel
+        config: dockAnchor.config
+        windowModel: dockAnchor.windowModel
+        workspaceModel: dockAnchor.workspaceModel
+        bridge: dockAnchor.bridge
+        monitorIndex: dockAnchor.monitorIndex
+    }
+
+    readonly property alias model: dockModel
+    readonly property int itemCount: dockModel.itemCount
+    readonly property var dockItems: dockModel.items
+
+    function getSnapshot(): var {
+        return dockModel.getSnapshot()
+    }
+
+    function activateItemById(id: string): bool {
+        for (var i = 0; i < dockModel.items.length; i++) {
+            var it = dockModel.items[i]
+            if (it && (it.id === id || it.pinId === id || it.appClass === id)) {
+                return dockModel.activateItem(it)
+            }
+        }
+        return false
+    }
 
     // Layer-shell mask aliases
     readonly property alias triggerItem: triggerArea
@@ -169,27 +203,24 @@ Item {
             border.width: dockAnchor.currentTheme.geometry.borderWidth
             border.color: dockAnchor.currentTheme.colors.borderSubtle
 
-            // Scaffolding content row (foundation for M2-T2 items)
+            // Items content row (M2-T2)
             Row {
                 id: contentRow
                 anchors.centerIn: parent
-                spacing: dockAnchor.currentTheme.spacing.md
+                spacing: dockAnchor.currentTheme.spacing.xs
 
-                Rectangle {
-                    width: 6
-                    height: 6
-                    radius: dockAnchor.currentTheme.geometry.radiusPill
-                    color: dockAnchor.currentTheme.colors.dominant
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+                Repeater {
+                    model: dockModel.items
 
-                Text {
-                    text: "BASEUS"
-                    font.family: dockAnchor.currentTheme.typography.fontFamilyMono
-                    font.pixelSize: dockAnchor.currentTheme.typography.sizeCaption
-                    font.weight: Font.Medium
-                    color: dockAnchor.currentTheme.colors.textSecondary
-                    anchors.verticalCenter: parent.verticalCenter
+                    DockItem {
+                        id: itemDelegate
+                        required property var modelData
+                        itemData: itemDelegate.modelData
+                        theme: dockAnchor.currentTheme
+                        onActivated: function(data) {
+                            dockModel.activateItem(data)
+                        }
+                    }
                 }
             }
         }
@@ -219,3 +250,4 @@ Item {
         }
     }
 }
+

@@ -69,6 +69,12 @@ QtObject {
     property int dockTriggerHeight: 2          // pixels
     property int dockRevealDuration: 200       // ms
     property bool dockShowLauncher: true
+    property var dockPinnedApps: [
+        { id: "terminal", title: "Terminal", appClass: "kitty", command: "kitty", icon: "utilities-terminal" },
+        { id: "browser", title: "Browser", appClass: "firefox", command: "firefox", icon: "firefox" },
+        { id: "editor", title: "Editor", appClass: "code", command: "code", icon: "text-editor" },
+        { id: "files", title: "Files", appClass: "thunar", command: "thunar", icon: "system-file-manager" }
+    ]
 
     // Top Island
     property int topIslandIdleTimeout: 2000    // ms before secondary info hides
@@ -103,6 +109,12 @@ QtObject {
         dockTriggerHeight = 2
         dockRevealDuration = 200
         dockShowLauncher = true
+        dockPinnedApps = [
+            { id: "terminal", title: "Terminal", appClass: "kitty", command: "kitty", icon: "utilities-terminal" },
+            { id: "browser", title: "Browser", appClass: "firefox", command: "firefox", icon: "firefox" },
+            { id: "editor", title: "Editor", appClass: "code", command: "code", icon: "text-editor" },
+            { id: "files", title: "Files", appClass: "thunar", command: "thunar", icon: "system-file-manager" }
+        ]
         topIslandIdleTimeout = 2000
         notificationTimeout = 3000
         notificationPosition = "top-left"
@@ -161,6 +173,7 @@ QtObject {
             if (typeof root.dock.triggerHeight === "number") dockTriggerHeight = Math.round(root.dock.triggerHeight)
             if (typeof root.dock.revealDuration === "number") dockRevealDuration = Math.round(root.dock.revealDuration)
             if (typeof root.dock.showLauncher === "boolean") dockShowLauncher = root.dock.showLauncher
+            if (Array.isArray(root.dock.pinnedApps)) dockPinnedApps = root.dock.pinnedApps
         }
 
         if (root.topIsland && typeof root.topIsland === "object") {

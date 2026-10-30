@@ -22,6 +22,9 @@ Scope {
     property var shellState: null
     property var monitorModel: null
     property var workspaceModel: null
+    property var windowModel: null
+    property var config: null
+    property var bridge: null
     property var theme: null
 
     // =========================================================
@@ -75,11 +78,33 @@ Scope {
                 },
                 dock: {
                     revealed: s.dockRef ? s.dockRef.revealed : false,
-                    visible: s.dockRef ? s.dockRef.visible : false
+                    visible: s.dockRef ? s.dockRef.visible : false,
+                    itemCount: s.dockRef ? s.dockRef.itemCount : 0,
+                    items: s.dockRef ? s.dockRef.getSnapshot() : []
                 }
             })
         }
         return snapshot
+    }
+
+    function clickDockItem(monitorIndex: int, itemId: string): bool {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.dockRef) {
+                return s.dockRef.activateItemById(itemId)
+            }
+        }
+        return false
+    }
+
+    function getDockItems(monitorIndex: int): var {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.dockRef) {
+                return s.dockRef.getSnapshot()
+            }
+        }
+        return []
     }
 
     function revealDock(monitorIndex: int): bool {
@@ -272,10 +297,15 @@ Scope {
                     monitorIndex: layerWindow.monitorIndex
                 }
 
-                // Primary Interaction Surfaces (M2-T1, DEC-015)
+                // Primary Interaction Surfaces (M2-T1, M2-T2, DEC-015)
                 DockAnchor {
                     id: dock
                     theme: desktopHost.theme
+                    config: desktopHost.config
+                    windowModel: desktopHost.windowModel
+                    workspaceModel: desktopHost.workspaceModel
+                    bridge: desktopHost.bridge
+                    monitorIndex: layerWindow.monitorIndex
                     isFullscreen: layerWindow.isFullscreen
                 }
 

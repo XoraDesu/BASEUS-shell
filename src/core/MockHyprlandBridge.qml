@@ -940,6 +940,19 @@ QtObject {
         return connected ? mockMonitors.length : 0
     }
 
+    property var launchedApps: []
+
+    function launchApp(command) {
+        if (!connected) return false
+        var cmd = String(command || "").trim()
+        if (cmd.length === 0) return false
+        var next = launchedApps.slice()
+        next.push(cmd)
+        launchedApps = next
+        if (logger) logger.info("MockBridge", "Mock launchApp: %1".arg(cmd))
+        return true
+    }
+
     // =========================================================
     // Teardown
     // =========================================================

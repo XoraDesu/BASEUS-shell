@@ -80,13 +80,15 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Active milestone transitioned from M1 to M2 following verified approval of `CP-M1-001`. Task `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding) is COMPLETE and VERIFIED. STOPPED at M2-T1 task boundary per `AGENTS.md` §46.**
+**IN PROGRESS — Active milestone transitioned from M1 to M2 following verified approval of `CP-M1-001`. Tasks `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding) and `M2-T2` (Dock Application State & Pinning) are COMPLETE and VERIFIED. STOPPED at M2-T2 task boundary per `AGENTS.md` §46.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
 The **M1 — Desktop Core** baseline is complete, approved, and anchored at verified checkpoint `CP-M1-001` (commit `d29a54f6a2a32658ba9ddc03ebf2e7a1bb41301b`) with zero anti-slop violations, 100% `pragma ComponentBehavior: Bound` compliance, and verified live dual-monitor Hyprland 0.57.0 runtime behavior.
 
-Task `M2-T1` (*Bottom-Edge Cursor Trigger & Dock Scaffolding*) is implemented, audited (0 anti-slop violations, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 26 QML files), and runtime-verified under both offline simulation (`BASEUS_SIMULATION=1`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux.
+Task `M2-T1` (*Bottom-Edge Cursor Trigger & Dock Scaffolding*) is implemented and verified.
+
+Task `M2-T2` (*Dock Application State & Pinning*) is implemented, audited (0 anti-slop violations, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 28 QML files), and runtime-verified under both offline simulation (`BASEUS_SIMULATION=1`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux.
 
 ---
 
@@ -95,7 +97,7 @@ Task `M2-T1` (*Bottom-Edge Cursor Trigger & Dock Scaffolding*) is implemented, a
 `TASKS.md` defines the executable **M2 — Interaction** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
 
 1. **`M2-T1` — Bottom-Edge Cursor Trigger & Dock Scaffolding:** `COMPLETE / VERIFIED`
-2. **`M2-T2` — Dock Application State & Pinning:** `NOT STARTED`
+2. **`M2-T2` — Dock Application State & Pinning:** `COMPLETE / VERIFIED`
 3. **`M2-T3` — Top Island Hover Expansion & Contextual Header:** `NOT STARTED`
 4. **`M2-T4` — Command Center Surface & Action Prefix Routing:** `NOT STARTED`
 5. **`M2-T5` — Fullscreen App Drawer & Alphabet Fast Scroller:** `NOT STARTED`
@@ -126,8 +128,11 @@ Current factual implementation status:
 - `TopIslandAnchor.qml` (`src/desktop/TopIslandAnchor.qml`) implements an edge-integrated top-center solid Wabi-sabi idle anchor (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets, displaying a quiet typographic clock updated on minute boundaries without polling, smoothly receding during per-monitor native fullscreen (`DESIGN.md` §14);
 - `WorkspaceIndicator.qml` (`src/desktop/WorkspaceIndicator.qml`) implements contextual workspace HUD presentation triggered on workspace switch events from `EventBus`, auto-hiding after ~2000ms (`DEC-029`), displaying active workspace context against the fixed 10-workspace bounds with hierarchical scaling (*"Focus grows. Context recedes."*), morphing into a compact labeled pill (`Theme.geometry.radiusPill`) when a label exists, resetting in place without animation stacking during rapid switches (`AGENTS.md` §20), suppressing initial compositor startup discovery bursts via a 600ms ready guard, and respecting `Theme.motion.reducedMotion`;
 - `DockAnchor.qml` (`src/desktop/DockAnchor.qml`) implements the bottom-center edge-integrated solid Wabi-sabi dock scaffolding (`dockRadiusTop: 12`, `dockRadiusBottom: 0`) flanked by organic `InverseCorner` (`ICR`) fillets (`position: "bottom-left"`, `position: "bottom-right"`), recessed/hidden by default at idle with a 1–2px bottom-edge cursor trigger strip (`triggerHeight: 2`), cursor reveal and 400ms auto-recess state machine, dynamic input region mask collapsing to 2px at idle, fullscreen recession (`DEC-023`, `DESIGN.md` §14), and reduced motion compliance (`theme.motion.reducedMotion`);
-- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 26 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- Task `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding) is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation and live dual-monitor Hyprland 0.57.0 E2E tests;
+- `DockModel.qml` (`src/desktop/DockModel.qml`) implements the reactive dock data model distinguishing global pinned applications (`dockPinnedApps` from `config/baseus.json`) from workspace-specific active applications (`WindowModel`), enforcing DEC-015: pinned applications remain globally present across all 10 workspaces while unpinned running applications appear only on their active workspace, tracking multi-window aggregation, MRU focus order, and single-click focus / multi-click MRU cycling / inactive pin launch (`launchApp`);
+- `DockItem.qml` (`src/desktop/DockItem.qml`) implements the solid Wabi-sabi application tile without nested card slop (`ANTI-SLOP.md` §6.1), composed of `IconImage` with typographic uppercase fallback, hierarchical running indicator pip (prominent elongated pill for focused window, primary pip for active workspace window, subtle pip for other workspace), multi-window count badge (> 1), and interactive click/hover dispatch;
+- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `dockItems(monitorIndex)` returns reactive dock snapshot; `clickDockItem(monitorIndex, itemId)` dispatches click to dock item;
+- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 28 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- Task `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding) and Task `M2-T2` (Dock Application State & Pinning) are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation and live dual-monitor Hyprland 0.57.0 E2E tests;
 - M1 task `M1-T6` (E2E multi-monitor validation, anti-slop audit & checkpoint `CP-M1-001`) is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across all live dual-monitor E2E tests;
 - Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;
 - No performance baseline is claimed;
@@ -535,7 +540,7 @@ Implementation must not modify product intent simply because current reality dif
 
 The immediate execution target is:
 
-> **Task M2-T2 — Dock Application State & Pinning** per `TASKS.md` §7 and `DEC-045`. Task **M2-T1** (Bottom-Edge Cursor Trigger & Dock Scaffolding) is 100% complete and verified. The agent must **STOP** at the M2-T1 task boundary per `AGENTS.md` §46 and await user authorization before starting M2-T2.
+> **Task M2-T3 — Top Island Hover Expansion & Contextual Header** per `TASKS.md` §7 and `DEC-045`. Task **M2-T2** (Dock Application State & Pinning) is 100% complete and verified. The agent must **STOP** at the M2-T2 task boundary per `AGENTS.md` §46 and await user authorization before starting M2-T3.
 
 ---
 
@@ -584,14 +589,14 @@ BASEUS
 ├── Agent protocol           LOCKED
 ├── Current tasks            ACTIVE (M2 — Interaction: M2-T1..M2-T6)
 │
-├── Active phase             M2 — Interaction (IN PROGRESS: M2-T1 COMPLETE / VERIFIED)
-├── Interaction baseline     IN PROGRESS (M2-T1 COMPLETE)
+├── Active phase             M2 — Interaction (IN PROGRESS: M2-T1 & M2-T2 COMPLETE / VERIFIED)
+├── Interaction baseline     IN PROGRESS (M2-T1 & M2-T2 COMPLETE)
 ├── Desktop Core baseline    CP-M1-001 (VERIFIED — commit d29a54f)
 ├── Foundation baseline      CP-M0-001 (VERIFIED — commit 9a37a142)
-├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings)
+├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings across all 28 QML files)
 ├── Quickshell runtime       VERIFIED (Quickshell 0.3.2 / WSL2 Arch Linux)
 ├── Hyprland live IPC        VERIFIED (Hyprland 0.57.0 + VIRTUAL-1 & VIRTUAL-2 + Wayland clients)
-├── Multi-monitor state      PARTIALLY VERIFIED (dual virtual outputs & M1 surfaces VERIFIED; DRM pending)
+├── Multi-monitor state      PARTIALLY VERIFIED (dual virtual outputs & M1/M2 surfaces VERIFIED; DRM pending)
 ├── Performance              NOT YET VERIFIED
 └── Release readiness        NOT APPLICABLE
 ```

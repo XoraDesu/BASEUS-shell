@@ -15,7 +15,37 @@
         "dock": {
             "triggerHeight": 2,
             "revealDuration": 200,
-            "showLauncher": true
+            "showLauncher": true,
+            "pinnedApps": [
+                {
+                    "id": "terminal",
+                    "title": "Terminal",
+                    "appClass": "kitty",
+                    "command": "kitty",
+                    "icon": "utilities-terminal"
+                },
+                {
+                    "id": "browser",
+                    "title": "Browser",
+                    "appClass": "firefox",
+                    "command": "firefox",
+                    "icon": "firefox"
+                },
+                {
+                    "id": "editor",
+                    "title": "Editor",
+                    "appClass": "code",
+                    "command": "code",
+                    "icon": "text-editor"
+                },
+                {
+                    "id": "files",
+                    "title": "Files",
+                    "appClass": "thunar",
+                    "command": "thunar",
+                    "icon": "system-file-manager"
+                }
+            ]
         },
 
         "topIsland": {
