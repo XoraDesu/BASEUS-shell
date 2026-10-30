@@ -351,7 +351,7 @@ This checkpoint represents the conceptual/documentation baseline from which the 
 
 ### Repository
 
-- **Commit:** `e3218a5e5f09792583b79873299ff71ca5925d16` (working tree contains M0 implementation and runtime-validated fixes)
+- **Commit:** `9a37a1420dd702ed8fe4d1ed036016d1732f60ea` (`feat(m0): complete verified M0 foundation baseline (CP-M0-001)`, anchored on top of `e3218a5e5f09792583b79873299ff71ca5925d16`)
 - **Branch:** `main`
 - **Working tree:** Implementation files present (`shell.qml`, `src/`, `config/`, `docs/`, `scripts/`)
 - **Repository structure:** Matches `MASTER.md` §59 and `TASKS.md` §7

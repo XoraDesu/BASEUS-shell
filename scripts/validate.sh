@@ -124,6 +124,9 @@ validate_structure() {
     echo "  Configuration:"
     check_dir "config"
     check_file "config/baseus.json"
+    check_dir "config/hypr"
+    check_file "config/hypr/baseus-desktop.lua"
+    check_file "config/hypr/baseus-desktop.conf"
 
     # Documentation
     echo ""

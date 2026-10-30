@@ -29,13 +29,13 @@ The active development flow is:
 ```text
 ROADMAP
    ↓
-Current Phase
+Current Phase (M1 — Desktop Core / Desktop Foundation)
    ↓
 TASKS.md
    ↓
-Implementation
+Implementation (Capability → Surface)
    ↓
-Validation
+Validation (Static + Live Runtime + Anti-Slop)
    ↓
 STATE.md
    ↓
@@ -44,778 +44,230 @@ CHECKPOINT.md
 
 Only tasks inside the active phase are normally executable.
 
+M0 Foundation architecture is now protected under **Foundation Freeze** (`DEC-043`). M1 work must extend M0 subsystems (`Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, domain models, and `HyprlandBridge` / `MockHyprlandBridge`) rather than recreating parallel state or event systems.
+
 ---
 
 # 3. Current Phase
 
 ## Milestone
 
-**M0 — Foundation**
+**M1 — Desktop Core** (*`ROADMAP.md` §8: `M1 — Desktop Foundation`*)
 
 ## Phase
 
-**M0 — Foundation**
+**M1 — Desktop Core**
 
 ## Phase Goal
 
-Establish the coherent technical and repository foundation required for BASEUS to exist as a Quickshell-based Linux + Hyprland desktop shell.
-
-The foundation must support later capabilities without forcing each future surface to rebuild its own state, event, lifecycle, or runtime assumptions.
+Establish the core desktop, workspace, freeform window-management, navigation, and minimal foundational surface capabilities that all later BASEUS surfaces depend on, preserving a quiet Wabi-sabi idle desktop (`MASTER.md` §9), solid palette-derived surfaces (`DESIGN.md` §8), contextual motion (*"Focus grows. Context recedes."*), and freeform-first window agency (`DEC-008`).
 
 ---
 
 # 4. Phase Scope
 
-This phase establishes:
+### IN SCOPE
 
-- repository/source-of-truth structure;
-- Quickshell runtime/bootstrap;
-- BASEUS shell lifecycle;
-- core state architecture;
-- core event architecture;
-- baseline Hyprland integration;
-- configuration/state boundaries;
-- diagnostics/logging;
-- development validation workflow.
+- **Workspace capability (`MASTER.md` §7, §39; `DEC-010`):**
+  - Fixed 10-workspace model (`1..10`); workspace count cannot be changed.
+  - Per-monitor workspace state (`activeWorkspaces` and `previousWorkspaces` per monitor index, monitor-hotplug reconciliation, and workspace occupancy derived from `WindowModel`).
+  - User-defined optional workspace labels and tags (`labels`, `tags`).
+  - Direct workspace navigation (`1..10`, `Super+1` through `Super+0`) and bounded relative navigation (`nextWorkspace` / `previousWorkspace`, `4-finger swipe left/right` where platform input hardware permits).
+  - BASEUS Hyprland desktop core configuration presets (`config/hypr/baseus-desktop.lua` for Hyprland `0.57+` Lua config manager and `config/hypr/baseus-desktop.conf` for legacy Hyprlang `< 0.57`).
+- **Freeform window capability (`MASTER.md` §6, §35, §36, §38; `DESIGN.md` §34; `DEC-008`, `DEC-009`, `DEC-023`, `DEC-038`):**
+  - Freeform floating windows by default, centered new-window placement, and overlap as a valid desktop state (no forced tiling).
+  - Window geometry (`x`, `y`, `width`, `height`) and per-monitor state tracking.
+  - Explicit distinction between **maximize** (literal workspace/screen occupation, Hyprland fullscreen mode `1`) and **native application fullscreen** (Hyprland fullscreen mode `0`, causing shell chrome on that monitor to recede per `DESIGN.md` §14).
+  - **Minimize & centered restore** without exposing a scratchpad mental model (`DEC-038`, `MASTER.md` §36).
+  - Window movement between workspaces (`1..10`) and normalized POP-style workspace-move transition event hooks (`MASTER.md` §35).
+- **Navigation capability (`MASTER.md` §8, §34; `DEC-024`, `DEC-028`):**
+  - Action identity decoupled from keyboard/gesture/UI triggers (`ActionRegistry` foundation: `Discover → Customize → Execute`).
+  - Desktop context and `Back` / `Home` / `Overview` mental-model primitives (`NavigationController`).
+- **Core layout scaffolding & minimal foundational desktop surfaces (`MASTER.md` §9, §11, §12, §39; `DESIGN.md` §5–14, §26–28; `ANTI-SLOP.md`; `DEC-002`, `DEC-004`, `DEC-006`, `DEC-029`):**
+  - Per-monitor Quickshell Wayland Layer-Shell desktop overlay host (`src/surfaces/DesktopHost.qml`) with zero-cost click-through idle behavior and per-monitor native fullscreen recession (`DESIGN.md` §14).
+  - **Contextual Workspace Indicator** (`src/surfaces/WorkspaceIndicator.qml`): completely hidden at idle, appearing transiently (~2 seconds) on the affected monitor when switching workspaces, using solid Wabi-sabi palette surfaces, hierarchical scaling (`previous` shrinks/recedes, `current` grows/focuses), optional compact pill morph (`2 — WEB`) when a workspace label exists, and in-place morphing on rapid switches (`AGENTS.md` §20).
+  - **Minimal Top Island Idle Anchor Foundation** (`src/surfaces/TopIslandAnchor.qml`): quiet top-center edge-integrated solid Wabi-sabi anchor with organic `InverseCorner` (`ICR`) fillets showing only calm typographic time at idle (`MASTER.md` §9) and receding during native fullscreen (`DESIGN.md` §14).
 
 ---
 
 # 5. Phase Non-Goals
 
-The following are **not** current M0 tasks:
+### OUT OF SCOPE
 
-- Dock;
-- App Drawer;
-- Command Center;
-- Top Island;
-- complete notification surface;
-- complete OSD system;
-- complete media UI;
-- theme editor;
-- wallpaper UX;
-- widget system;
-- Headquarter;
-- advanced Overview;
-- advanced window intelligence;
-- Power Menu personality layer;
-- Bongo Cat personality layer;
-- installer;
-- updater;
-- release hardening.
+The following belong to future milestones in `ROADMAP.md` and must **not** be implemented in M1:
 
-Future capabilities remain in `ROADMAP.md`.
+- Dock surface, 1–2 px bottom-edge cursor trigger, and pixel/curtain reveal (`M2`);
+- Full Top Island hover expansion, active status expansion, and quick controls (`M2`);
+- Command Center and prefix routing (`M2`);
+- App Drawer and category/app grid (`M2`);
+- Notifications, OSD, and Media / Bongo Cat surfaces (`M3`);
+- Wallpaper runtime, Matugen extraction pipeline, Theme presets, Widgets, and Headquarter (`M4`);
+- Full Helicopter View / Overview UI, Alt+Tab switcher UI, and smart snap/grid arrangement (`M5`);
+- Power Menu constellation, sleeping chibi, and personality choreography (`M6`);
+- Multi-distro installer, updater, uninstaller, and doctor CLI (`M7`);
+- Performance benchmarking and release freeze (`M8`–`M9`).
 
 ---
 
 # 6. Dependencies
 
-M0 depends on:
+M1 depends on:
 
-- Linux;
-- Hyprland;
-- Quickshell;
-- the repository environment;
-- the locked product/design/governance documents.
-
-Where a live Hyprland/Wayland environment is unavailable, static validation may be performed, but runtime behavior must remain explicitly unverified.
+- **Verified M0 Foundation (`CP-M0-001` `VERIFIED`, commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`):** `Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, `MonitorModel`, `WorkspaceModel`, `WindowModel`, `HyprlandBridge`, `MockHyprlandBridge`, and `src/theme/*` design tokens;
+- **Locked Source of Truth:** `MASTER.md`, `DESIGN.md`, `ANTI-SLOP.md`, `DECISIONS.md`, `ROADMAP.md`, and `AGENTS.md`;
+- **Runtime & Tooling:** `Quickshell 0.3.2`, Qt 6 (`qmllint 6.12.0`), and live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) in WSL2 Arch Linux.
 
 ---
 
-# 7. Workstream A — Repository Foundation
+# 7. Implementation Order & Atomic Task Breakdown
 
-## Goal
-
-Ensure the repository structure reflects the current BASEUS source-of-truth architecture.
-
-## Tasks
-
-- [x] Confirm required root documentation files exist.
-- [x] Confirm source-of-truth responsibilities are clear.
-- [x] Confirm `docs/` structure exists for future public/development documentation.
-- [x] Confirm `.github/` structure can support contribution and CI workflows.
-- [x] Confirm `LICENSE` reflects MIT licensing.
-- [x] Confirm repository does not rely on obsolete source-of-truth files.
-- [x] Confirm generated/local files are excluded appropriately.
-- [x] Confirm secret-sensitive files are excluded appropriately.
-
-## Acceptance Criteria
-
-- Repository structure matches the current project architecture.
-- Locked documents are present and treated as authoritative.
-- No legacy document silently overrides current truth.
-- Repository foundation does not introduce unrelated implementation scope.
-
-## Validation
-
-- repository tree inspection;
-- Git status;
-- documentation presence checks;
-- ignore-file inspection.
-
----
-
-# 8. Workstream B — Quickshell Runtime Bootstrap
-
-## Goal
-
-Create the minimal functioning BASEUS Quickshell runtime.
-
-## Tasks
-
-- [x] Establish the Quickshell project entrypoint.
-- [x] Establish the shell startup lifecycle.
-- [x] Establish the minimal root shell surface.
-- [x] Establish runtime configuration loading boundaries.
-- [x] Establish a predictable development/restart workflow.
-- [x] Ensure startup failure is diagnosable.
-- [x] Avoid implementing polished surfaces as part of bootstrap.
-
-## Acceptance Criteria
-
-- BASEUS can launch as a Quickshell shell in the supported runtime environment.
-- Startup and shutdown behavior are understandable.
-- Runtime configuration has a clear ownership boundary.
-- Bootstrap does not contain future surface-specific logic unnecessarily.
-- Failure produces useful diagnostics.
-
-## Validation
-
-- static source inspection;
-- Quickshell syntax/configuration validation where available;
-- live launch on Linux + Hyprland when available;
-- shell restart;
-- startup failure inspection.
-
----
-
-# 9. Workstream C — Shell Lifecycle
-
-## Goal
-
-Define predictable lifecycle behavior for BASEUS.
-
-## Tasks
-
-- [x] Define initialization sequence.
-- [x] Define teardown behavior.
-- [x] Define restart behavior.
-- [x] Define state initialization timing.
-- [x] Define event subscription initialization timing.
-- [x] Define cleanup/unsubscription behavior.
-- [x] Ensure repeated restart does not accumulate duplicate runtime subscriptions.
-
-## Acceptance Criteria
-
-- Startup has a deterministic sequence.
-- Shutdown does not leave known persistent runtime state behind unintentionally.
-- Restart does not duplicate listeners or handlers.
-- State is initialized before dependent surfaces consume it.
-- Failure during initialization is diagnosable.
-
-## Validation
-
-- repeated start/stop;
-- repeated restart;
-- event subscription inspection;
-- state initialization checks;
-- failure-path testing.
-
----
-
-# 10. Workstream D — Core State Architecture
-
-## Goal
-
-Establish the state model required by later BASEUS capabilities.
-
-## Tasks
-
-- [x] Identify core state domains.
-- [x] Define ownership for each core state domain.
-- [x] Define read/update boundaries.
-- [x] Define transient versus persistent state.
-- [x] Define derived state versus source state.
-- [x] Define initialization/default behavior.
-- [x] Define state reset/recovery behavior.
-- [x] Prevent UI surfaces from becoming uncontrolled state owners.
-
-## Initial State Domains
-
-The foundation should be capable of representing the concepts later required by the product, without implementing their full UI.
-
-Potential foundation-level domains include:
-
-- shell lifecycle;
-- monitor context;
-- workspace context;
-- window context;
-- input/navigation context;
-- application context;
-- transient feedback context;
-- media context where required by architecture;
-- theme/configuration context where required by architecture.
-
-The foundation should not prematurely implement the complete future feature set.
-
-## Acceptance Criteria
-
-- Core state ownership is understandable.
-- State can be consumed by multiple future surfaces without duplication.
-- Persistent and transient state are distinguishable.
-- Derived state does not become a second source of truth.
-- Initialization is deterministic.
-- Recovery behavior is defined.
-
-## Validation
-
-- state initialization;
-- state update;
-- state read;
-- restart;
-- duplicate update;
-- invalid/missing state;
-- recovery.
-
----
-
-# 11. Workstream E — Core Event Architecture
-
-## Goal
-
-Establish a predictable event flow for BASEUS.
-
-## Tasks
-
-- [x] Define core event categories.
-- [x] Define event producers.
-- [x] Define event consumers.
-- [x] Define subscription/unsubscription behavior.
-- [x] Define event ordering where relevant.
-- [x] Define duplicate-event handling.
-- [x] Define failure behavior for event handlers.
-- [x] Avoid hidden side effects in generic event pathways.
-
-## Foundation Event Categories
-
-The architecture should be capable of supporting events related to:
-
-- shell lifecycle;
-- monitor changes;
-- workspace changes;
-- window changes;
-- input/actions;
-- application state;
-- system feedback;
-- media;
-- theme/palette;
-- configuration.
-
-These are architectural categories, not permission to implement all associated surfaces in M0.
-
-## Acceptance Criteria
-
-- Event flow is understandable.
-- Consumers can subscribe without creating uncontrolled coupling.
-- Duplicate subscriptions are prevented.
-- Event failures are diagnosable.
-- Future surfaces can consume events without inventing separate parallel event systems.
-
-## Validation
-
-- event emission;
-- event subscription;
-- event delivery;
-- unsubscribe;
-- repeated restart;
-- duplicate event detection;
-- handler failure.
-
----
-
-# 12. Workstream F — Hyprland Integration Baseline
-
-## Goal
-
-Establish the minimal Hyprland integration required by the BASEUS runtime and future desktop capabilities.
-
-## Tasks
-
-- [x] Establish Hyprland IPC integration boundary.
-- [x] Establish workspace state observation.
-- [x] Establish window state observation.
-- [x] Establish monitor state observation.
-- [x] Establish relevant event subscription.
-- [x] Define Hyprland-to-BASEUS state translation.
-- [x] Keep Hyprland-specific details isolated from generic shell state where practical.
-- [x] Document runtime assumptions.
-
-## Acceptance Criteria
-
-- BASEUS can observe required Hyprland desktop context.
-- Hyprland events reach the BASEUS event/state layer.
-- Hyprland-specific behavior does not leak unnecessarily through every UI surface.
-- Runtime assumptions are documented.
-- Unsupported/unavailable Hyprland runtime is reported honestly.
-
-## Validation
-
-When live Linux + Hyprland is available:
-
-- workspace event;
-- window event;
-- monitor event;
-- shell restart;
-- repeated event handling.
-
-When it is not available:
-
-- static configuration/source validation only;
-- clearly record runtime limitation in `STATE.md`.
-
----
-
-# 13. Workstream G — Configuration Boundaries
-
-## Goal
-
-Prevent configuration, persistent state, runtime state, and visual theme state from becoming one uncontrolled system.
-
-## Tasks
-
-- [x] Define static configuration boundary.
-- [x] Define runtime state boundary.
-- [x] Define persistent user state boundary.
-- [x] Define theme visual-state boundary.
-- [x] Define defaults.
-- [x] Define configuration loading order.
-- [x] Define invalid-configuration behavior.
-- [x] Define safe fallback behavior.
-
-## Acceptance Criteria
-
-- Configuration has a clear source.
-- Runtime state is not accidentally persisted.
-- Theme does not silently control behavior.
-- Invalid configuration has a predictable failure path.
-- Defaults remain usable.
-
-## Validation
-
-- valid configuration;
-- missing configuration;
-- malformed configuration;
-- restart;
-- fallback;
-- persistence boundaries.
-
----
-
-# 14. Workstream H — Diagnostics and Logging
-
-## Goal
-
-Make foundational failures diagnosable without requiring users or agents to guess.
-
-## Tasks
-
-- [x] Establish logging conventions.
-- [x] Establish useful log levels.
-- [x] Include enough context for lifecycle/state/event failures.
-- [x] Avoid noisy logging during normal idle operation.
-- [x] Ensure startup failure can be diagnosed.
-- [x] Ensure event/state failures can be traced.
-- [x] Ensure sensitive values are not logged unnecessarily.
-
-## Acceptance Criteria
-
-- Important failures produce useful diagnostics.
-- Normal idle behavior does not generate excessive noise.
-- Logs identify the relevant subsystem.
-- Secrets or sensitive values are not exposed.
-- Diagnostics can support future `doctor` tooling without coupling M0 to the installer milestone.
-
-## Validation
-
-- startup failure;
-- invalid configuration;
-- event handler failure;
-- state initialization failure;
-- log inspection.
-
----
-
-# 15. Workstream I — Development and Validation Workflow
-
-## Goal
-
-Create a repeatable way to validate foundation changes.
-
-## Tasks
-
-- [x] Define basic syntax/static validation.
-- [x] Define project structure validation.
-- [x] Define Quickshell validation where available.
-- [x] Define Hyprland validation where available.
-- [x] Define runtime validation procedure.
-- [x] Document environment limitations.
-- [x] Ensure validation commands are reproducible.
-- [x] Distinguish static from runtime validation.
-
-## Acceptance Criteria
-
-- A new agent can understand how to validate M0.
-- Validation results are reproducible.
-- Runtime limitations are explicit.
-- Validation does not rely on invented success conditions.
-
----
-
-# 16. Workstream J — Baseline Documentation
-
-## Goal
-
-Document only the foundation knowledge needed to maintain the project correctly.
-
-## Tasks
-
-- [x] Document foundation architecture.
-- [x] Document state ownership.
-- [x] Document event flow.
-- [x] Document runtime lifecycle.
-- [x] Document Hyprland integration boundary.
-- [x] Document development validation.
-- [x] Keep documentation aligned with implementation.
-
-## Non-goal
-
-Do not attempt to complete every public user guide in M0.
-
----
-
-# 17. Workstream K — Source-of-Truth Integration
-
-## Goal
-
-Ensure the implementation process is governed by the locked product documents.
-
-## Tasks
-
-- [x] Verify implementation decisions against `MASTER.md`.
-- [x] Verify UI-related foundation decisions against `DESIGN.md`.
-- [x] Verify quality-sensitive decisions against `ANTI-SLOP.md`.
-- [x] Verify accepted behavior against `DECISIONS.md`.
-- [x] Verify sequencing against `ROADMAP.md`.
-- [x] Ensure no implementation detail silently becomes a new product decision.
-
-## Acceptance Criteria
-
-- Foundation implementation does not contradict locked product truth.
-- Architectural choices remain compatible with the roadmap.
-- Conflicts are surfaced instead of silently resolved through document changes.
-
----
-
-# 18. Cross-Cutting Technical Rules
-
-During M0:
-
-- Prefer event-driven behavior.
-- Avoid unnecessary polling.
-- Avoid premature abstraction.
-- Keep state ownership explicit.
-- Keep event ownership explicit.
-- Keep Hyprland-specific behavior isolated.
-- Keep configuration boundaries explicit.
-- Keep failure handling observable.
-- Avoid UI polish that belongs to later phases.
-- Avoid implementing future surfaces merely to demonstrate architecture.
-
----
-
-# 19. Cross-Cutting UX Rules
-
-Even though M0 is foundational, technical choices must not make future BASEUS design harder.
-
-Avoid architecture that assumes:
-
-- permanent panels;
-- traditional taskbars;
-- forced tiling;
-- generic card dashboards;
-- unrestricted theme editors;
-- always-visible status bars;
-- global behavior changes caused by theme selection.
-
-Foundation should enable the locked product model rather than constrain it toward generic desktop-shell patterns.
-
----
-
-# 20. Explicitly Deferred
-
-The following are acknowledged but intentionally deferred:
-
-### M1
-
-- full workspace capability;
-- full window capability;
-- desktop navigation.
-
-### M2
-
-- Dock;
-- Top Island;
-- Command Center;
-- App Drawer.
-
-### M3
-
-- notifications;
-- OSD;
-- media;
-- system feedback surfaces.
-
-### M4
-
-- wallpaper UX;
-- Matugen;
-- theme system;
-- widgets;
-- Headquarter.
-
-### M5
-
-- Overview;
-- advanced window intelligence;
-- Alt+Tab refinement;
-- snap;
-- multi-monitor refinement.
-
-### M6
-
-- personality surfaces;
-- Bongo Cat;
-- Power Menu constellation;
-- Chibi;
-- special choreography.
-
-### M7+
-
-- distribution;
-- hardening;
-- release readiness.
-
-These items are not M0 tasks.
-
----
-
-# 21. M0 Acceptance Checklist
-
-M0 should not be marked complete until all applicable criteria are satisfied.
-
-## Repository
-
-- [x] Source-of-truth structure exists.
-- [x] Locked documents are recognized as authoritative.
-- [x] Legacy files do not silently override current truth.
-- [x] Repository hygiene is acceptable.
-
-## Runtime
-
-- [x] Quickshell bootstrap exists.
-- [x] Lifecycle is defined.
-- [x] Startup failure is diagnosable.
-- [x] Restart behavior is understood.
-
-## State
-
-- [x] Core state ownership exists.
-- [x] Persistent/transient boundaries are defined.
-- [x] Initialization is deterministic.
-- [x] Recovery behavior is defined.
-
-## Events
-
-- [x] Core event model exists.
-- [x] Subscription lifecycle is defined.
-- [x] Duplicate subscriptions are prevented.
-- [x] Event failures are diagnosable.
-
-## Hyprland
-
-- [x] Integration boundary exists.
-- [x] Required desktop context can be observed.
-- [x] Runtime assumptions are documented.
-- [x] Runtime validation is performed when environment permits. (VERIFIED on WSL2 Arch Linux against live `Hyprland 0.57.0` + `Quickshell 0.3.2` — `.socket.sock` and `.socket2.sock` IPC, `bridgeConnected: true`, `hyprctl` → `socket2` → `HyprlandBridge` → `WorkspaceModel`/`WindowModel`/`ShellState` event flow, bidirectional `Hyprland.usingLua` `hl.dsp.focus` dispatch, live Wayland window open/fullscreen/close, live restart state resync, and unavailable-Hyprland graceful fallback all verified)
-
-## Configuration
-
-- [x] Configuration boundaries are defined.
-- [x] Defaults exist.
-- [x] Invalid configuration behavior is defined.
-- [x] Theme state is not mixed with behavior.
-
-## Diagnostics
-
-- [x] Logging exists.
-- [x] Important failures are visible.
-- [x] Idle logging remains controlled.
-- [x] Sensitive values are protected.
-
-## Validation
-
-- [x] Static validation works.
-- [x] Runtime validation procedure is documented.
-- [x] Environment limitations are recorded honestly.
-
-## Documentation
-
-- [x] Foundation architecture is documented.
-- [x] State/event boundaries are documented.
-- [x] Development validation is documented.
-
----
-
-# 22. Validation Matrix
-
-| Area | Static | Runtime | Required before M0 exit |
-|---|---|---|---|
-| Repository structure | Yes | No | Yes |
-| Source-of-truth structure | Yes | No | Yes |
-| Quickshell syntax/config | Yes where tooling exists | Yes | Yes when runtime available |
-| Shell lifecycle | Partial | Yes | Yes |
-| State initialization | Partial | Yes | Yes |
-| Event flow | Partial | Yes | Yes |
-| Hyprland IPC | Partial | Yes | Yes when runtime available |
-| Configuration fallback | Yes | Yes | Yes |
-| Logging | Yes | Yes | Yes |
-| Performance baseline | Partial | Yes | Baseline required |
-| UI polish | Not a M0 gate | Not a M0 gate | No |
-
-If runtime validation cannot be performed, the relevant items remain explicitly unverified rather than being marked complete.
-
----
-
-# 23. Definition of Done for Individual Tasks
-
-A task is complete when:
-
-- implementation exists;
-- scope is respected;
-- acceptance criteria are met;
-- validation was performed;
-- failures are understood;
-- relevant documentation is updated;
-- no source-of-truth conflict remains;
-- state can accurately describe the result.
-
----
-
-# 24. Definition of Done for M0
-
-M0 is complete when:
-
-1. BASEUS has a functioning Quickshell foundation.
-2. Shell lifecycle is predictable.
-3. Core state architecture exists.
-4. Core event architecture exists.
-5. Hyprland integration boundary exists.
-6. Configuration boundaries are clear.
-7. Diagnostics exist.
-8. Validation workflow exists.
-9. Foundation documentation exists.
-10. Locked product truth remains intact.
-11. Relevant design/technical gates pass.
-12. `STATE.md` accurately records the result.
-13. A known-good checkpoint is created when appropriate.
-
----
-
-# 25. Out-of-Scope Parking Lot
-
-Ideas discovered during M0 that do not belong in the current phase should be recorded separately rather than inserted into this task list.
-
-Examples:
-
-- future UI improvements;
-- future widgets;
-- new animations;
-- future distribution support;
-- optional integrations;
-- personality ideas;
-- convenience features.
-
-The parking lot is not a commitment to implement those ideas.
-
----
-
-# 26. Agent Execution Rule
-
-The agent should execute M0 in coherent slices.
-
-Recommended order:
+Per `DEC-045` (*Capability-to-Surface Implementation*) and `AGENTS.md` §11 (*Smallest coherent change*), M1 executes in six atomic tasks:
 
 ```text
-Repository Foundation
-        ↓
-Quickshell Runtime
-        ↓
-Lifecycle
-        ↓
-State Architecture
-        ↓
-Event Architecture
-        ↓
-Hyprland Integration
-        ↓
-Configuration Boundaries
-        ↓
-Diagnostics
-        ↓
-Validation Workflow
-        ↓
-Documentation
-        ↓
-Foundation Gate
+M1-T1 (Workspace Capability & Hyprland Preset)
+  ↓
+M1-T2 (Freeform Window Capability: Maximize/Fullscreen, Minimize/Centered-Restore)
+  ↓
+M1-T3 (Action Registry & Back/Home/Overview Navigation Primitives)
+  ↓
+M1-T4 (Per-Monitor Wayland Layer-Shell Desktop Host Scaffolding)
+  ↓
+M1-T5 (Contextual Workspace Indicator & Minimal Top Island Idle Anchor)
+  ↓
+M1-T6 (M1 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint CP-M1-001)
 ```
 
-A later workstream may begin early when its dependencies are satisfied, but the agent must not bypass foundational dependencies simply to make visible progress.
+---
+
+## Task M1-T1 — Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset
+
+**Goal:** Complete the fixed 10-workspace per-monitor capability layer, relative/direct navigation commands, workspace occupancy/history queries, and authoritative BASEUS Hyprland desktop core configuration presets.
+
+### Sub-tasks
+
+- [x] Extend `src/core/Config.qml` and `config/baseus.json` to support optional `workspaces.tags` (`workspaceTags`) alongside `workspaces.labels` (`MASTER.md` §7) while keeping `workspaceCount` locked at `10` (`DEC-010`).
+- [x] Enhance `src/core/WorkspaceModel.qml` with per-monitor `previousWorkspaces` tracking, optional `tags` (`getTag` / `setTag`), bounded `1..10` relative stepping (`getRelativeWorkspace`, `canStepWorkspace`), `WindowModel`-derived occupancy queries (`getWindowCount`, `getSnapshot`), monitor-hotplug reconciliation, and normalized `{ source: "model", type: "changed", monitorIndex, previous, current, label, tag }` `EventBus` emission.
+- [x] Enhance `src/core/HyprlandBridge.qml` with direct `.socket.sock` `j/monitors` synchronization (`Quickshell.Io.Socket` + `SplitParser`, zero child processes, compatible with `Hyprland 0.57+` monitor JSON), name-based monitor index resolution across `.socket2.sock` `focusedmon`/`focusedmonv2`/`moveworkspace`/`moveworkspacev2`/`monitoradded`/`monitorremoved` events, and monitor-targeted `focusMonitor`, `switchWorkspace(workspaceId, monitorIndex)`, `switchWorkspaceRelative(delta, monitorIndex)`, `nextWorkspace(monitorIndex)`, and `previousWorkspace(monitorIndex)` supporting both `Hyprland.usingLua` (`0.57+`) and legacy Hyprlang (`< 0.57`).
+- [x] Upgrade `src/core/MockHyprlandBridge.qml` for multi-monitor simulation parity (`activeWorkspaces` per monitor, `setMockMonitorCount`, `focusMonitor`, `switchWorkspaceRelative`, `nextWorkspace`, `previousWorkspace`, `moveWindowToWorkspace`) without injecting unconfigured fake workspace labels.
+- [x] Wire new model/bridge references and diagnostic IPC methods (`nextWorkspace`, `previousWorkspace`, `switchMonitorWorkspace`, `workspaces`) in `src/Shell.qml`.
+- [x] Create `config/hypr/baseus-desktop.lua` (`Hyprland 0.57+` Lua) and `config/hypr/baseus-desktop.conf` (`< 0.57` Hyprlang reference) encoding `Super+1..0`, `Super+Shift+1..0`, 4-finger horizontal workspace swipe, non-wrapping 10-workspace bounds, fade workspace context transition (`MASTER.md` §7), default freeform floating + centered new windows (`DEC-008`), subtle 1px solid Wabi-sabi window borders without neon glow (`DESIGN.md` §34), and no scratchpad bindings (`DEC-038`).
+- [x] Register new configuration files in `scripts/validate.sh` and `scripts/validate.ps1`, pass 0-warning `qmllint 6.12.0`, and verify live against `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2`.
 
 ---
 
-# 27. Stop Conditions
+## Task M1-T2 — Freeform Window Capability (Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore)
 
-Stop current execution when:
+**Goal:** Deliver BASEUS's freeform floating window model with explicit shell maximize vs native fullscreen separation, scratchpad-free minimize with centered restore, and POP-transition workspace movement hooks.
 
-- the requested M0 task is complete;
-- a blocking dependency is missing;
-- a source-of-truth conflict is discovered;
-- runtime validation is impossible and no honest substitute exists;
-- repeated implementation attempts fail;
-- M0 exit criteria are satisfied.
+### Sub-tasks
 
-Do not automatically begin M1.
+- [ ] Extend `src/core/WindowModel.qml` to track window geometry (`x`, `y`, `width`, `height`), `originWorkspace` for minimized windows, explicit `maximized` vs `fullscreen` booleans (`DEC-023`), per-monitor fullscreen queries (`hasFullscreenWindow(monitorIndex)`), and workspace/monitor window filtering excluding minimized windows where appropriate.
+- [ ] Extend `src/core/ShellState.qml` so `hasFullscreenApp` and `fullscreenMonitors` track native application fullscreen per monitor accurately (ignoring maximized windows per `DEC-023`).
+- [ ] Extend `src/core/HyprlandBridge.qml` and `src/core/MockHyprlandBridge.qml` with dual Lua/Hyprlang window operations: `focusWindow`, `closeWindow`, `centerWindow`, `toggleFloating`, `setMaximized` / `toggleMaximize` (Hyprland fullscreen mode `1`), `setFullscreen` / `toggleFullscreen` (Hyprland fullscreen mode `0`), scratchpad-free `minimizeWindow` + `restoreWindow` (restoring centered onto the target workspace per `MASTER.md` §36 and `DEC-038`), and `moveWindowToWorkspace` emitting normalized POP-transition metadata (`MASTER.md` §35).
+- [ ] Expose window capability commands on `baseus` diagnostic IPC in `src/Shell.qml` and verify live with real Wayland client windows inside `Hyprland 0.57.0`.
 
 ---
 
-# 28. Current Status
+## Task M1-T3 — Action Registry & Desktop Navigation Primitives (`Back` / `Home` / `Overview`)
 
-**Phase:** M0 — Foundation  
-**Execution status:** COMPLETE & VERIFIED — static validation (`qmllint 6.12.0`), Quickshell 0.3.2 runtime validation, and live `Hyprland 0.57.0` compositor IPC (`socket` + `socket2` + `Hyprland.dispatch`) VERIFIED on WSL2 Arch Linux (`CP-M0-001` VERIFIED)  
-**Scope status:** All M0 Foundation tasks and acceptance criteria satisfied  
-**Next execution focus:** M0 exit criteria satisfied; STOP at phase boundary awaiting deliberate transition to **M1 — Desktop Core**.
+**Goal:** Establish the `Discover → Customize → Execute` action boundary (`DEC-028`) and the `Back` / `Home` / `Overview` desktop navigation mental model (`DEC-024`, `MASTER.md` §8).
+
+### Sub-tasks
+
+- [ ] Implement `src/core/ActionRegistry.qml` registering core M1 desktop, workspace, window, and navigation actions with human-readable metadata, categories (`Navigation`, `Workspaces`, `Windows`), default trigger descriptors, conflict detection helpers, and `execute(actionId, payload)`.
+- [ ] Implement `src/core/NavigationController.qml` managing desktop context history and `Back` (exit active overlay mode → `"desktop"`, or return to monitor's `previousWorkspace` when in `"desktop"`), `Home` (return cleanly to `"desktop"` context), and `Overview` (toggle `"overview"` mode state foundation for M5).
+- [ ] Wire `ActionRegistry` and `NavigationController` into `src/Shell.qml` lifecycle and diagnostic IPC, maintaining stable `EventBus` subscription counts across restarts.
+- [ ] Validate statically (`qmllint 6.12.0`) and at runtime under both `MockHyprlandBridge` and live `Hyprland 0.57.0`.
 
 ---
 
-# 29. Final Principle
+## Task M1-T4 — Per-Monitor Layer-Shell Desktop Scaffolding (`DesktopHost`)
 
-`TASKS.md` should remain boring, explicit, and executable.
+**Goal:** Create the multi-monitor Quickshell Wayland Layer-Shell host scaffolding that anchors foundational desktop overlays per screen while remaining invisible and zero-cost at idle and receding automatically during native fullscreen.
 
-It is not a showcase.
+### Sub-tasks
 
-It is not a wishlist.
+- [ ] Implement `src/surfaces/DesktopHost.qml` using Quickshell `Variants` over `Quickshell.screens` and `Quickshell.Wayland` `PanelWindow` (`WlrLayershell`), mapping each `ShellScreen` (`name`) to `MonitorModel` monitor index.
+- [ ] Enforce non-intrusive idle behavior (transparent background, pass-through input mask for empty regions, zero polling/timers when idle per `AGENTS.md` §21) and per-monitor native fullscreen recession (`DESIGN.md` §14).
+- [ ] Integrate `DesktopHost` cleanly into `src/Shell.qml` with headful/headless gating and deterministic lifecycle cleanup.
+- [ ] Validate `qmllint 6.12.0` (0 warnings) and live multi-output Layer-Shell mapping inside `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`).
 
-It is not a second roadmap.
+---
 
-It is the current boundary that tells the agent:
+## Task M1-T5 — Contextual Workspace Indicator & Minimal Top Island Idle Anchor
 
-> **What are we doing now, what are we not doing now, how do we know it works, and when do we stop?**
+**Goal:** Implement the minimal foundational M1 visual surfaces strictly required to make desktop context legible without encroaching on M2 interactive panels.
+
+### Sub-tasks
+
+- [ ] Implement `src/surfaces/WorkspaceIndicator.qml` (`MASTER.md` §11, `DESIGN.md` §12, `DEC-029`):
+  - Completely hidden at idle (never permanently showing workspace numbers).
+  - Appears transiently (~2 seconds) on the switched monitor upon `WorkspaceModel` `"changed"` events.
+  - Uses solid Wabi-sabi `Theme.colors.surfaceSolid` + `borderSubtle` (no glass/blur/gradients/neon glow), `Theme.typography.fontFamilyMono`, and hierarchical scaling (*"Focus grows. Context recedes."*: `previous` shrinks/dims, `current` grows/focuses).
+  - Morphs cleanly into a compact pill (`2 — WEB`, `Theme.geometry.radiusPill`) when a user-defined workspace label is present, updates/resets in place during rapid consecutive switches without animation stacking (`AGENTS.md` §20), and respects `Theme.motion.reducedMotion`.
+- [ ] Implement `src/surfaces/TopIslandAnchor.qml` (`MASTER.md` §9, §12; `DESIGN.md` §9, §10, §13, §14):
+  - Edge-integrated top-center solid Wabi-sabi surface (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets.
+  - Displays only quiet typographic idle clock time (minute-aligned event/timer updates — no high-frequency polling), receding smoothly when a native fullscreen application occupies that monitor (`DESIGN.md` §14).
+  - Keeps M2 hover-menu expansion, quick controls, and active-system drawers strictly out of M1 scope.
+- [ ] Add M1 surface preview harness toggle in `src/dev/DesignStage.qml` and perform full `ANTI-SLOP.md` §14 removal/identity review + `qmllint 6.12.0` + live `Hyprland 0.57.0` + `Quickshell 0.3.2` runtime validation.
+
+---
+
+## Task M1-T6 — M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`
+
+**Goal:** Verify all M1 acceptance and exit criteria across multi-monitor live Hyprland + Quickshell execution, update baseline docs, record `CP-M1-001`, and stop cleanly at the M1 → M2 phase gate.
+
+### Sub-tasks
+
+- [ ] Run comprehensive live `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` end-to-end verification covering 10-workspace per-monitor switching, freeform window floating/centering, maximize vs native fullscreen recession, minimize + centered restore, `Back`/`Home`/`Overview` navigation primitives, `WorkspaceIndicator` & `TopIslandAnchor` behavior, and repeated shell restarts.
+- [ ] Perform formal `DESIGN.md` §45 and `ANTI-SLOP.md` audit across all M1 surfaces and configurations.
+- [ ] Update `docs/architecture.md` and `docs/configuration.md` to document M1 capabilities and `config/hypr/` presets accurately.
+- [ ] Update `STATE.md`, record verified checkpoint `CP-M1-001` in `CHECKPOINT.md`, report concisely, and **STOP** before M2 (`DEC-042`, `AGENTS.md` §48).
+
+---
+
+# 8. Acceptance Criteria
+
+M1 is acceptable only when all of the following hold:
+
+1. **Fixed 10-workspace discipline (`DEC-010`):** Workspaces `1..10` work deterministically per monitor; out-of-range workspace IDs (`< 1` or `> 10`) are rejected; workspace creation beyond `10` is prevented in both shell logic and Hyprland gesture/bind presets.
+2. **Per-monitor independence (`MASTER.md` §39):** Switching workspaces on Monitor B preserves Monitor A's active workspace and independent `previousWorkspace` history.
+3. **Freeform-first window behavior (`DEC-008`, `DEC-023`, `DEC-038`):** Windows open floating and centered by default, can overlap freely, distinguish workspace-filling maximize from shell-receding native fullscreen, and support minimize + centered restore without exposing a scratchpad mental model.
+4. **Navigation foundation (`DEC-024`, `DEC-028`):** `Back`, `Home`, and `Overview` primitives operate through explicit actions decoupled from triggers.
+5. **Contextual quiet desktop (`MASTER.md` §9, §11; `DESIGN.md` §8, §12–14; `ANTI-SLOP.md`):** Idle desktop shows no permanent workspace numbers, taskbars, cards, glass blur, gradients, or neon glows; `WorkspaceIndicator` appears only on workspace transitions and auto-hides cleanly; `TopIslandAnchor` and `DesktopHost` recede during native fullscreen.
+6. **Zero-warning static & live runtime stability:** `scripts/validate.sh --all` (`qmllint 6.12.0`) passes with 0 errors and 0 warnings; live `Hyprland 0.57.0` + `Quickshell 0.3.2` execution and repeated `Lifecycle.restart()` runs maintain stable `EventBus` subscription counts and zero uncaught QML errors.
+
+---
+
+# 9. Validation Matrix
+
+| Area | Validation Method | Required Evidence |
+|---|---|---|
+| Structure & JSON | `scripts/validate.sh --structure --config` & `scripts/validate.ps1` | Exit code 0; all M0 + M1 files and JSON configs valid |
+| QML Static & Types | `scripts/validate.sh --qml` (`qmllint 6.12.0`) | 0 errors and 0 warnings across every `.qml` file |
+| Hyprland Preset | Live `Hyprland 0.57.0 -c config/hypr/baseus-desktop.lua` + `hyprctl configerrors` | Zero config errors; floating/centered rules, `Super+1..0`, and 4-finger gesture loaded |
+| Multi-Monitor Workspaces | Live `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` IPC | Independent per-monitor active/previous workspaces, `1..10` clamping, label/tag & occupancy snapshot |
+| Window Lifecycle | Live Wayland test clients inside `Hyprland 0.57.0` + `Quickshell 0.3.2` | Centered floating spawn, maximize vs native fullscreen mode distinction, minimize & centered restore, workspace move |
+| Navigation & Surfaces | Live `Quickshell 0.3.2` on `Hyprland 0.57.0` + `DesignStage` / `ANTI-SLOP.md` review | `Back`/`Home`/`Overview` transitions, transient `WorkspaceIndicator` morph & ~2s hide, `TopIslandAnchor` ICR + fullscreen recession |
+| Restart & Recovery | `quickshell ipc call baseus restart` under live Hyprland & `BASEUS_SIMULATION=1` | Constant `EventBus` subscription counts and accurate live state resynchronization |
+
+---
+
+# 10. Exit Criteria & Stop Conditions
+
+M1 exits only when `M1-T1` through `M1-T6` are complete, validated with live evidence, audited against `DESIGN.md` and `ANTI-SLOP.md`, documented in `STATE.md`, and recorded in `CP-M1-001` (`CHECKPOINT.md`).
+
+The agent must **STOP**:
+
+- after completing and auditing the requested atomic task when operating in single-task kickoff/step mode;
+- immediately if a source-of-truth conflict requiring owner governance (`DEC-043`) is discovered;
+- immediately if a repeated runtime blocker prevents honest validation;
+- unconditionally upon completing M1 (`CP-M1-001`), without auto-starting M2 (`AGENTS.md` §46, §48; `DEC-042`).
+
+---
+
+# 11. Current Status
+
+- **Active Phase:** `M1 — Desktop Core` (*`ROADMAP.md` §8: `M1 — Desktop Foundation`*)
+- **Completed Tasks:** `M1-T1` (Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset — `VERIFIED`)
+- **Next Executable Task:** `M1-T2` (Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore)

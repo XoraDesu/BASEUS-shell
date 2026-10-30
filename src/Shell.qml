@@ -72,6 +72,7 @@ Item {
         logger: _logger
         eventBus: _eventBus
         config: _config
+        windowModel: _windowModel
     }
 
     Core.WindowModel {
@@ -86,6 +87,8 @@ Item {
         logger: _logger
         eventBus: _eventBus
         shellState: _shellState
+        workspaceModel: _workspaceModel
+        monitorModel: _monitorModel
     }
 
     Core.MockHyprlandBridge {
@@ -93,6 +96,8 @@ Item {
         logger: _logger
         eventBus: _eventBus
         shellState: _shellState
+        workspaceModel: _workspaceModel
+        monitorModel: _monitorModel
     }
 
     // =========================================================
@@ -135,6 +140,9 @@ Item {
                 mode: _shellState.mode,
                 activeMonitor: _shellState.activeMonitorIndex,
                 activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex),
+                previousWorkspace: _workspaceModel.getPreviousWorkspace(_shellState.activeMonitorIndex),
+                activeWorkspaces: _workspaceModel.activeWorkspaces,
+                previousWorkspaces: _workspaceModel.previousWorkspaces,
                 monitorCount: _monitorModel.getMonitorCount(),
                 windowCount: _windowModel.windows.length,
                 focusedWindow: _windowModel.focusedAddress,
@@ -166,8 +174,46 @@ Item {
             var ok = shell.activeBridge.switchWorkspace(workspaceId)
             return JSON.stringify({
                 switched: ok,
-                activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex)
+                activeMonitor: _shellState.activeMonitorIndex,
+                activeWorkspace: _workspaceModel.getActiveWorkspace(_shellState.activeMonitorIndex),
+                previousWorkspace: _workspaceModel.getPreviousWorkspace(_shellState.activeMonitorIndex)
             })
+        }
+
+        function switchMonitorWorkspace(monitorIndex: int, workspaceId: int): string {
+            var ok = shell.activeBridge.switchWorkspace(workspaceId, monitorIndex)
+            return JSON.stringify({
+                switched: ok,
+                monitorIndex: monitorIndex,
+                activeWorkspace: _workspaceModel.getActiveWorkspace(monitorIndex),
+                previousWorkspace: _workspaceModel.getPreviousWorkspace(monitorIndex)
+            })
+        }
+
+        function nextWorkspace(): string {
+            var mon = _shellState.activeMonitorIndex
+            var ok = shell.activeBridge.nextWorkspace(mon)
+            return JSON.stringify({
+                switched: ok,
+                activeMonitor: mon,
+                activeWorkspace: _workspaceModel.getActiveWorkspace(mon),
+                previousWorkspace: _workspaceModel.getPreviousWorkspace(mon)
+            })
+        }
+
+        function previousWorkspace(): string {
+            var mon = _shellState.activeMonitorIndex
+            var ok = shell.activeBridge.previousWorkspace(mon)
+            return JSON.stringify({
+                switched: ok,
+                activeMonitor: mon,
+                activeWorkspace: _workspaceModel.getActiveWorkspace(mon),
+                previousWorkspace: _workspaceModel.getPreviousWorkspace(mon)
+            })
+        }
+
+        function workspaces(): string {
+            return JSON.stringify(_workspaceModel.getSnapshot(_shellState.activeMonitorIndex))
         }
     }
 

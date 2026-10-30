@@ -80,7 +80,8 @@ QtObject {
     property string commandCenterActionPrefix: ">"
 
     // Workspace
-    property var workspaceLabels: ({})         // user-defined workspace labels
+    property var workspaceLabels: ({})         // user-defined workspace labels (MASTER.md §7)
+    property var workspaceTags: ({})           // user-defined workspace tags (MASTER.md §7)
 
     // Performance
     property bool reducedMotion: false
@@ -106,6 +107,7 @@ QtObject {
         commandCenterPrefix = ""
         commandCenterActionPrefix = ">"
         workspaceLabels = ({})
+        workspaceTags = ({})
         reducedMotion = false
         animationDuration = 250
         logLevel = "info"
@@ -174,8 +176,16 @@ QtObject {
         }
 
         if (root.workspaces && typeof root.workspaces === "object") {
+            if (root.workspaces.count !== undefined && root.workspaces.count !== 10) {
+                if (logger) logger.warn("Config",
+                    "Ignoring 'workspaces.count' in %1 — BASEUS enforces a fixed 10-workspace model (DEC-010)."
+                        .arg(sourceLabel))
+            }
             if (root.workspaces.labels && typeof root.workspaces.labels === "object") {
                 workspaceLabels = root.workspaces.labels
+            }
+            if (root.workspaces.tags && typeof root.workspaces.tags === "object") {
+                workspaceTags = root.workspaces.tags
             }
         }
 

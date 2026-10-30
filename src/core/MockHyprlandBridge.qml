@@ -8,8 +8,8 @@
 //
 // Emits identical normalized events into EventBus as the real HyprlandBridge:
 //   - "monitor": synced, focused
-//   - "workspace": switched, activated
-//   - "window": synced, created, destroyed, focused, fullscreen
+//   - "workspace": synced, activated
+//   - "window": synced, created, destroyed, focused, moved, fullscreen
 
 import QtQuick
 
@@ -22,6 +22,8 @@ QtObject {
     property var logger: null
     property var eventBus: null
     property var shellState: null
+    property var workspaceModel: null
+    property var monitorModel: null
 
     // =========================================================
     // Simulation State
@@ -29,10 +31,39 @@ QtObject {
     readonly property bool isMock: true
     property bool connected: false
     property string lastError: ""
+    property int focusedMonitorIndex: 0
     property int currentWorkspace: 1
+    property var mockActiveWorkspaces: ({ 0: 1 })
+    property var mockMonitors: []
     property string focusedWindowAddress: "0x1a2b"
 
     property var mockWindows: []
+
+    function _isValidWorkspaceId(workspaceId) {
+        return typeof workspaceId === "number"
+            && !isNaN(workspaceId)
+            && Math.floor(workspaceId) === workspaceId
+            && workspaceId >= 1
+            && workspaceId <= 10
+    }
+
+    function _defaultMockMonitors(count) {
+        var total = (typeof count === "number" && count >= 1) ? Math.floor(count) : 1
+        var list = []
+        for (var i = 0; i < total; i++) {
+            list.push({
+                index: i,
+                name: "SIM-" + (i + 1),
+                width: 1920,
+                height: 1080,
+                x: i * 1920,
+                y: 0,
+                scale: 1.0,
+                active: true
+            })
+        }
+        return list
+    }
 
     function _defaultMockWindows() {
         return [
@@ -44,6 +75,8 @@ QtObject {
                 monitor: 0,
                 floating: true,
                 fullscreen: false,
+                maximized: false,
+                minimized: false,
                 focused: true
             },
             {
@@ -54,6 +87,8 @@ QtObject {
                 monitor: 0,
                 floating: true,
                 fullscreen: false,
+                maximized: false,
+                minimized: false,
                 focused: false
             },
             {
@@ -64,6 +99,8 @@ QtObject {
                 monitor: 0,
                 floating: true,
                 fullscreen: false,
+                maximized: false,
+                minimized: false,
                 focused: false
             }
         ]
@@ -76,7 +113,10 @@ QtObject {
     function initialize() {
         if (logger) logger.info("MockBridge", "Starting offline Hyprland simulation...")
 
+        focusedMonitorIndex = 0
         currentWorkspace = 1
+        mockMonitors = _defaultMockMonitors(1)
+        mockActiveWorkspaces = ({ 0: 1 })
         focusedWindowAddress = "0x1a2b"
         mockWindows = _defaultMockWindows()
 
@@ -84,26 +124,14 @@ QtObject {
             eventBus.emit("monitor", {
                 source: "bridge",
                 type: "synced",
-                focusedIndex: 0,
-                monitors: [{
-                    index: 0,
-                    name: "SIM-1",
-                    width: 1920,
-                    height: 1080,
-                    x: 0,
-                    y: 0,
-                    scale: 1.0,
-                    active: true
-                }]
+                focusedIndex: focusedMonitorIndex,
+                monitors: mockMonitors
             })
 
             eventBus.emit("workspace", {
                 source: "bridge",
-                type: "activated",
-                monitorIndex: 0,
-                previous: 1,
-                current: currentWorkspace,
-                label: "MAIN"
+                type: "synced",
+                activeWorkspaces: mockActiveWorkspaces
             })
 
             eventBus.emit("window", {
@@ -116,7 +144,67 @@ QtObject {
 
         connected = true
         lastError = ""
-        if (logger) logger.info("MockBridge", "Simulation active (10 workspaces, %1 sample windows).".arg(mockWindows.length))
+        if (logger) logger.info("MockBridge",
+            "Simulation active (10 workspaces, %1 monitor(s), %2 sample windows)."
+                .arg(mockMonitors.length).arg(mockWindows.length))
+        return true
+    }
+
+    // =========================================================
+    // Multi-Monitor Simulation
+    // =========================================================
+
+    function setMockMonitorCount(count) {
+        if (!connected || typeof count !== "number" || isNaN(count) || count < 1) return false
+        var total = Math.floor(count)
+        mockMonitors = _defaultMockMonitors(total)
+
+        var nextMap = {}
+        for (var i = 0; i < total; i++) {
+            var existing = mockActiveWorkspaces[i]
+            nextMap[i] = _isValidWorkspaceId(existing) ? existing : Math.min(10, i + 1)
+        }
+        mockActiveWorkspaces = nextMap
+        if (focusedMonitorIndex >= total) {
+            focusedMonitorIndex = 0
+        }
+        currentWorkspace = mockActiveWorkspaces[focusedMonitorIndex] || 1
+
+        if (eventBus) {
+            eventBus.emit("monitor", {
+                source: "bridge",
+                type: "synced",
+                focusedIndex: focusedMonitorIndex,
+                monitors: mockMonitors
+            })
+            eventBus.emit("workspace", {
+                source: "bridge",
+                type: "synced",
+                activeWorkspaces: mockActiveWorkspaces
+            })
+        }
+        return true
+    }
+
+    function focusMonitor(monitorIndex) {
+        if (!connected || typeof monitorIndex !== "number" || isNaN(monitorIndex)) return false
+        var target = Math.floor(monitorIndex)
+        if (target < 0 || target >= mockMonitors.length) {
+            if (logger) logger.warn("MockBridge",
+                "Cannot focus monitor %1 — simulated monitor count is %2.".arg(target).arg(mockMonitors.length))
+            return false
+        }
+
+        focusedMonitorIndex = target
+        currentWorkspace = getActiveWorkspaceId(target)
+
+        if (eventBus) {
+            eventBus.emit("monitor", {
+                source: "bridge",
+                type: "focused",
+                index: target
+            })
+        }
         return true
     }
 
@@ -125,39 +213,122 @@ QtObject {
     // =========================================================
 
     function getActiveWorkspaceId(monitorIndex) {
-        if (monitorIndex !== 0) return 1
-        return currentWorkspace
+        var mon = (typeof monitorIndex === "number" && !isNaN(monitorIndex))
+            ? Math.floor(monitorIndex)
+            : focusedMonitorIndex
+        if (workspaceModel) {
+            return workspaceModel.getActiveWorkspace(mon)
+        }
+        var ws = mockActiveWorkspaces[mon]
+        return _isValidWorkspaceId(ws) ? ws : 1
     }
 
-    function switchWorkspace(workspaceId) {
-        if (workspaceId < 1 || workspaceId > 10) {
+    function switchWorkspace(workspaceId, monitorIndex) {
+        if (!_isValidWorkspaceId(workspaceId)) {
             if (logger) logger.warn("MockBridge",
-                "Invalid workspace ID: %1 (must be 1–10)".arg(workspaceId))
+                "Invalid workspace ID: %1 (must be integer 1–10)".arg(workspaceId))
             return false
         }
 
-        var previous = currentWorkspace
+        if (!connected) return false
+
+        var targetMon = (typeof monitorIndex === "number" && !isNaN(monitorIndex))
+            ? Math.floor(monitorIndex)
+            : focusedMonitorIndex
+        if (targetMon < 0 || targetMon >= mockMonitors.length) {
+            if (logger) logger.warn("MockBridge",
+                "Invalid monitor index %1 in switchWorkspace.".arg(targetMon))
+            return false
+        }
+
+        if (targetMon !== focusedMonitorIndex) {
+            focusMonitor(targetMon)
+        }
+
+        var previous = getActiveWorkspaceId(targetMon)
+        var nextMap = {}
+        for (var k in mockActiveWorkspaces) {
+            nextMap[k] = mockActiveWorkspaces[k]
+        }
+        nextMap[targetMon] = workspaceId
+        mockActiveWorkspaces = nextMap
         currentWorkspace = workspaceId
 
         if (logger) logger.info("MockBridge",
-            "Simulating workspace switch: %1 → %2".arg(previous).arg(workspaceId))
+            "Simulating monitor %1 workspace switch: %2 → %3"
+                .arg(targetMon).arg(previous).arg(workspaceId))
 
         if (eventBus) {
             eventBus.emit("workspace", {
                 source: "bridge",
                 type: "activated",
-                monitorIndex: 0,
+                monitorIndex: targetMon,
                 previous: previous,
-                current: workspaceId,
-                label: workspaceId === 1 ? "MAIN" : (workspaceId === 2 ? "DEV" : "WS" + workspaceId)
+                current: workspaceId
             })
         }
         return true
     }
 
+    function switchWorkspaceRelative(delta, monitorIndex) {
+        if (!connected) return false
+        var targetMon = (typeof monitorIndex === "number" && !isNaN(monitorIndex))
+            ? Math.floor(monitorIndex)
+            : focusedMonitorIndex
+        var step = (typeof delta === "number" && !isNaN(delta))
+            ? (delta >= 0 ? Math.floor(delta) : Math.ceil(delta))
+            : 0
+        if (step === 0) return false
+
+        var currentWs = getActiveWorkspaceId(targetMon)
+        var targetWs = Math.max(1, Math.min(10, currentWs + step))
+        if (targetWs === currentWs) return false
+        return switchWorkspace(targetWs, targetMon)
+    }
+
+    function nextWorkspace(monitorIndex) {
+        return switchWorkspaceRelative(1, monitorIndex)
+    }
+
+    function previousWorkspace(monitorIndex) {
+        return switchWorkspaceRelative(-1, monitorIndex)
+    }
+
     // =========================================================
     // Window Simulation
     // =========================================================
+
+    function moveWindowToWorkspace(windowAddress, workspaceId) {
+        if (!connected || !_isValidWorkspaceId(workspaceId) || !windowAddress) return false
+        var addr = "0x" + String(windowAddress).replace(/^0x/, "")
+        var found = false
+        var next = []
+
+        for (var i = 0; i < mockWindows.length; i++) {
+            var copy = {}
+            for (var wk in mockWindows[i]) {
+                copy[wk] = mockWindows[i][wk]
+            }
+            if (copy.address === addr) {
+                copy.workspace = workspaceId
+                found = true
+            }
+            next.push(copy)
+        }
+
+        if (!found) return false
+        mockWindows = next
+
+        if (eventBus) {
+            eventBus.emit("window", {
+                source: "bridge",
+                type: "moved",
+                address: addr,
+                workspace: workspaceId
+            })
+        }
+        return true
+    }
 
     function focusWindow(address) {
         focusedWindowAddress = address
@@ -192,9 +363,11 @@ QtObject {
             title: title || "New Window",
             appClass: appClass || "app",
             workspace: workspaceId || currentWorkspace,
-            monitor: 0,
+            monitor: focusedMonitorIndex,
             floating: true,
             fullscreen: false,
+            maximized: false,
+            minimized: false,
             focused: true
         }
         var next = mockWindows.slice()
@@ -207,7 +380,7 @@ QtObject {
     }
 
     function getMonitorCount() {
-        return connected ? 1 : 0
+        return connected ? mockMonitors.length : 0
     }
 
     // =========================================================
@@ -217,6 +390,7 @@ QtObject {
     function teardown() {
         var wasConnected = connected
         connected = false
+        focusedMonitorIndex = 0
         if (wasConnected && logger) logger.info("MockBridge", "Mock simulation stopped.")
     }
 }
