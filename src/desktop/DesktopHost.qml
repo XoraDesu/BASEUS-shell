@@ -72,10 +72,46 @@ Scope {
                     currentWorkspace: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.currentWorkspace : 1,
                     previousWorkspace: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.previousWorkspace : 1,
                     workspaceLabel: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.workspaceLabel : ""
+                },
+                dock: {
+                    revealed: s.dockRef ? s.dockRef.revealed : false,
+                    visible: s.dockRef ? s.dockRef.visible : false
                 }
             })
         }
         return snapshot
+    }
+
+    function revealDock(monitorIndex: int): bool {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.dockRef) {
+                s.dockRef.reveal()
+                return true
+            }
+        }
+        return false
+    }
+
+    function hideDock(monitorIndex: int): bool {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.dockRef) {
+                s.dockRef.hide()
+                return true
+            }
+        }
+        return false
+    }
+
+    function isDockRevealed(monitorIndex: int): bool {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.dockRef) {
+                return s.dockRef.revealed
+            }
+        }
+        return false
     }
 
     function triggerWorkspaceIndicator(monitorIndex: int, prevWs: int, currWs: int, label: string): bool {
@@ -195,10 +231,16 @@ Scope {
                 keyboardFocus: WlrKeyboardFocus.None
                 exclusiveZone: 0
 
-                // Constrain layer-shell input region strictly to the top island anchor body,
-                // ensuring all other desktop space remains completely click-through (DEC-029)
+                // Constrain layer-shell input region strictly to the top island anchor body
+                // and the dock trigger/hitbox, ensuring all other desktop space remains
+                // completely click-through (DEC-029, DEC-015)
                 mask: Region {
-                    item: topIsland.anchorItem
+                    Region {
+                        item: topIsland.anchorItem
+                    }
+                    Region {
+                        item: dock.hitRegionItem
+                    }
                 }
 
                 readonly property string screenName: modelData ? modelData.name : ""
@@ -214,6 +256,7 @@ Scope {
 
                 readonly property var topIslandRef: topIsland
                 readonly property var workspaceIndicatorRef: workspaceIndicator
+                readonly property var dockRef: dock
 
                 // Foundational M1 Desktop Surfaces (DEC-045)
                 TopIslandAnchor {
@@ -227,6 +270,13 @@ Scope {
                     theme: desktopHost.theme
                     workspaceModel: desktopHost.workspaceModel
                     monitorIndex: layerWindow.monitorIndex
+                }
+
+                // Primary Interaction Surfaces (M2-T1, DEC-015)
+                DockAnchor {
+                    id: dock
+                    theme: desktopHost.theme
+                    isFullscreen: layerWindow.isFullscreen
                 }
 
                 Component.onCompleted: {

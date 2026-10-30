@@ -31,7 +31,7 @@ Rectangle {
     property bool showM1SurfacesPreview: true
 
     // =========================================================
-    // 1. M1 PRODUCTION SURFACES PREVIEW (M1-T5)
+    // 1. PRODUCTION SURFACES PREVIEW (M1-T5, M2-T1)
     // =========================================================
     DesktopModule.TopIslandAnchor {
         id: liveTopIsland
@@ -47,6 +47,13 @@ Rectangle {
         previousWorkspace: stage.prevWorkspace
         workspaceLabel: stage.activeWorkspace === 2 ? "WEB" : (stage.activeWorkspace === 3 ? "DEV" : "")
         visible: stage.showM1SurfacesPreview && liveWorkspaceIndicator.active
+    }
+
+    DesktopModule.DockAnchor {
+        id: liveDock
+        theme: stageTheme
+        isFullscreen: stage.isFullscreen
+        visible: stage.showM1SurfacesPreview && !stage.isFullscreen
     }
 
     // =========================================================
@@ -255,7 +262,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.margins: stageTheme.spacing.lg
         width: 260
-        height: 250
+        height: 285
         color: stageTheme.colors.surfaceSolid
         radius: stageTheme.geometry.radiusMedium
         border.color: stageTheme.colors.borderSubtle
@@ -318,7 +325,7 @@ Rectangle {
                 }
             }
 
-            // M1 Surface Preview Toggle
+            // Production Surface Preview Toggle
             Rectangle {
                 width: parent.width
                 height: 28
@@ -329,7 +336,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: stage.showM1SurfacesPreview ? "M1 Surface Preview: Active" : "M1 Surface Preview: Off"
+                    text: stage.showM1SurfacesPreview ? "Production Preview: Active" : "Production Preview: Off"
                     font.family: stageTheme.typography.fontFamily
                     font.pixelSize: stageTheme.typography.sizeCaption
                     font.weight: stageTheme.typography.weightMedium
@@ -340,6 +347,31 @@ Rectangle {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: stage.showM1SurfacesPreview = !stage.showM1SurfacesPreview
+                }
+            }
+
+            // Dock reveal toggle
+            Rectangle {
+                width: parent.width
+                height: 28
+                radius: stageTheme.geometry.radiusSmall
+                color: liveDock.revealed ? stageTheme.colors.surfaceHighlight : stageTheme.colors.surfaceRecessed
+                border.width: stageTheme.geometry.borderWidth
+                border.color: liveDock.revealed ? stageTheme.colors.dominant : stageTheme.colors.borderSubtle
+
+                Text {
+                    anchors.centerIn: parent
+                    text: liveDock.revealed ? "Dock: Revealed" : "Dock: Idle (Recessed)"
+                    font.family: stageTheme.typography.fontFamily
+                    font.pixelSize: stageTheme.typography.sizeCaption
+                    font.weight: stageTheme.typography.weightMedium
+                    color: liveDock.revealed ? stageTheme.colors.dominant : stageTheme.colors.textSecondary
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: liveDock.toggle()
                 }
             }
 

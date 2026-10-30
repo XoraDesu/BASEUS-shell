@@ -72,34 +72,36 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Milestone
 
-**M1 — Desktop Core** (*`ROADMAP.md` §8: `M1 — Desktop Foundation`*)
+**M2 — Interaction** (*`ROADMAP.md` §9: `M2 — Interaction`*)
 
 ## Phase
 
-**M1 — Desktop Core**
+**M2 — Interaction**
 
 ## Execution Status
 
-**COMPLETE — Milestone M1 (Tasks `M1-T1` through `M1-T6`) 100% COMPLETE and VERIFIED; Anchored at verified checkpoint `CP-M1-001`; STOPPED at M1 → M2 phase gate per `AGENTS.md` §46.**
+**IN PROGRESS — Active milestone transitioned from M1 to M2 following verified approval of `CP-M1-001`. Task `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding) is COMPLETE and VERIFIED. STOPPED at M2-T1 task boundary per `AGENTS.md` §46.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
-Active execution in **M1 — Desktop Core** is complete. Tasks `M1-T1` (*Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset*, commit `72a2410`), `M1-T2` (*Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore*, commit `d201fa5`), `M1-T3` (*Action Registry & Desktop Navigation Primitives: Back / Home / Overview*, commit `8f970c1`), `M1-T4` (*Per-Monitor Layer-Shell Desktop Scaffolding: DesktopHost*, commit `4fa89ec`), `M1-T5` (*Contextual Workspace Indicator & Minimal Top Island Idle Anchor*, commit `d6908f2`), and `M1-T6` (*M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M1-001*) are implemented, audited (0 anti-slop violations, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 25 QML files), and runtime-verified under both offline simulation (`MockHyprlandBridge`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux. The M1 milestone is anchored at verified checkpoint `CP-M1-001`.
+The **M1 — Desktop Core** baseline is complete, approved, and anchored at verified checkpoint `CP-M1-001` (commit `d29a54f6a2a32658ba9ddc03ebf2e7a1bb41301b`) with zero anti-slop violations, 100% `pragma ComponentBehavior: Bound` compliance, and verified live dual-monitor Hyprland 0.57.0 runtime behavior.
+
+Task `M2-T1` (*Bottom-Edge Cursor Trigger & Dock Scaffolding*) is implemented, audited (0 anti-slop violations, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 26 QML files), and runtime-verified under both offline simulation (`BASEUS_SIMULATION=1`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux.
 
 ---
 
 # 5. Current Task Tracker Position
 
-`TASKS.md` defines the executable **M1 — Desktop Core** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
+`TASKS.md` defines the executable **M2 — Interaction** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
 
-1. **`M1-T1` — Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset:** `COMPLETE / VERIFIED`
-2. **`M1-T2` — Freeform Window Capability (Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore):** `COMPLETE / VERIFIED`
-3. **`M1-T3` — Action Registry & Desktop Navigation Primitives (`Back` / `Home` / `Overview`):** `COMPLETE / VERIFIED`
-4. **`M1-T4` — Per-Monitor Layer-Shell Desktop Scaffolding (`DesktopHost`):** `COMPLETE / VERIFIED`
-5. **`M1-T5` — Contextual Workspace Indicator & Minimal Top Island Idle Anchor:** `COMPLETE / VERIFIED`
-6. **`M1-T6` — M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`:** `COMPLETE / VERIFIED`
+1. **`M2-T1` — Bottom-Edge Cursor Trigger & Dock Scaffolding:** `COMPLETE / VERIFIED`
+2. **`M2-T2` — Dock Application State & Pinning:** `NOT STARTED`
+3. **`M2-T3` — Top Island Hover Expansion & Contextual Header:** `NOT STARTED`
+4. **`M2-T4` — Command Center Surface & Action Prefix Routing:** `NOT STARTED`
+5. **`M2-T5` — Fullscreen App Drawer & Alphabet Fast Scroller:** `NOT STARTED`
+6. **`M2-T6` — M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001`:** `NOT STARTED`
 
-No M1 task should be considered complete merely because it has been designed or documented.
+No M2 task should be considered complete merely because it has been designed or documented.
 
 ---
 
@@ -120,10 +122,12 @@ Current factual implementation status:
 - `HyprlandBridge.qml` synchronizes multi-monitor topology (`j/monitors`), live client windows (`j/clients`), and batched compositor commands (`dispatch ...` / `[[BATCH]]dispatch ...`) directly over `Hyprland.requestSocketPath` (`.socket.sock` via `Quickshell.Io` `Socket` + `SplitParser` FIFO queue, zero child processes spawned), enforces default freeform floating + monitor-centered placement for newly mapped windows (`DEC-008`), implements dual `Hyprland 0.57+` Lua / `< 0.57` Hyprlang window capabilities (`focusWindow`, `closeWindow`, `moveWindow`, `resizeWindow`, `centerWindow`, `setFloating` / `toggleFloating`, layout-margin geometric `setMaximized` / `toggleMaximize` via `+baseus_maximized`, native compositor `setFullscreen` / `toggleFullscreen`, scratchpad-free `minimizeWindow` via `+baseus_minimized` + offscreen parking on regular `1..10` workspaces with MRU focus handoff and cross-monitor centered `restoreWindow`, and POP `moveWindowToWorkspace` / `moveWindowToMonitor` hooks preserving focus semantics);
 - `MockHyprlandBridge.qml` provides multi-monitor workspace and freeform window simulation parity (`spawnWindow`, freeform move/resize/center/float, geometric maximize vs native fullscreen, scratchpad-free minimize & centered restore, POP workspace/monitor moves) without injecting unconfigured fake workspace labels;
 - `config/hypr/baseus-desktop.lua` and `config/hypr/baseus-desktop.conf` load cleanly in live `Hyprland 0.57.0` with zero configuration errors (`hyprctl -j configerrors` == `[""]`), configuring 25 keybinds (22 workspace/window binds + `Super+Escape` Back, `Super+D` Home, `Super+Tab` Overview via Quickshell IPC), 4-finger horizontal workspace swipe (`hl.gesture`), non-wrapping workspace transitions with `fade` context animation (`MASTER.md` §7), default freeform floating + centered window rules (`DEC-008`), `baseus-minimized-hidden` rule suppressing minimized windows without special workspaces (`DEC-038`), 1px solid tonal borders without blur/glow (`DESIGN.md` §34), and zero scratchpad bindings (`DEC-038`);
-- `DesktopHost.qml` (`src/desktop/DesktopHost.qml`) implements multi-monitor Wayland layer-shell host scaffolding using Quickshell `Variants` over `Quickshell.screens` and `Quickshell.Wayland.WlrLayershell` anchored across full screen bounds (`anchors.top: true`, `bottom: true`, `left: true`, `right: true`), configured with `WlrLayershell.layer: WlrLayer.Top`, transparent solid geometry without blur or glassmorphism (`DEC-011`, `ANTI-SLOP.md`), hosting `TopIslandAnchor` and `WorkspaceIndicator` with layer-shell input region strictly constrained to the top island body (`mask: Region { item: topIsland.anchorItem }`) ensuring idle desktop space remains completely click-through, reactive monitor index resolution against `MonitorModel.monitors`, per-monitor native application fullscreen recession (`visible: desktopHost.enabled && !layerWindow.isFullscreen`, `DEC-023`, `DESIGN.md` §14), and diagnostic surface telemetry (`desktopSurfaces`);
+- `DesktopHost.qml` (`src/desktop/DesktopHost.qml`) implements multi-monitor Wayland layer-shell host scaffolding using Quickshell `Variants` over `Quickshell.screens` and `Quickshell.Wayland.WlrLayershell` anchored across full screen bounds (`anchors.top: true`, `bottom: true`, `left: true`, `right: true`), configured with `WlrLayershell.layer: WlrLayer.Top`, transparent solid geometry without blur or glassmorphism (`DEC-011`, `ANTI-SLOP.md`), hosting `TopIslandAnchor`, `WorkspaceIndicator`, and `DockAnchor` with layer-shell input region strictly constrained to the top island body and dynamic dock hitbox (`mask: Region { Region { item: topIsland.anchorItem } Region { item: dock.hitRegionItem } }`) ensuring idle desktop space remains 100% click-through, reactive monitor index resolution against `MonitorModel.monitors`, per-monitor native application fullscreen recession (`visible: desktopHost.enabled && !layerWindow.isFullscreen`, `DEC-023`, `DESIGN.md` §14), and diagnostic surface telemetry (`desktopSurfaces`, `revealDock`, `hideDock`, `dockRevealed`);
 - `TopIslandAnchor.qml` (`src/desktop/TopIslandAnchor.qml`) implements an edge-integrated top-center solid Wabi-sabi idle anchor (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets, displaying a quiet typographic clock updated on minute boundaries without polling, smoothly receding during per-monitor native fullscreen (`DESIGN.md` §14);
 - `WorkspaceIndicator.qml` (`src/desktop/WorkspaceIndicator.qml`) implements contextual workspace HUD presentation triggered on workspace switch events from `EventBus`, auto-hiding after ~2000ms (`DEC-029`), displaying active workspace context against the fixed 10-workspace bounds with hierarchical scaling (*"Focus grows. Context recedes."*), morphing into a compact labeled pill (`Theme.geometry.radiusPill`) when a label exists, resetting in place without animation stacking during rapid switches (`AGENTS.md` §20), suppressing initial compositor startup discovery bursts via a 600ms ready guard, and respecting `Theme.motion.reducedMotion`;
-- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 25 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- `DockAnchor.qml` (`src/desktop/DockAnchor.qml`) implements the bottom-center edge-integrated solid Wabi-sabi dock scaffolding (`dockRadiusTop: 12`, `dockRadiusBottom: 0`) flanked by organic `InverseCorner` (`ICR`) fillets (`position: "bottom-left"`, `position: "bottom-right"`), recessed/hidden by default at idle with a 1–2px bottom-edge cursor trigger strip (`triggerHeight: 2`), cursor reveal and 400ms auto-recess state machine, dynamic input region mask collapsing to 2px at idle, fullscreen recession (`DEC-023`, `DESIGN.md` §14), and reduced motion compliance (`theme.motion.reducedMotion`);
+- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 26 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- Task `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding) is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation and live dual-monitor Hyprland 0.57.0 E2E tests;
 - M1 task `M1-T6` (E2E multi-monitor validation, anti-slop audit & checkpoint `CP-M1-001`) is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across all live dual-monitor E2E tests;
 - Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;
 - No performance baseline is claimed;
@@ -531,23 +535,21 @@ Implementation must not modify product intent simply because current reality dif
 
 The immediate execution target is:
 
-> **Phase Gate M1 → M2 Transition** per `AGENTS.md` §46 and `DEC-042`. Milestone **M1 — Desktop Core** is 100% complete, verified across all acceptance criteria (`TASKS.md` §8), audited against `ANTI-SLOP.md` (0 violations), and anchored at verified checkpoint `CP-M1-001`.
-
-The agent must **STOP** and await user authorization before beginning **M2 — Primary Surfaces**.
+> **Task M2-T2 — Dock Application State & Pinning** per `TASKS.md` §7 and `DEC-045`. Task **M2-T1** (Bottom-Edge Cursor Trigger & Dock Scaffolding) is 100% complete and verified. The agent must **STOP** at the M2-T1 task boundary per `AGENTS.md` §46 and await user authorization before starting M2-T2.
 
 ---
 
 # 22. Transition Conditions
 
-M1 should transition toward M2 only after:
+M2 should transition toward M3 only after:
 
-- all M1 tasks (`M1-T1` through `M1-T6`) are complete;
-- M1 acceptance criteria (`TASKS.md` §8) are satisfied;
+- all M2 tasks (`M2-T1` through `M2-T6`) are complete;
+- M2 acceptance criteria (`TASKS.md` §8) are satisfied;
 - required static, live multi-monitor runtime, and `ANTI-SLOP.md` / `DESIGN.md` reviews have been performed;
 - unresolved blockers are understood;
 - `STATE.md` accurately reflects reality;
-- verified checkpoint `CP-M1-001` exists in `CHECKPOINT.md`;
-- the M1 phase gate passes (`DEC-042`).
+- verified checkpoint `CP-M2-001` exists in `CHECKPOINT.md`;
+- the M2 phase gate passes (`DEC-042`).
 
 Completion of documentation alone does not transition the phase.
 
@@ -580,10 +582,11 @@ BASEUS
 ├── Decision ledger          LOCKED
 ├── Roadmap                  LOCKED
 ├── Agent protocol           LOCKED
-├── Current tasks            ACTIVE (M1 — Desktop Core: M1-T1..M1-T6)
+├── Current tasks            ACTIVE (M2 — Interaction: M2-T1..M2-T6)
 │
-├── Active phase             M1 — Desktop Core (COMPLETE: M1-T1..M1-T6 VERIFIED, CP-M1-001)
-├── Desktop Core baseline    CP-M1-001 (VERIFIED)
+├── Active phase             M2 — Interaction (IN PROGRESS: M2-T1 COMPLETE / VERIFIED)
+├── Interaction baseline     IN PROGRESS (M2-T1 COMPLETE)
+├── Desktop Core baseline    CP-M1-001 (VERIFIED — commit d29a54f)
 ├── Foundation baseline      CP-M0-001 (VERIFIED — commit 9a37a142)
 ├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings)
 ├── Quickshell runtime       VERIFIED (Quickshell 0.3.2 / WSL2 Arch Linux)

@@ -512,6 +512,34 @@ Item {
                 label: label
             })
         }
+
+        // Reveals Dock on specified monitor (M2-T1)
+        function revealDock(monitorIndex: int): string {
+            var ok = _desktopHost.revealDock(monitorIndex)
+            return JSON.stringify({
+                ok: ok,
+                monitorIndex: monitorIndex,
+                revealed: _desktopHost.isDockRevealed(monitorIndex)
+            })
+        }
+
+        // Hides/recedes Dock on specified monitor (M2-T1)
+        function hideDock(monitorIndex: int): string {
+            var ok = _desktopHost.hideDock(monitorIndex)
+            return JSON.stringify({
+                ok: ok,
+                monitorIndex: monitorIndex,
+                revealed: _desktopHost.isDockRevealed(monitorIndex)
+            })
+        }
+
+        // Queries Dock revealed status on specified monitor (M2-T1)
+        function dockRevealed(monitorIndex: int): string {
+            return JSON.stringify({
+                monitorIndex: monitorIndex,
+                revealed: _desktopHost.isDockRevealed(monitorIndex)
+            })
+        }
     }
 
     function _executeActionWithState(id, payload) {

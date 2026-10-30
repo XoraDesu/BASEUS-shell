@@ -29,7 +29,7 @@ The active development flow is:
 ```text
 ROADMAP
    ↓
-Current Phase (M1 — Desktop Core / Desktop Foundation)
+Current Phase (M2 — Interaction / Primary Surfaces)
    ↓
 TASKS.md
    ↓
@@ -44,7 +44,7 @@ CHECKPOINT.md
 
 Only tasks inside the active phase are normally executable.
 
-M0 Foundation architecture is now protected under **Foundation Freeze** (`DEC-043`). M1 work must extend M0 subsystems (`Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, domain models, and `HyprlandBridge` / `MockHyprlandBridge`) rather than recreating parallel state or event systems.
+M0 Foundation and M1 Desktop Core architectures are now protected under **Foundation Freeze** (`DEC-043`). M2 work must extend M0/M1 subsystems (`Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, `MonitorModel`, `WorkspaceModel`, `WindowModel`, `NavigationController`, `ActionRegistry`, `DesktopHost`, and `HyprlandBridge` / `MockHyprlandBridge`) rather than creating parallel state or event systems.
 
 ---
 
@@ -52,15 +52,15 @@ M0 Foundation architecture is now protected under **Foundation Freeze** (`DEC-04
 
 ## Milestone
 
-**M1 — Desktop Core** (*`ROADMAP.md` §8: `M1 — Desktop Foundation`*)
+**M2 — Interaction** (*`ROADMAP.md` §9: `M2 — Interaction`*)
 
 ## Phase
 
-**M1 — Desktop Core**
+**M2 — Interaction**
 
 ## Phase Goal
 
-Establish the core desktop, workspace, freeform window-management, navigation, and minimal foundational surface capabilities that all later BASEUS surfaces depend on, preserving a quiet Wabi-sabi idle desktop (`MASTER.md` §9), solid palette-derived surfaces (`DESIGN.md` §8), contextual motion (*"Focus grows. Context recedes."*), and freeform-first window agency (`DEC-008`).
+Build the primary interaction surfaces that define how users access and control BASEUS: the edge-integrated bottom Dock (`MASTER.md` §10; `DESIGN.md` §11; `DEC-015`), hover-expandable Top Island (`MASTER.md` §12; `DESIGN.md` §13, §14; `DEC-016`), universal action Command Center (`MASTER.md` §13; `DESIGN.md` §15, §16; `DEC-017`, `DEC-028`), and fullscreen search-first App Drawer (`MASTER.md` §14; `DESIGN.md` §17; `DEC-018`), adhering to Wabi-sabi solid surfaces (`DEC-011`, `ANTI-SLOP.md`), edge integration with Inverse Corner Radius (`DEC-015`, `DEC-016`), and non-permanent contextual desktop presence (`MASTER.md` §9).
 
 ---
 
@@ -68,25 +68,26 @@ Establish the core desktop, workspace, freeform window-management, navigation, a
 
 ### IN SCOPE
 
-- **Workspace capability (`MASTER.md` §7, §39; `DEC-010`):**
-  - Fixed 10-workspace model (`1..10`); workspace count cannot be changed.
-  - Per-monitor workspace state (`activeWorkspaces` and `previousWorkspaces` per monitor index, monitor-hotplug reconciliation, and workspace occupancy derived from `WindowModel`).
-  - User-defined optional workspace labels and tags (`labels`, `tags`).
-  - Direct workspace navigation (`1..10`, `Super+1` through `Super+0`) and bounded relative navigation (`nextWorkspace` / `previousWorkspace`, `4-finger swipe left/right` where platform input hardware permits).
-  - BASEUS Hyprland desktop core configuration presets (`config/hypr/baseus-desktop.lua` for Hyprland `0.57+` Lua config manager and `config/hypr/baseus-desktop.conf` for legacy Hyprlang `< 0.57`).
-- **Freeform window capability (`MASTER.md` §6, §35, §36, §38; `DESIGN.md` §34; `DEC-008`, `DEC-009`, `DEC-023`, `DEC-038`):**
-  - Freeform floating windows by default, centered new-window placement, and overlap as a valid desktop state (no forced tiling).
-  - Window geometry (`x`, `y`, `width`, `height`) and per-monitor state tracking.
-  - Explicit distinction between **maximize** (literal workspace/screen occupation, Hyprland fullscreen mode `1`) and **native application fullscreen** (Hyprland fullscreen mode `0`, causing shell chrome on that monitor to recede per `DESIGN.md` §14).
-  - **Minimize & centered restore** without exposing a scratchpad mental model (`DEC-038`, `MASTER.md` §36).
-  - Window movement between workspaces (`1..10`) and normalized POP-style workspace-move transition event hooks (`MASTER.md` §35).
-- **Navigation capability (`MASTER.md` §8, §34; `DEC-024`, `DEC-028`):**
-  - Action identity decoupled from keyboard/gesture/UI triggers (`ActionRegistry` foundation: `Discover → Customize → Execute`).
-  - Desktop context and `Back` / `Home` / `Overview` mental-model primitives (`NavigationController`).
-- **Core layout scaffolding & minimal foundational desktop surfaces (`MASTER.md` §9, §11, §12, §39; `DESIGN.md` §5–14, §26–28; `ANTI-SLOP.md`; `DEC-002`, `DEC-004`, `DEC-006`, `DEC-029`):**
-  - Per-monitor Quickshell Wayland Layer-Shell desktop overlay host (`src/surfaces/DesktopHost.qml`) with zero-cost click-through idle behavior and per-monitor native fullscreen recession (`DESIGN.md` §14).
-  - **Contextual Workspace Indicator** (`src/surfaces/WorkspaceIndicator.qml`): completely hidden at idle, appearing transiently (~2 seconds) on the affected monitor when switching workspaces, using solid Wabi-sabi palette surfaces, hierarchical scaling (`previous` shrinks/recedes, `current` grows/focuses), optional compact pill morph (`2 — WEB`) when a workspace label exists, and in-place morphing on rapid switches (`AGENTS.md` §20).
-  - **Minimal Top Island Idle Anchor Foundation** (`src/surfaces/TopIslandAnchor.qml`): quiet top-center edge-integrated solid Wabi-sabi anchor with organic `InverseCorner` (`ICR`) fillets showing only calm typographic time at idle (`MASTER.md` §9) and receding during native fullscreen (`DESIGN.md` §14).
+- **Dock (`MASTER.md` §10; `DESIGN.md` §11; `DEC-015`):**
+  - Bottom-centered, edge-integrated (flush bottom edge, rounded top corners, ICR fillets flaring into the bottom screen edge).
+  - Recessed/hidden by default at idle; 1–2px bottom-edge cursor trigger strip; contextual reveal.
+  - Input region containment: empty/trigger-only mask at idle (100% click-through desktop), expanding to dock body on reveal.
+  - Global pinned applications vs workspace-specific active applications (`WindowModel`).
+  - Clean separation: strictly NO search in Dock (`DEC-015`, `MASTER.md` §10).
+  - Fullscreen recession on the active monitor (`DESIGN.md` §14, `DEC-023`).
+- **Top Island Hover Expansion & Contextual Header (`MASTER.md` §12; `DESIGN.md` §13, §14; `DEC-016`):**
+  - Hover expansion from the quiet idle clock anchor (`TopIslandAnchor`).
+  - Contextual system header and quick controls foundation (volume/network/power entrypoint).
+  - Fullscreen compact clock summon behavior (`DESIGN.md` §14).
+- **Command Center (`MASTER.md` §13; `DESIGN.md` §15, §16; `DEC-017`, `DEC-028`):**
+  - Universal action and navigation search interface slightly above center.
+  - Search-first layout with dynamic bounded height and transient curtain reveal.
+  - Action prefix routing (`>` prefix queries and invokes actions registered in `ActionRegistry`).
+- **App Drawer (`MASTER.md` §14; `DESIGN.md` §17; `DEC-018`):**
+  - Fullscreen composition with persistent search and continuous app grid.
+  - Fixed A–Z–0–9–# fast scroller / category navigation.
+  - Recent/suggested applications, right-click actions, and global discovery.
+  - Running state is not represented as persistent task indicators in the drawer (`DEC-018`).
 
 ---
 
@@ -94,15 +95,11 @@ Establish the core desktop, workspace, freeform window-management, navigation, a
 
 ### OUT OF SCOPE
 
-The following belong to future milestones in `ROADMAP.md` and must **not** be implemented in M1:
+The following belong to future milestones in `ROADMAP.md` and must **not** be implemented in M2:
 
-- Dock surface, 1–2 px bottom-edge cursor trigger, and pixel/curtain reveal (`M2`);
-- Full Top Island hover expansion, active status expansion, and quick controls (`M2`);
-- Command Center and prefix routing (`M2`);
-- App Drawer and category/app grid (`M2`);
-- Notifications, OSD, and Media / Bongo Cat surfaces (`M3`);
-- Wallpaper runtime, Matugen extraction pipeline, Theme presets, Widgets, and Headquarter (`M4`);
-- Full Helicopter View / Overview UI, Alt+Tab switcher UI, and smart snap/grid arrangement (`M5`);
+- Notification popups, notification center history, OSD, and Media / Bongo Cat surfaces (`M3`);
+- Wallpaper runtime, Matugen palette extraction pipeline, Theme presets, Widgets, and Headquarter (`M4`);
+- Full Helicopter View / Overview window layout, Alt+Tab switcher UI, and smart snap/grid arrangement (`M5`);
 - Power Menu constellation, sleeping chibi, and personality choreography (`M6`);
 - Multi-distro installer, updater, uninstaller, and doctor CLI (`M7`);
 - Performance benchmarking and release freeze (`M8`–`M9`).
@@ -111,9 +108,10 @@ The following belong to future milestones in `ROADMAP.md` and must **not** be im
 
 # 6. Dependencies
 
-M1 depends on:
+M2 depends on:
 
-- **Verified M0 Foundation (`CP-M0-001` `VERIFIED`, commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`):** `Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, `MonitorModel`, `WorkspaceModel`, `WindowModel`, `HyprlandBridge`, `MockHyprlandBridge`, and `src/theme/*` design tokens;
+- **Verified M0 Foundation (`CP-M0-001` `VERIFIED`):** `Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, domain models, and bridges;
+- **Verified M1 Desktop Core (`CP-M1-001` `VERIFIED`):** Fixed 10-workspace per-monitor model, freeform floating window tracking, `ActionRegistry` (`DEC-028`), `NavigationController` (`DEC-024`), `DesktopHost` multi-monitor Layer-Shell scaffolding (`DEC-045`), `TopIslandAnchor` (`DEC-029`), and `WorkspaceIndicator`;
 - **Locked Source of Truth:** `MASTER.md`, `DESIGN.md`, `ANTI-SLOP.md`, `DECISIONS.md`, `ROADMAP.md`, and `AGENTS.md`;
 - **Runtime & Tooling:** `Quickshell 0.3.2`, Qt 6 (`qmllint 6.12.0`), and live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) in WSL2 Arch Linux.
 
@@ -121,121 +119,129 @@ M1 depends on:
 
 # 7. Implementation Order & Atomic Task Breakdown
 
-Per `DEC-045` (*Capability-to-Surface Implementation*) and `AGENTS.md` §11 (*Smallest coherent change*), M1 executes in six atomic tasks:
+Per `DEC-045` (*Capability-to-Surface Implementation*) and `AGENTS.md` §11 (*Smallest coherent change*), M2 executes in six atomic tasks:
 
 ```text
-M1-T1 (Workspace Capability & Hyprland Preset)
+M2-T1 (Bottom-Edge Cursor Trigger & Dock Scaffolding)
   ↓
-M1-T2 (Freeform Window Capability: Maximize/Fullscreen, Minimize/Centered-Restore)
+M2-T2 (Dock Application State & Pinning)
   ↓
-M1-T3 (Action Registry & Back/Home/Overview Navigation Primitives)
+M2-T3 (Top Island Hover Expansion & Contextual Header)
   ↓
-M1-T4 (Per-Monitor Wayland Layer-Shell Desktop Host Scaffolding)
+M2-T4 (Command Center Surface & Action Prefix Routing)
   ↓
-M1-T5 (Contextual Workspace Indicator & Minimal Top Island Idle Anchor)
+M2-T5 (Fullscreen App Drawer & Alphabet Fast Scroller)
   ↓
-M1-T6 (M1 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint CP-M1-001)
+M2-T6 (M2 Integration, Anti-Slop Audit & Checkpoint CP-M2-001)
 ```
 
 ---
 
-## Task M1-T1 — Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset
+## Task M2-T1 — Bottom-Edge Cursor Trigger & Dock Scaffolding
 
-**Goal:** Complete the fixed 10-workspace per-monitor capability layer, relative/direct navigation commands, workspace occupancy/history queries, and authoritative BASEUS Hyprland desktop core configuration presets.
+**Goal:** Implement the edge-integrated bottom Dock scaffolding (`src/desktop/DockAnchor.qml`), 1–2px bottom-edge cursor trigger, curtain reveal/recess state machine, input region containment, and per-monitor fullscreen recession.
 
 ### Sub-tasks
 
-- [x] Extend `src/core/Config.qml` and `config/baseus.json` to support optional `workspaces.tags` (`workspaceTags`) alongside `workspaces.labels` (`MASTER.md` §7) while keeping `workspaceCount` locked at `10` (`DEC-010`).
-- [x] Enhance `src/core/WorkspaceModel.qml` with per-monitor `previousWorkspaces` tracking, optional `tags` (`getTag` / `setTag`), bounded `1..10` relative stepping (`getRelativeWorkspace`, `canStepWorkspace`), `WindowModel`-derived occupancy queries (`getWindowCount`, `getSnapshot`), monitor-hotplug reconciliation, and normalized `{ source: "model", type: "changed", monitorIndex, previous, current, label, tag }` `EventBus` emission.
-- [x] Enhance `src/core/HyprlandBridge.qml` with direct `.socket.sock` `j/monitors` synchronization (`Quickshell.Io.Socket` + `SplitParser`, zero child processes, compatible with `Hyprland 0.57+` monitor JSON), name-based monitor index resolution across `.socket2.sock` `focusedmon`/`focusedmonv2`/`moveworkspace`/`moveworkspacev2`/`monitoradded`/`monitorremoved` events, and monitor-targeted `focusMonitor`, `switchWorkspace(workspaceId, monitorIndex)`, `switchWorkspaceRelative(delta, monitorIndex)`, `nextWorkspace(monitorIndex)`, and `previousWorkspace(monitorIndex)` supporting both `Hyprland.usingLua` (`0.57+`) and legacy Hyprlang (`< 0.57`).
-- [x] Upgrade `src/core/MockHyprlandBridge.qml` for multi-monitor simulation parity (`activeWorkspaces` per monitor, `setMockMonitorCount`, `focusMonitor`, `switchWorkspaceRelative`, `nextWorkspace`, `previousWorkspace`, `moveWindowToWorkspace`) without injecting unconfigured fake workspace labels.
-- [x] Wire new model/bridge references and diagnostic IPC methods (`nextWorkspace`, `previousWorkspace`, `switchMonitorWorkspace`, `workspaces`) in `src/Shell.qml`.
-- [x] Create `config/hypr/baseus-desktop.lua` (`Hyprland 0.57+` Lua) and `config/hypr/baseus-desktop.conf` (`< 0.57` Hyprlang reference) encoding `Super+1..0`, `Super+Shift+1..0`, 4-finger horizontal workspace swipe, non-wrapping 10-workspace bounds, fade workspace context transition (`MASTER.md` §7), default freeform floating + centered new windows (`DEC-008`), subtle 1px solid Wabi-sabi window borders without neon glow (`DESIGN.md` §34), and no scratchpad bindings (`DEC-038`).
-- [x] Register new configuration files in `scripts/validate.sh` and `scripts/validate.ps1`, pass 0-warning `qmllint 6.12.0`, and verify live against `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2`.
+- [x] Implement `src/desktop/DockAnchor.qml` (`MASTER.md` §10; `DESIGN.md` §11; `DEC-015`):
+  - Bottom-centered edge-integrated geometry: flush with bottom screen edge (`dockRadiusBottom: 0`), rounded top corners (`dockRadiusTop: 12`).
+  - Organic `InverseCorner` (`ICR`) fillets flaring into the bottom screen edge (`position: "bottom-left"`, `position: "bottom-right"`).
+  - Solid Wabi-sabi background (`theme.colors.surfaceSolid`, `borderSubtle`, strictly no glassmorphism, blur, or neon glow).
+  - Recessed/hidden by default at idle with a bottom 1–2px invisible cursor trigger strip (`triggerHeight: 2`).
+  - Reveal state machine: cursor entering trigger raises/reveals the dock body from the edge; cursor exiting dock bounds recedes the dock after a clean delay (~400ms).
+  - Fullscreen recession: cleanly recedes when monitor enters native application fullscreen (`DESIGN.md` §14, `DEC-023`).
+  - Reduced motion compliance: instant transitions when `theme.motion.reducedMotion` is true.
+  - Expose items for layer-shell mask management (`triggerItem`, `hitRegionItem`).
+- [x] Wire `DockAnchor` into `src/desktop/DesktopHost.qml`:
+  - Multi-monitor variant integration with per-screen screen binding.
+  - Update `mask: Region` to include `topIsland.anchorItem` and `dockAnchor.hitRegionItem` so screen remains 100% click-through at idle.
+  - Expose dock telemetry (`revealed`, `visible`) in `getSurfaceSnapshot()`.
+  - Add `revealDock(monitorIndex)` / `hideDock(monitorIndex)` methods.
+- [x] Expose diagnostic IPC hooks in `src/Shell.qml` (`revealDock`, `hideDock`, `dockRevealed`).
+- [x] Integrate production `DockAnchor` preview in `src/dev/DesignStage.qml`.
+- [x] Register `src/desktop/DockAnchor.qml` in `scripts/validate.sh` and `scripts/validate.ps1`.
+- [x] Validate statically (`qmllint 6.12.0` — 0 errors, 0 warnings) and runtime in WSL2 Arch Linux (`BASEUS_SIMULATION=1` and live dual-monitor `Hyprland 0.57.0`).
 
 ---
 
-## Task M1-T2 — Freeform Window Capability (Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore)
+## Task M2-T2 — Dock Application State & Pinning
 
-**Goal:** Deliver BASEUS's freeform floating window model with explicit shell maximize vs native fullscreen separation, scratchpad-free minimize with centered restore, and POP-transition workspace movement hooks.
+**Goal:** Implement dock item data models (`DockModel.qml` / `DockItem.qml`), distinguishing global pinned applications from workspace-specific active applications (`WindowModel`), launch dispatch, and focus switching.
 
 ### Sub-tasks
 
-- [x] Extend `src/core/WindowModel.qml` to track window geometry (`x`, `y`, `width`, `height`), `originWorkspace` and `savedGeometry` for minimized/maximized windows, MRU `focusHistory`, explicit `maximized` vs `fullscreen` booleans (`DEC-023`), per-monitor fullscreen/maximize queries (`hasFullscreenWindow(monitorIndex)`, `hasMaximizedWindow(monitorIndex)`), and workspace/monitor window filtering (`getVisibleWindowsByWorkspace`, `getMinimizedWindows`, `getNextFocusableWindow`, `getSnapshot`).
-- [x] Extend `src/core/ShellState.qml` so `hasFullscreenApp`, `fullscreenMonitors`, and `isMonitorFullscreen(monitorIndex)` track native application fullscreen per monitor accurately (`"desktop"` <-> `"fullscreen"`, ignoring geometric maximized windows per `DEC-023`).
-- [x] Extend `src/core/HyprlandBridge.qml` (with direct zero-process `.socket.sock` `j/clients` sync + FIFO `[[BATCH]]dispatch` socket pipeline and `DEC-008` newly-mapped floating/center enforcement), `config/hypr/baseus-desktop.{lua,conf}` (`baseus-minimized-hidden` rule), and `src/core/MockHyprlandBridge.qml` with dual Lua/Hyprlang window operations: `focusWindow`, `closeWindow`, `moveWindow`, `resizeWindow`, `centerWindow`, `setFloating` / `toggleFloating`, `setMaximized` / `toggleMaximize` (geometric maximize preserving `16px` layout boundaries), `setFullscreen` / `toggleFullscreen` (native compositor fullscreen), scratchpad-free `minimizeWindow` + `restoreWindow` (restoring centered onto the target monitor & workspace per `MASTER.md` §36 and `DEC-038`), and `moveWindowToWorkspace` / `moveWindowToMonitor` emitting normalized POP-transition metadata (`MASTER.md` §35).
-- [x] Expose window capability commands on `baseus` diagnostic IPC in `src/Shell.qml` and verify live with real Wayland client windows inside dual-monitor `Hyprland 0.57.0`.
+- [ ] Implement `src/core/DockModel.qml` managing global pinned application definitions and workspace-specific active clients derived from `WindowModel`.
+- [ ] Implement `src/desktop/DockItem.qml` rendering solid Wabi-sabi application tiles, running indicator pips, active workspace window count badges, and click/launch dispatch.
+- [ ] Support pin management (pin/unpin from config or context menu).
+- [ ] Validate multi-monitor and multi-workspace window association.
 
 ---
 
-## Task M1-T3 — Action Registry & Desktop Navigation Primitives (`Back` / `Home` / `Overview`)
+## Task M2-T3 — Top Island Hover Expansion & Contextual Header
 
-**Goal:** Establish the `Discover → Customize → Execute` action boundary (`DEC-028`) and the `Back` / `Home` / `Overview` desktop navigation mental model (`DEC-024`, `MASTER.md` §8).
+**Goal:** Extend `TopIslandAnchor` with interactive hover expansion, revealing contextual system controls (volume/network/power indicators) without breaking idle simplicity.
 
 ### Sub-tasks
 
-- [x] Implement `src/core/ActionRegistry.qml` registering core M1 desktop, workspace, window, and navigation actions with human-readable metadata, categories (`navigation`, `workspace`, `window`, `system`), default trigger descriptors, conflict detection helpers, and `execute(actionId, payload)`.
-- [x] Implement `src/core/NavigationController.qml` managing desktop context history and `Back` (exit active overlay mode → `"desktop"`, or return to monitor's `previousWorkspace` when in `"desktop"`, or focus previous window on active workspace via MRU focus history), `Home` (return cleanly to `"desktop"` context on Workspace 1), and `Overview` (toggle `"overview"` mode state foundation for M5, mutually exclusive with native fullscreen).
-- [x] Wire `ActionRegistry` and `NavigationController` into `src/Shell.qml` lifecycle and diagnostic IPC (`listActions`, `getAction`, `shortcutOwners`, `executeAction`, `executeActionWithPayload`, `registerDiagnosticAction`, `unregisterAction`), maintaining stable `EventBus` subscription counts across restarts.
-- [x] Validate statically (`qmllint 6.12.0`) and at runtime under both `MockHyprlandBridge` and live `Hyprland 0.57.0`.
+- [ ] Extend `src/desktop/TopIslandAnchor.qml` with hover expansion state machine.
+- [ ] Implement contextual header showing active workspace context, volume/network status chips, and quick control triggers.
+- [ ] Implement fullscreen compact clock summon behavior (`DESIGN.md` §14).
+- [ ] Validate click-through and input mask dynamic resizing.
 
 ---
 
-## Task M1-T4 — Per-Monitor Layer-Shell Desktop Scaffolding (`DesktopHost`)
+## Task M2-T4 — Command Center Surface & Action Prefix Routing
 
-**Goal:** Create the multi-monitor Quickshell Wayland Layer-Shell host scaffolding that anchors foundational desktop overlays per screen while remaining invisible and zero-cost at idle and receding automatically during native fullscreen.
+**Goal:** Build the universal action and search surface (`src/surfaces/CommandCenter.qml`) with dynamic bounded height, transient curtain reveal, and `>` action prefix routing to `ActionRegistry`.
 
 ### Sub-tasks
 
-- [x] Implement `src/desktop/DesktopHost.qml` using Quickshell `Variants` over `Quickshell.screens` and `Quickshell.Wayland` `WlrLayershell`, mapping each `ShellScreen` (`name`) to `MonitorModel` monitor index.
-- [x] Enforce non-intrusive idle behavior (transparent background, pass-through input mask for empty regions, zero polling/timers when idle per `AGENTS.md` §21) and per-monitor native fullscreen recession (`DESIGN.md` §14).
-- [x] Integrate `DesktopHost` cleanly into `src/Shell.qml` with headful/headless gating and deterministic lifecycle cleanup.
-- [x] Validate `qmllint 6.12.0` (0 warnings) and live multi-output Layer-Shell mapping inside `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`).
+- [ ] Implement `src/surfaces/CommandCenter.qml` appearing slightly above center.
+- [ ] Implement search input with keyboard focus grab and ESC dismissal.
+- [ ] Wire `>` prefix routing to query and execute `ActionRegistry` actions (`DEC-028`).
+- [ ] Implement dynamic height sizing capped at maximum threshold.
+- [ ] Validate keyboard navigation (Up/Down/Enter/Escape).
 
 ---
 
-## Task M1-T5 — Contextual Workspace Indicator & Minimal Top Island Idle Anchor
+## Task M2-T5 — Fullscreen App Drawer & Alphabet Fast Scroller
 
-**Goal:** Implement the minimal foundational M1 visual surfaces strictly required to make desktop context legible without encroaching on M2 interactive panels.
+**Goal:** Implement the fullscreen application discovery drawer (`src/surfaces/AppDrawer.qml`) with persistent search, A–Z–0–9–# fast scroller, and continuous app grid.
 
 ### Sub-tasks
 
-- [x] Implement `src/desktop/WorkspaceIndicator.qml` (`MASTER.md` §11, `DESIGN.md` §12, `DEC-029`):
-  - Completely hidden at idle (never permanently showing workspace numbers).
-  - Appears transiently (~2 seconds) on the switched monitor upon `WorkspaceModel` `"changed"` events.
-  - Uses solid Wabi-sabi `Theme.colors.surfaceSolid` + `borderSubtle` (no glass/blur/gradients/neon glow), `Theme.typography.fontFamilyMono`, and hierarchical scaling (*"Focus grows. Context recedes."*: `previous` shrinks/dims, `current` grows/focuses).
-  - Morphs cleanly into a compact pill (`2 — WEB`, `Theme.geometry.radiusPill`) when a user-defined workspace label is present, updates/resets in place during rapid consecutive switches without animation stacking (`AGENTS.md` §20), and respects `Theme.motion.reducedMotion`.
-- [x] Implement `src/desktop/TopIslandAnchor.qml` (`MASTER.md` §9, §12; `DESIGN.md` §9, §10, §13, §14):
-  - Edge-integrated top-center solid Wabi-sabi surface (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets.
-  - Displays only quiet typographic idle clock time (minute-aligned event/timer updates — no high-frequency polling), receding smoothly when a native fullscreen application occupies that monitor (`DESIGN.md` §14).
-  - Keeps M2 hover-menu expansion, quick controls, and active-system drawers strictly out of M1 scope.
-- [x] Add M1 surface preview harness toggle in `src/dev/DesignStage.qml` and perform full `ANTI-SLOP.md` §14 removal/identity review + `qmllint 6.12.0` + live `Hyprland 0.57.0` + `Quickshell 0.3.2` runtime validation.
+- [ ] Implement `src/surfaces/AppDrawer.qml` fullscreen surface with flush bottom edge and rounded top corners (`drawerRadiusTop: 12`).
+- [ ] Implement desktop entry discovery and parsing.
+- [ ] Implement A–Z–0–9–# alphabet fast scroller and section headers.
+- [ ] Implement recent/suggested applications header row.
+- [ ] Wire launcher dispatch hooks.
 
 ---
 
-## Task M1-T6 — M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001`
+## Task M2-T6 — M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001`
 
-**Goal:** Verify all M1 acceptance and exit criteria across multi-monitor live Hyprland + Quickshell execution, update baseline docs, record `CP-M1-001`, and stop cleanly at the M1 → M2 phase gate.
+**Goal:** Verify all M2 primary interaction surfaces across dual-monitor live Hyprland + Quickshell execution, perform full anti-slop audit, update documentation, record `CP-M2-001`, and stop at M2 → M3 phase gate.
 
 ### Sub-tasks
 
-- [x] Run comprehensive live `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` end-to-end verification covering 10-workspace per-monitor switching, freeform window floating/centering, maximize vs native fullscreen recession, minimize + centered restore, `Back`/`Home`/`Overview` navigation primitives, `WorkspaceIndicator` & `TopIslandAnchor` behavior, and repeated shell restarts.
-- [x] Perform formal `DESIGN.md` §45 and `ANTI-SLOP.md` audit across all M1 surfaces and configurations.
-- [x] Update `docs/architecture.md` and `docs/configuration.md` to document M1 capabilities and `config/hypr/` presets accurately.
-- [x] Update `STATE.md`, record verified checkpoint `CP-M1-001` in `CHECKPOINT.md`, report concisely, and **STOP** before M2 (`DEC-042`, `AGENTS.md` §48).
+- [ ] Run integrated E2E test suite combining Dock, Top Island, Command Center, and App Drawer across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
+- [ ] Perform comprehensive anti-slop audit across all QML surfaces.
+- [ ] Update `docs/architecture.md` and `docs/configuration.md`.
+- [ ] Update `STATE.md`, record `CP-M2-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
 
 ---
 
 # 8. Acceptance Criteria
 
-M1 is acceptable only when all of the following hold:
+M2 is acceptable only when all of the following hold:
 
-1. **Fixed 10-workspace discipline (`DEC-010`):** Workspaces `1..10` work deterministically per monitor; out-of-range workspace IDs (`< 1` or `> 10`) are rejected; workspace creation beyond `10` is prevented in both shell logic and Hyprland gesture/bind presets.
-2. **Per-monitor independence (`MASTER.md` §39):** Switching workspaces on Monitor B preserves Monitor A's active workspace and independent `previousWorkspace` history.
-3. **Freeform-first window behavior (`DEC-008`, `DEC-023`, `DEC-038`):** Windows open floating and centered by default, can overlap freely, distinguish workspace-filling maximize from shell-receding native fullscreen, and support minimize + centered restore without exposing a scratchpad mental model.
-4. **Navigation foundation (`DEC-024`, `DEC-028`):** `Back`, `Home`, and `Overview` primitives operate through explicit actions decoupled from triggers.
-5. **Contextual quiet desktop (`MASTER.md` §9, §11; `DESIGN.md` §8, §12–14; `ANTI-SLOP.md`):** Idle desktop shows no permanent workspace numbers, taskbars, cards, glass blur, gradients, or neon glows; `WorkspaceIndicator` appears only on workspace transitions and auto-hides cleanly; `TopIslandAnchor` and `DesktopHost` recede during native fullscreen.
-6. **Zero-warning static & live runtime stability:** `scripts/validate.sh --all` (`qmllint 6.12.0`) passes with 0 errors and 0 warnings; live `Hyprland 0.57.0` + `Quickshell 0.3.2` execution and repeated `Lifecycle.restart()` runs maintain stable `EventBus` subscription counts and zero uncaught QML errors.
+1. **Edge-integrated Dock (`DEC-015`):** Dock is bottom-centered, edge-integrated with ICR fillets, recessed at idle with a 1–2px bottom trigger, reveals from the trigger, distinguishes global pins from workspace clients, and contains NO search.
+2. **Contextual Top Island (`DEC-016`):** Idle clock expands on hover to provide contextual controls; fullscreen mode cleanly recedes while keeping compact clock summon available.
+3. **Universal Command Center (`DEC-017`, `DEC-028`):** Universal action surface appears slightly above center, supports search, executes `>` prefixed actions via `ActionRegistry`, and dynamically resizes.
+4. **Fast App Drawer (`DEC-018`):** Fullscreen search-first launcher provides continuous app grid with fixed A–Z–0–9–# fast scroller without turning into a task manager.
+5. **Solid Wabi-sabi & Anti-Slop (`ANTI-SLOP.md`):** Zero glassmorphism, zero blur filters, zero neon glows, strict tokenized typography/colors/spacing, and 100% `pragma ComponentBehavior: Bound`.
+6. **Zero-cost idle desktop:** Empty desktop space remains completely click-through via precise Layer-Shell input masks.
+7. **Zero-warning static & runtime stability:** `qmllint 6.12.0` passes with 0 errors and 0 warnings; live `Hyprland 0.57.0` + `Quickshell 0.3.2` execution passes without memory leaks or unhandled errors.
 
 ---
 
@@ -243,38 +249,36 @@ M1 is acceptable only when all of the following hold:
 
 | Area | Validation Method | Required Evidence |
 |---|---|---|
-| Structure & JSON | `scripts/validate.sh --structure --config` & `scripts/validate.ps1` | Exit code 0; all M0 + M1 files and JSON configs valid |
-| QML Static & Types | `scripts/validate.sh --qml` (`qmllint 6.12.0`) | 0 errors and 0 warnings across every `.qml` file |
-| Hyprland Preset | Live `Hyprland 0.57.0 -c config/hypr/baseus-desktop.lua` + `hyprctl configerrors` | Zero config errors; floating/centered rules, `Super+1..0`, and 4-finger gesture loaded |
-| Multi-Monitor Workspaces | Live `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` IPC | Independent per-monitor active/previous workspaces, `1..10` clamping, label/tag & occupancy snapshot |
-| Window Lifecycle | Live Wayland test clients inside `Hyprland 0.57.0` + `Quickshell 0.3.2` | Centered floating spawn, maximize vs native fullscreen mode distinction, minimize & centered restore, workspace move |
-| Navigation & Surfaces | Live `Quickshell 0.3.2` on `Hyprland 0.57.0` + `DesignStage` / `ANTI-SLOP.md` review | `Back`/`Home`/`Overview` transitions, transient `WorkspaceIndicator` morph & ~2s hide, `TopIslandAnchor` ICR + fullscreen recession |
-| Restart & Recovery | `quickshell ipc call baseus restart` under live Hyprland & `BASEUS_SIMULATION=1` | Constant `EventBus` subscription counts and accurate live state resynchronization |
+| Structure & QML Lint | `scripts/validate.sh --all` & `scripts/validate.ps1` | Exit code 0; `qmllint 6.12.0` passes with 0 errors and 0 warnings |
+| Dock Trigger & Reveal | Live Hyprland 0.57.0 + Quickshell IPC | 1–2px trigger activates reveal; input mask covers dock; auto-recedes on exit; fullscreen recedes |
+| Dock Application State | Quickshell IPC + Wayland client windows | Global pins persist across workspaces; active client icons track workspace occupancy |
+| Top Island Expansion | Live Quickshell hover interaction | Idle clock expands smoothly; quick controls accessible; fullscreen compact clock works |
+| Command Center | Quickshell IPC + keyboard input | `>` prefix matches `ActionRegistry` actions; Up/Down/Enter navigates and executes |
+| App Drawer | Live Quickshell fullscreen launcher | Search filters grid; A–Z scroller jumps accurately; clicking app launches client |
+| Multi-Monitor & Fullscreen | Dual-monitor (`VIRTUAL-1`, `VIRTUAL-2`) test harness | Independent surface states per monitor; native fullscreen causes only affected monitor to recede |
 
 ---
 
 # 10. Exit Criteria & Stop Conditions
 
-M1 exits only when `M1-T1` through `M1-T6` are complete, validated with live evidence, audited against `DESIGN.md` and `ANTI-SLOP.md`, documented in `STATE.md`, and recorded in `CP-M1-001` (`CHECKPOINT.md`).
+M2 exits only when `M2-T1` through `M2-T6` are complete, validated with live evidence, audited against `ANTI-SLOP.md`, documented in `STATE.md`, and recorded in `CP-M2-001` (`CHECKPOINT.md`).
 
 The agent must **STOP**:
 
-- after completing and auditing the requested atomic task when operating in single-task kickoff/step mode;
+- after completing and auditing the requested atomic task (`M2-T1`);
 - immediately if a source-of-truth conflict requiring owner governance (`DEC-043`) is discovered;
 - immediately if a repeated runtime blocker prevents honest validation;
-- unconditionally upon completing M1 (`CP-M1-001`), without auto-starting M2 (`AGENTS.md` §46, §48; `DEC-042`).
+- unconditionally upon completing M2 (`CP-M2-001`), without auto-starting M3 (`AGENTS.md` §46, §48).
 
 ---
 
 # 11. Current Status
 
-- **Active Phase:** `M1 — Desktop Core` (*`ROADMAP.md` §8: `M1 — Desktop Foundation`*)
-- **Completed Tasks:**
-  - `M1-T1` (Workspace Capability, Per-Monitor Navigation & Hyprland Desktop Preset — `VERIFIED`)
-  - `M1-T2` (Freeform Window Capability: Geometry, Maximize vs Native Fullscreen, Minimize & Centered Restore — `VERIFIED`)
-  - `M1-T3` (Action Registry & Desktop Navigation Primitives: `Back` / `Home` / `Overview` — `VERIFIED`)
-  - `M1-T4` (Per-Monitor Layer-Shell Desktop Scaffolding: `DesktopHost` — `VERIFIED`)
-  - `M1-T5` (Contextual Workspace Indicator & Minimal Top Island Idle Anchor — `VERIFIED`)
-  - `M1-T6` (M1 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M1-001` — `VERIFIED`)
-- **Milestone M1 Status:** `100% COMPLETE & VERIFIED` (`CP-M1-001`)
-- **Next Executable Task:** `M2 Kickoff` (Milestone Gate M1 → M2 — awaiting user authorization per `AGENTS.md` §48)
+- **Active Phase:** `M2 — Interaction` (*`ROADMAP.md` §9: `M2 — Interaction`*)
+- **Completed Milestones:**
+  - `M0 — Foundation` (`CP-M0-001` `VERIFIED`)
+  - `M1 — Desktop Core` (`CP-M1-001` `VERIFIED`)
+- **Completed Tasks in Phase:**
+  - `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding — `COMPLETE / VERIFIED`)
+- **Active Task:** `M2-T1` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M2-T2` (Dock Application State & Pinning — awaiting user prompt).
