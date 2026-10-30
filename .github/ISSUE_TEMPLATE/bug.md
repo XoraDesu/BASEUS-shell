@@ -1,21 +1,37 @@
 ---
-name: Bug report
-about: Report a reproducible BASEUS problem
+name: Bug Report
+about: Report a bug in BASEUS
+title: "[Bug] "
+labels: bug
+assignees: ''
 ---
 
-## Problem
+## Description
+
+A clear description of the bug.
+
+## Steps to Reproduce
+
+1. 
+2. 
+3. 
+
+## Expected Behavior
+
+What should happen.
+
+## Actual Behavior
+
+What actually happens.
 
 ## Environment
 
-- Distro:
-- Hyprland:
-- Quickshell:
-- GPU:
+- **Distribution:**
+- **Kernel:**
+- **Hyprland version:**
+- **Quickshell version:**
+- **Monitor setup:**
 
-## Steps to reproduce
+## Additional Context
 
-## Expected behavior
-
-## Actual behavior
-
-## Logs / diagnostics
+Any relevant logs, screenshots, or configuration.

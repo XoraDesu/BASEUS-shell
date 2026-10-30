@@ -1,18 +1,29 @@
-## Summary
+## Description
+
+A clear description of what this PR does.
 
 ## Scope
 
-- [ ] Current phase only
-- [ ] No unrelated redesign
+What is in scope for this change?
+
+## What Changed
+
+- 
 
 ## Validation
 
-- [ ] Functional validation
-- [ ] UX review where applicable
-- [ ] Anti-slop review where applicable
-- [ ] Performance considered
+- [ ] Static validation performed
+- [ ] Runtime validation performed (if applicable)
+- [ ] UI/UX review performed (if applicable)
+- [ ] Anti-slop review performed (if applicable)
 
-## Product Truth
+## Source of Truth Compliance
 
-- [ ] No conflict with MASTER/DESIGN/accepted DECISIONS
-- [ ] Any required Design Proposal is approved
+- [ ] Compatible with MASTER.md
+- [ ] Compatible with DESIGN.md (if UI work)
+- [ ] Compatible with DECISIONS.md
+- [ ] No scope expansion beyond current phase
+
+## Known Limitations
+
+Any known issues or limitations.

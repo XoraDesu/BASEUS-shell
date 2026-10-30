@@ -1,5 +1,0 @@
-* text=auto
-*.sh text eol=lf
-*.qml text eol=lf
-*.conf text eol=lf
-*.md text eol=lf

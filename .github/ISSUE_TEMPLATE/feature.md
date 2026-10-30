@@ -1,14 +1,31 @@
 ---
-name: Feature request
-about: Propose a concrete capability
+name: Feature Request
+about: Suggest a feature for BASEUS
+title: "[Feature] "
+labels: enhancement
+assignees: ''
 ---
+
+## Description
+
+A clear description of the feature.
 
 ## Problem
 
-## Proposed capability
+What problem does this solve?
 
-## Why BASEUS needs it
+## Proposed Solution
 
-## Scope
+How should this work?
 
-## Design / UX considerations
+## Alternatives Considered
+
+What other approaches were considered?
+
+## Relationship to BASEUS Identity
+
+How does this align with BASEUS's established design language and product identity?
+
+## Additional Context
+
+Any relevant mockups, references, or examples.

@@ -1,0 +1,44 @@
+{
+    "baseus": {
+        "_comment": "BASEUS default configuration — baseus.json",
+        "_version": "0.1.0",
+
+        "shell": {
+            "logLevel": "info"
+        },
+
+        "simulation": {
+            "enabled": false,
+            "_comment": "Offline simulation mode for UI design development without Hyprland (or set BASEUS_SIMULATION=1)"
+        },
+
+        "dock": {
+            "triggerHeight": 2,
+            "revealDuration": 200,
+            "showLauncher": true
+        },
+
+        "topIsland": {
+            "idleTimeout": 2000
+        },
+
+        "notifications": {
+            "timeout": 3000,
+            "position": "top-left"
+        },
+
+        "commandCenter": {
+            "defaultPrefix": "",
+            "actionPrefix": ">"
+        },
+
+        "workspaces": {
+            "labels": {}
+        },
+
+        "performance": {
+            "reducedMotion": false,
+            "animationDuration": 250
+        }
+    }
+}

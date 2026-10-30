@@ -1,24 +1,49 @@
 ---
-name: Design proposal
-about: Propose a significant change to BASEUS identity or interaction language
+name: Design Proposal
+about: Propose a significant UI/UX change
+title: "[Design Proposal] "
+labels: design-proposal
+assignees: ''
 ---
 
 ## Problem
 
-## Proposed design change
+What problem or opportunity does this address?
 
-## Affected surfaces
+## Current Behavior
 
-## Why existing design is insufficient
+How does BASEUS currently handle this?
 
-## Visual language impact
+## Proposed Behavior
 
-## Motion / interaction impact
+What should change?
 
-## Accessibility impact
+## Affected Surfaces
 
-## Performance impact
+Which BASEUS surfaces are affected?
 
-## Anti-slop review
+## Design Rationale
 
-## Alternatives considered
+Why is this the right approach for BASEUS?
+
+## Interaction Impact
+
+How does this change affect user interaction?
+
+## Performance Impact
+
+Are there performance implications?
+
+## Accessibility Impact
+
+Are there accessibility implications?
+
+## Relationship to Source of Truth
+
+- **MASTER.md:** Compatible / Conflict
+- **DESIGN.md:** Compatible / Conflict
+- **DECISIONS.md:** Compatible / Conflict / New Decision Required
+
+## Visual Reference
+
+Any mockups, sketches, or reference material.

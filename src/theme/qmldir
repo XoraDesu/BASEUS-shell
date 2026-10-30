@@ -1,0 +1,8 @@
+module Theme
+Theme 1.0 Theme.qml
+Colors 1.0 Colors.qml
+Typography 1.0 Typography.qml
+Spacing 1.0 Spacing.qml
+Geometry 1.0 Geometry.qml
+Motion 1.0 Motion.qml
+InverseCorner 1.0 InverseCorner.qml

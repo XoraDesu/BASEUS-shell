@@ -1,12 +1,50 @@
-# Runtime / local state
-*.log
-*.tmp
-.cache/
+# Build artifacts
+build/
+*.o
+*.so
+*.a
 
-# Editor
+# Quickshell / Qt
+*.qmlc
+*.jsc
+.qml_cache/
+.qt/
+
+# Editor files
+*.swp
+*.swo
+*~
 .vscode/
 .idea/
+*.sublime-*
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Local/user state
+*.local
+*.cache
+local/
+
+# Secrets
+*.key
+*.pem
+*.secret
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Node (if tooling uses it)
+node_modules/
+
+# Distribution artifacts
+dist/
+*.tar.gz
+*.pkg.tar.zst
+*.deb
+*.rpm
