@@ -24,6 +24,7 @@ Item {
     property var workspaceModel: null
     property var windowModel: null
     property var mediaService: null
+    property var statusService: null
     property int monitorIndex: 0
 
     // Provided by the island clock (updated on minute boundaries, no polling here)
@@ -104,7 +105,8 @@ Item {
             sessionText: header.sessionText,
             activeWorkspace: header.activeWorkspace,
             triggers: ids,
-            media: header.mediaService ? header.mediaService.getSnapshot() : null
+            media: header.mediaService ? header.mediaService.getSnapshot() : null,
+            status: header.statusService ? header.statusService.getSnapshot() : null
         }
     }
 
@@ -145,6 +147,84 @@ Item {
             font.family: header.currentTheme.typography.fontFamily
             font.pixelSize: header.currentTheme.typography.sizeCaption
             color: header.currentTheme.colors.textSecondary
+        }
+
+        // Contextual System Status (M3-T5, MASTER.md §9, ANTI-SLOP.md §6.7–6.8)
+        Row {
+            id: statusRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: header.currentTheme.spacing.md
+            visible: header.statusService !== null
+
+            // Power / Battery Status
+            Row {
+                spacing: 4
+                anchors.verticalCenter: parent.verticalCenter
+
+                Text {
+                    text: header.statusService ? header.statusService.batteryGlyph : "BAT"
+                    font.family: header.currentTheme.typography.fontFamilyMono
+                    font.pixelSize: header.currentTheme.typography.sizeMicro
+                    font.weight: header.currentTheme.typography.weightBold
+                    color: header.statusService && header.statusService.isLowBattery
+                        ? header.currentTheme.colors.accent
+                        : (header.statusService && header.statusService.isCharging ? header.currentTheme.colors.dominant : header.currentTheme.colors.textMuted)
+                }
+
+                Text {
+                    text: header.statusService ? header.statusService.batteryLabel : "--%"
+                    font.family: header.currentTheme.typography.fontFamilyMono
+                    font.pixelSize: header.currentTheme.typography.sizeMicro
+                    color: header.statusService && header.statusService.isLowBattery
+                        ? header.currentTheme.colors.accent
+                        : header.currentTheme.colors.textSecondary
+                }
+            }
+
+            // Divider dot
+            Text {
+                text: "·"
+                font.pixelSize: header.currentTheme.typography.sizeMicro
+                color: header.currentTheme.colors.textMuted
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            // Network Connectivity
+            Row {
+                spacing: 4
+                anchors.verticalCenter: parent.verticalCenter
+
+                Text {
+                    text: header.statusService ? header.statusService.networkGlyph : "NET"
+                    font.family: header.currentTheme.typography.fontFamilyMono
+                    font.pixelSize: header.currentTheme.typography.sizeMicro
+                    font.weight: header.currentTheme.typography.weightBold
+                    color: header.statusService && header.statusService.networkConnected
+                        ? header.currentTheme.colors.dominant
+                        : header.currentTheme.colors.textMuted
+                }
+
+                Text {
+                    text: header.statusService ? header.statusService.networkLabel : "Offline"
+                    font.family: header.currentTheme.typography.fontFamilyMono
+                    font.pixelSize: header.currentTheme.typography.sizeMicro
+                    color: header.statusService && header.statusService.networkConnected
+                        ? header.currentTheme.colors.textSecondary
+                        : header.currentTheme.colors.textMuted
+                    elide: Text.ElideRight
+                }
+            }
+
+            // Subsystem Health Indicator
+            Rectangle {
+                width: 6
+                height: 6
+                radius: 3
+                anchors.verticalCenter: parent.verticalCenter
+                color: header.statusService && header.statusService.systemHealthy
+                    ? header.currentTheme.colors.dominant
+                    : header.currentTheme.colors.accent
+            }
         }
 
         // Compact Media Integration (M3-T3, DEC-026, MASTER.md §31)

@@ -34,6 +34,7 @@ Item {
 
     readonly property bool pipewireAvailable: Pipewire.ready && Pipewire.defaultAudioSink !== null
     readonly property bool isSimulation: audioService.config ? audioService.config.simulationEnabled : false
+    readonly property bool available: audioService.pipewireAvailable || audioService.isSimulation
 
     // Signals
     signal osdRequested(string type, real value, bool isMuted)

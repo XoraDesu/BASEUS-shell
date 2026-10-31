@@ -253,39 +253,27 @@ Rectangle {
                 }
             }
 
-            // Timestamps Row
-            Row {
+            // Timestamps
+            Item {
                 width: parent.width
+                height: 14
 
                 Text {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
                     text: mediaWidget.formatTime(mediaWidget.trackPosition)
                     font.family: mediaWidget.currentTheme.typography.fontFamilyMono
                     font.pixelSize: mediaWidget.currentTheme.typography.sizeMicro
                     color: mediaWidget.currentTheme.colors.textMuted
                 }
 
-                Item {
-                    // Spacer
-                    width: parent.width - (timePosText.width + timeLenText.width)
-                    height: 1
-                    id: spacer
-                }
-
                 Text {
-                    id: timePosText
-                    visible: false
-                    text: mediaWidget.formatTime(mediaWidget.trackPosition)
-                    font.family: mediaWidget.currentTheme.typography.fontFamilyMono
-                    font.pixelSize: mediaWidget.currentTheme.typography.sizeMicro
-                }
-
-                Text {
-                    id: timeLenText
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
                     text: mediaWidget.formatTime(mediaWidget.trackLength)
                     font.family: mediaWidget.currentTheme.typography.fontFamilyMono
                     font.pixelSize: mediaWidget.currentTheme.typography.sizeMicro
                     color: mediaWidget.currentTheme.colors.textMuted
-                    anchors.right: parent.right
                 }
             }
         }

@@ -153,7 +153,19 @@ Item {
         config: _config
     }
 
-    // 14. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 14. System Status & Health Service (M3-T5, MASTER.md §9, ANTI-SLOP.md §6.7–6.8)
+    Core.StatusService {
+        id: _statusService
+        logger: _logger
+        eventBus: _eventBus
+        config: _config
+        notificationModel: _notificationModel
+        bridge: shell.activeBridge
+        audioService: _audioService
+        mediaService: _mediaService
+    }
+
+    // 15. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -169,6 +181,7 @@ Item {
         notificationModel: _notificationModel
         audioService: _audioService
         mediaService: _mediaService
+        statusService: _statusService
         enabled: _lifecycle.initialized
     }
 
@@ -195,6 +208,7 @@ Item {
     readonly property alias notificationModel: _notificationModel
     readonly property alias audioService: _audioService
     readonly property alias mediaService: _mediaService
+    readonly property alias statusService: _statusService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -240,6 +254,7 @@ Item {
                 notifications: _notificationModel.getSnapshot(),
                 audio: _audioService.getSnapshot(),
                 media: _mediaService.getSnapshot(),
+                status: _statusService.getSnapshot(),
                 subscriptions: {
                     monitor: _eventBus.getSubscriptionCount("monitor"),
                     workspace: _eventBus.getSubscriptionCount("workspace"),
@@ -897,6 +912,24 @@ Item {
         function bongoCatState(monitorIndex: int): string {
             var mw = _desktopHost.getMediaWidgetSnapshot(typeof monitorIndex === "number" ? monitorIndex : 0)
             return JSON.stringify(mw && mw.bongoCat ? mw.bongoCat : { isPlaying: false, resting: true })
+        }
+
+        // =====================================================
+        // System Status & Health Operations (M3-T5, MASTER.md §9, ANTI-SLOP.md §6.7–6.8)
+        // =====================================================
+
+        function systemStatus(): string {
+            return JSON.stringify(_statusService.getSnapshot())
+        }
+
+        function setMockBattery(percent: real, isCharging: bool): string {
+            _statusService.setMockBattery(percent, isCharging)
+            return JSON.stringify(_statusService.getSnapshot())
+        }
+
+        function setMockNetwork(connected: bool, type: string, name: string): string {
+            _statusService.setMockNetwork(connected, type, name)
+            return JSON.stringify(_statusService.getSnapshot())
         }
     }
 

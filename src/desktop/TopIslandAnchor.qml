@@ -39,6 +39,7 @@ Item {
     property var workspaceModel: null
     property var windowModel: null
     property var mediaService: null
+    property var statusService: null
     property int monitorIndex: 0
 
     // Dimensions
@@ -430,6 +431,7 @@ Item {
                 workspaceModel: topIslandAnchor.workspaceModel
                 windowModel: topIslandAnchor.windowModel
                 mediaService: topIslandAnchor.mediaService
+                statusService: topIslandAnchor.statusService
                 monitorIndex: topIslandAnchor.monitorIndex
                 dateText: topIslandAnchor._dateText
                 active: topIslandAnchor.expanded

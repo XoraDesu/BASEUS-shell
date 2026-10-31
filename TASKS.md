@@ -213,9 +213,9 @@ M3-T6 (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M
 
 ### Sub-tasks
 
-- [ ] Implement system hardware monitoring models.
-- [ ] Provide contextual feedback surfaces and failure alerts.
-- [ ] Validate reporting across multi-monitor environments.
+- [x] Implement system hardware monitoring models.
+- [x] Provide contextual feedback surfaces and failure alerts.
+- [x] Validate reporting across multi-monitor environments.
 
 ---
 
@@ -284,5 +284,6 @@ The agent must **STOP**:
   - `M3-T2` (Top Island OSD Integration — `COMPLETE / VERIFIED`)
   - `M3-T3` (Media Player Architecture & Top Island Compact Integration — `COMPLETE / VERIFIED`)
   - `M3-T4` (Dedicated Media Widget & Bongo Cat Companion Integration — `COMPLETE / VERIFIED`)
-- **Active Task:** `M3-T4` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M3-T5` (System Status & Diagnostic Feedback Architecture).
+  - `M3-T5` (System Status & Diagnostic Feedback Architecture — `COMPLETE / VERIFIED`)
+- **Active Task:** `M3-T5` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M3-T6` (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`).

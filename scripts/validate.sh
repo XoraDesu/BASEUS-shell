@@ -112,6 +112,7 @@ validate_structure() {
     check_file "src/core/NotificationModel.qml"
     check_file "src/core/AudioService.qml"
     check_file "src/core/MediaService.qml"
+    check_file "src/core/StatusService.qml"
     check_dir "src/desktop"
     check_file "src/desktop/DesktopHost.qml"
     check_file "src/desktop/TopIslandAnchor.qml"

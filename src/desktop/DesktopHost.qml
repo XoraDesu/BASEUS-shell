@@ -30,6 +30,7 @@ Scope {
     property var notificationModel: null
     property var audioService: null
     property var mediaService: null
+    property var statusService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================
@@ -601,6 +602,7 @@ Scope {
                     workspaceModel: desktopHost.workspaceModel
                     windowModel: desktopHost.windowModel
                     mediaService: desktopHost.mediaService
+                    statusService: desktopHost.statusService
                     monitorIndex: layerWindow.monitorIndex
                 }
 
@@ -712,6 +714,7 @@ Scope {
                     workspaceModel: desktopHost.workspaceModel
                     windowModel: desktopHost.windowModel
                     mediaService: desktopHost.mediaService
+                    statusService: desktopHost.statusService
                     monitorIndex: summonWindow.monitorIndex
                 }
             }
