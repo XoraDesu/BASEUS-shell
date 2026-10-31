@@ -32,6 +32,7 @@ Scope {
     property var mediaService: null
     property var statusService: null
     property var wallpaperService: null
+    property var paletteService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================
@@ -106,6 +107,9 @@ Scope {
                 wallpaper: {
                     path: desktopHost.wallpaperService ? desktopHost.wallpaperService.getWallpaperForMonitor(s.monitorIndex) : "",
                     mode: desktopHost.wallpaperService ? desktopHost.wallpaperService.mode : "static"
+                },
+                wallpaperPicker: {
+                    active: desktopHost.wallpaperPickerActive && (desktopHost.wallpaperPickerMonitorIndex === s.monitorIndex)
                 }
             })
         }
@@ -407,6 +411,72 @@ Scope {
         return { available: false, count: 0 }
     }
 
+    // =========================================================
+    // Wallpaper Picker State & Control (M4-T4, MASTER.md §27)
+    // =========================================================
+    property bool _wallpaperPickerOpen: false
+    property int _wallpaperPickerMonitor: 0
+
+    readonly property bool wallpaperPickerActive: desktopHost._wallpaperPickerOpen || (desktopHost.shellState && desktopHost.shellState.mode === "wallpaper-picker")
+    readonly property int wallpaperPickerMonitorIndex: desktopHost._wallpaperPickerMonitor
+
+    function openWallpaperPicker(monitorIndex: int) {
+        if (typeof monitorIndex === "number" && monitorIndex >= 0) {
+            desktopHost._wallpaperPickerMonitor = monitorIndex
+        } else if (desktopHost.shellState) {
+            desktopHost._wallpaperPickerMonitor = desktopHost.shellState.activeMonitorIndex
+        }
+        desktopHost._wallpaperPickerOpen = true
+        if (desktopHost.shellState && desktopHost.shellState.mode !== "wallpaper-picker") {
+            desktopHost.shellState.setMode("wallpaper-picker")
+        }
+        var wp = desktopHost._wallpaperPickerFor(desktopHost._wallpaperPickerMonitor)
+        if (wp) {
+            wp.open()
+        }
+    }
+
+    function closeWallpaperPicker() {
+        desktopHost._wallpaperPickerOpen = false
+        if (desktopHost.shellState && desktopHost.shellState.mode === "wallpaper-picker") {
+            desktopHost.shellState.dismissOverlay()
+        }
+        var wp = desktopHost._wallpaperPickerFor(desktopHost._wallpaperPickerMonitor)
+        if (wp) {
+            wp.close()
+        }
+    }
+
+    function toggleWallpaperPicker(monitorIndex: int) {
+        if (desktopHost.wallpaperPickerActive) {
+            desktopHost.closeWallpaperPicker()
+        } else {
+            desktopHost.openWallpaperPicker(monitorIndex)
+        }
+    }
+
+    function _wallpaperPickerFor(monitorIndex: int): var {
+        var list = wallpaperPickerVariants.instances
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].monitorIndex === monitorIndex) {
+                return list[i].wallpaperPickerRef
+            }
+        }
+        return null
+    }
+
+    function getWallpaperPickerState(monitorIndex: int): var {
+        var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+            ? monitorIndex
+            : desktopHost.wallpaperPickerMonitorIndex
+        var wp = desktopHost._wallpaperPickerFor(mon)
+        if (!wp) return { available: false, active: false }
+        var snap = wp.getSnapshot()
+        snap.available = true
+        snap.monitorIndex = mon
+        return snap
+    }
+
     Connections {
         target: desktopHost.shellState ? desktopHost.shellState : null
         function onModeChanged() {
@@ -425,6 +495,14 @@ Scope {
                     desktopHost._appDrawerOpen = false
                     var ad = desktopHost._appDrawerFor(desktopHost._appDrawerMonitor)
                     if (ad) ad.close()
+                }
+
+                if (desktopHost.shellState.mode === "wallpaper-picker" && !desktopHost._wallpaperPickerOpen) {
+                    desktopHost.openWallpaperPicker(desktopHost.shellState.activeMonitorIndex)
+                } else if (desktopHost.shellState.mode !== "wallpaper-picker" && desktopHost._wallpaperPickerOpen) {
+                    desktopHost._wallpaperPickerOpen = false
+                    var wp = desktopHost._wallpaperPickerFor(desktopHost._wallpaperPickerMonitor)
+                    if (wp) wp.close()
                 }
             }
         }
@@ -843,6 +921,67 @@ Scope {
                     onDismissRequested: desktopHost.closeAppDrawer()
                     onAppLaunched: function(item) {
                         desktopHost.closeAppDrawer()
+                    }
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // Wallpaper Picker Surface Overlay (M4-T4, MASTER.md §27)
+    // =========================================================
+    Variants {
+        id: wallpaperPickerVariants
+        model: desktopHost.enabled ? Quickshell.screens : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: wpWindow
+                required property var modelData
+
+                screen: modelData
+
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+
+                color: "transparent"
+                layer: WlrLayer.Overlay
+                namespace: desktopHost.layerNamespace + "-wallpaper-picker"
+                keyboardFocus: (wallpaperPicker.active && wpWindow.isTargetMonitor)
+                    ? WlrKeyboardFocus.Exclusive
+                    : WlrKeyboardFocus.None
+                exclusiveZone: 0
+
+                mask: Region {
+                    item: (wallpaperPicker.active && wpWindow.isTargetMonitor) ? wallpaperPicker : null
+                }
+
+                readonly property string screenName: modelData ? modelData.name : ""
+                readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
+                readonly property int monitorIndex: {
+                    var dummy = wpWindow._monitorsRef
+                    return desktopHost.resolveMonitorIndex(wpWindow.screenName)
+                }
+                readonly property bool isTargetMonitor: wpWindow.monitorIndex === desktopHost.wallpaperPickerMonitorIndex
+                readonly property var wallpaperPickerRef: wallpaperPicker
+
+                visible: desktopHost.enabled && desktopHost.wallpaperPickerActive && wpWindow.isTargetMonitor
+
+                WallpaperPicker {
+                    id: wallpaperPicker
+                    anchors.fill: parent
+                    theme: desktopHost.theme
+                    wallpaperService: desktopHost.wallpaperService
+                    paletteService: desktopHost.paletteService
+                    workspaceModel: desktopHost.workspaceModel
+                    monitorIndex: wpWindow.monitorIndex
+                    active: wpWindow.visible
+
+                    onDismissRequested: desktopHost.closeWallpaperPicker()
+                    onWallpaperApplied: function(path, ws, isLive) {
+                        desktopHost.closeWallpaperPicker()
                     }
                 }
             }

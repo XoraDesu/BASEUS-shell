@@ -135,6 +135,7 @@ validate_structure() {
     check_file "src/desktop/MediaWidget.qml"
     check_file "src/desktop/BongoCatCompanion.qml"
     check_file "src/desktop/LyricsContainer.qml"
+    check_file "src/desktop/WallpaperPicker.qml"
     check_dir "src/theme"
     check_file "src/theme/Theme.qml"
     check_file "src/theme/Colors.qml"

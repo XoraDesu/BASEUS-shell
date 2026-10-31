@@ -215,6 +215,7 @@ Item {
         mediaService: _mediaService
         statusService: _statusService
         wallpaperService: _wallpaperService
+        paletteService: _paletteService
         enabled: _lifecycle.initialized
     }
 
@@ -1012,6 +1013,67 @@ Item {
         function wallpaperState(monitorIndex: int): string {
             var mon = (typeof monitorIndex === "number" && monitorIndex >= 0) ? monitorIndex : _shellState.activeMonitorIndex
             return JSON.stringify(_wallpaperService.getSnapshot(mon))
+        }
+
+        // =====================================================
+        // Wallpaper Picker Diagnostic Telemetry & Control (M4-T4)
+        // =====================================================
+
+        function toggleWallpaperPicker(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.toggleWallpaperPicker(monArg)
+            return JSON.stringify({
+                active: _desktopHost.wallpaperPickerActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.wallpaperPickerMonitorIndex
+            })
+        }
+
+        function openWallpaperPicker(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.openWallpaperPicker(monArg)
+            return JSON.stringify({
+                active: _desktopHost.wallpaperPickerActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.wallpaperPickerMonitorIndex
+            })
+        }
+
+        function closeWallpaperPicker(): string {
+            _desktopHost.closeWallpaperPicker()
+            return JSON.stringify({
+                active: _desktopHost.wallpaperPickerActive,
+                mode: _shellState.mode
+            })
+        }
+
+        function wallpaperPickerState(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            return JSON.stringify(_desktopHost.getWallpaperPickerState(monArg))
+        }
+
+        function wallpaperPickerSetTab(tab: string, monitorIndex: int): string {
+            var mon = monitorIndex >= 0 ? monitorIndex : _desktopHost.wallpaperPickerMonitorIndex
+            var wp = _desktopHost._wallpaperPickerFor(mon)
+            if (!wp) return JSON.stringify({ ok: false, reason: "not-available" })
+            wp.setTab(tab)
+            return JSON.stringify({ ok: true, state: wp.getSnapshot() })
+        }
+
+        function wallpaperPickerSelect(index: int, monitorIndex: int): string {
+            var mon = monitorIndex >= 0 ? monitorIndex : _desktopHost.wallpaperPickerMonitorIndex
+            var wp = _desktopHost._wallpaperPickerFor(mon)
+            if (!wp) return JSON.stringify({ ok: false, reason: "not-available" })
+            wp.selectedIndex = index
+            return JSON.stringify({ ok: true, state: wp.getSnapshot() })
+        }
+
+        function wallpaperPickerApply(allWorkspaces: bool, monitorIndex: int): string {
+            var mon = monitorIndex >= 0 ? monitorIndex : _desktopHost.wallpaperPickerMonitorIndex
+            var wp = _desktopHost._wallpaperPickerFor(mon)
+            if (!wp) return JSON.stringify({ ok: false, reason: "not-available" })
+            var ok = wp.applySelected(allWorkspaces)
+            return JSON.stringify({ ok: ok, state: wp.getSnapshot() })
         }
 
         // =====================================================

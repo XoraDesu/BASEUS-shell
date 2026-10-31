@@ -168,10 +168,10 @@ M4 depends upon:
 
 ### Sub-tasks
 
-- [ ] Implement `WallpaperPicker.qml` floating transient surface with library, favorites, and recent tabs.
-- [ ] Implement live wallpaper thumbnail preview and keyboard navigation.
-- [ ] Wire triggers from Command Center and keybinds.
-- [ ] Validate dynamic layer-shell hitmask and clean dismissal.
+- [x] Implement `WallpaperPicker.qml` floating transient surface with library, favorites, and recent tabs.
+- [x] Implement live wallpaper thumbnail preview and keyboard navigation.
+- [x] Wire triggers from Command Center and keybinds.
+- [x] Validate dynamic layer-shell hitmask and clean dismissal.
 
 ---
 
@@ -254,5 +254,6 @@ The agent must **STOP**:
   - `M4-T1` (Palette & Matugen Pipeline Architecture — `COMPLETE / VERIFIED`)
   - `M4-T2` (Wallpaper Engine: Static Per-Workspace vs Global Live Wallpaper — `COMPLETE / VERIFIED`)
   - `M4-T3` (Dynamic Theme System & Visual Transitions — `COMPLETE / VERIFIED`)
-- **Active Task:** M4 Capability Layer (`M4-T1`, `M4-T2`, `M4-T3`) complete and verified across offline simulation, live dual-monitor Hyprland 0.57.0 runtime, and full M1-M3 regressions. Stopped at the M4-T3 -> M4-T4 boundary per user directive and `AGENTS.md` §46.
-- **Next Executable Task:** `M4-T4` (Wallpaper Picker Floating Surface — awaiting user authorization).
+  - `M4-T4` (Wallpaper Picker Floating Surface — `COMPLETE / VERIFIED`)
+- **Active Task:** `M4-T4` complete and verified across offline simulation, live dual-monitor Hyprland 0.57.0 runtime, and full M1-M4 regressions. Stopped at the M4-T4 -> M4-T5 boundary per user directive and `AGENTS.md` §46.
+- **Next Executable Task:** `M4-T5` (Headquarter Settings Application — awaiting user authorization).
