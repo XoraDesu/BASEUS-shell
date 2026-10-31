@@ -141,6 +141,7 @@ Item {
         config: _config
         bridge: shell.activeBridge
         theme: _theme
+        actionRegistry: _actionRegistry
         enabled: _lifecycle.initialized
     }
 
@@ -560,6 +561,30 @@ Item {
                 monitorIndex: monitorIndex,
                 itemId: itemId
             })
+        }
+
+        // Top Island state on the monitor's current top-edge owner (M2-T3):
+        // main anchor on desktop, summon surface during native fullscreen.
+        function topIslandState(monitorIndex: int): string {
+            return JSON.stringify(_desktopHost.getTopIslandState(monitorIndex))
+        }
+
+        // Diagnostic: drives the same code path as real pointer hover enter/leave.
+        function setTopIslandHover(monitorIndex: int, hovered: bool): string {
+            var ok = _desktopHost.setTopIslandHover(monitorIndex, hovered)
+            return JSON.stringify({ ok: ok, monitorIndex: monitorIndex, hovered: hovered })
+        }
+
+        // Diagnostic: drives the same code path as a real tap on the island.
+        function tapTopIsland(monitorIndex: int): string {
+            var ok = _desktopHost.tapTopIsland(monitorIndex)
+            return JSON.stringify({ ok: ok, monitorIndex: monitorIndex })
+        }
+
+        // Diagnostic: activates a header navigation trigger (executes via ActionRegistry).
+        function clickTopIslandTrigger(monitorIndex: int, actionId: string): string {
+            var ok = _desktopHost.clickTopIslandTrigger(monitorIndex, actionId)
+            return JSON.stringify({ ok: ok, monitorIndex: monitorIndex, actionId: actionId })
         }
     }
 

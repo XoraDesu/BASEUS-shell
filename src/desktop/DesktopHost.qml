@@ -26,6 +26,7 @@ Scope {
     property var config: null
     property var bridge: null
     property var theme: null
+    property var actionRegistry: null
 
     // =========================================================
     // Host Configuration
@@ -68,8 +69,13 @@ Scope {
                 layer: desktopHost.layer === WlrLayer.Top ? "top" : "overlay",
                 topIsland: {
                     timeText: s.topIslandRef ? s.topIslandRef.timeText : "",
-                    visible: s.topIslandRef ? s.topIslandRef.visible : false
+                    visible: s.topIslandRef ? s.topIslandRef.visible : false,
+                    expanded: s.topIslandRef ? s.topIslandRef.expanded : false,
+                    hitRegion: s.topIslandRef
+                        ? { width: s.topIslandRef.anchorItem.width, height: s.topIslandRef.anchorItem.height }
+                        : { width: 0, height: 0 }
                 },
+                summon: desktopHost._summonSnapshot(s.monitorIndex),
                 workspaceIndicator: {
                     active: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.active : false,
                     currentWorkspace: s.workspaceIndicatorRef ? s.workspaceIndicatorRef.currentWorkspace : 1,
@@ -85,6 +91,72 @@ Scope {
             })
         }
         return snapshot
+    }
+
+    // =========================================================
+    // Top Island Access (M2-T3)
+    // =========================================================
+    // Fullscreen summon instances live in a dedicated Overlay surface per monitor.
+
+    function _summonFor(monitorIndex: int): var {
+        var list = summonVariants.instances
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].monitorIndex === monitorIndex) return list[i]
+        }
+        return null
+    }
+
+    function _summonSnapshot(monitorIndex: int): var {
+        var w = desktopHost._summonFor(monitorIndex)
+        if (!w) return { available: false, visible: false }
+        var snap = w.islandRef.getSnapshot()
+        snap.available = true
+        snap.visible = w.visible
+        snap.layer = "overlay"
+        snap.surfaceWidth = w.width
+        snap.surfaceHeight = w.height
+        return snap
+    }
+
+    // The island that currently owns the top edge on this monitor:
+    // the summon instance during native fullscreen, otherwise the main anchor.
+    function _islandFor(monitorIndex: int): var {
+        if (desktopHost.shellState && desktopHost.shellState.isMonitorFullscreen(monitorIndex)) {
+            var w = desktopHost._summonFor(monitorIndex)
+            if (w) return w.islandRef
+        }
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex) return s.topIslandRef
+        }
+        return null
+    }
+
+    function getTopIslandState(monitorIndex: int): var {
+        var island = desktopHost._islandFor(monitorIndex)
+        if (!island) return { available: false }
+        var snap = island.getSnapshot()
+        snap.available = true
+        return snap
+    }
+
+    function setTopIslandHover(monitorIndex: int, hovered: bool): bool {
+        var island = desktopHost._islandFor(monitorIndex)
+        if (!island) return false
+        island.simulateHover(hovered)
+        return true
+    }
+
+    function tapTopIsland(monitorIndex: int): bool {
+        var island = desktopHost._islandFor(monitorIndex)
+        if (!island) return false
+        island.applyTap()
+        return true
+    }
+
+    function clickTopIslandTrigger(monitorIndex: int, actionId: string): bool {
+        var island = desktopHost._islandFor(monitorIndex)
+        return island ? island.activateTrigger(actionId) : false
     }
 
     function clickDockItem(monitorIndex: int, itemId: string): bool {
@@ -288,6 +360,10 @@ Scope {
                     id: topIsland
                     theme: desktopHost.theme
                     isFullscreen: layerWindow.isFullscreen
+                    actionRegistry: desktopHost.actionRegistry
+                    workspaceModel: desktopHost.workspaceModel
+                    windowModel: desktopHost.windowModel
+                    monitorIndex: layerWindow.monitorIndex
                 }
 
                 WorkspaceIndicator {
@@ -315,6 +391,68 @@ Scope {
 
                 Component.onDestruction: {
                     desktopHost._unregisterSurface(layerWindow)
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // Fullscreen Top Island Summon Surface (DESIGN.md §14, DEC-016)
+    // =========================================================
+    // The main surface above is unmapped during native fullscreen. This separate
+    // surface exists (mapped) only while this monitor is fullscreen, on the Overlay
+    // layer so it can sit above the fullscreen client. Its input region is a 2px
+    // top-edge trigger until summoned, so the fullscreen app keeps all input.
+    Variants {
+        id: summonVariants
+        model: desktopHost.enabled ? Quickshell.screens : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: summonWindow
+                required property var modelData
+
+                screen: modelData
+
+                // Top-anchored only: compositor centers it horizontally
+                anchors.top: true
+
+                implicitWidth: summonIsland.expandedWidth + (summonIsland.currentTheme.geometry.islandIcr * 2)
+                implicitHeight: summonIsland.expandedHeight
+
+                color: "transparent"
+
+                layer: WlrLayer.Overlay
+                namespace: desktopHost.layerNamespace + "-summon"
+                keyboardFocus: WlrKeyboardFocus.None
+                exclusiveZone: 0
+
+                mask: Region {
+                    item: summonIsland.anchorItem
+                }
+
+                readonly property string screenName: modelData ? modelData.name : ""
+                readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
+                readonly property int monitorIndex: {
+                    var dummy = summonWindow._monitorsRef
+                    return desktopHost.resolveMonitorIndex(summonWindow.screenName)
+                }
+                readonly property bool isFullscreen: desktopHost.shellState ? desktopHost.shellState.isMonitorFullscreen(summonWindow.monitorIndex) : false
+                readonly property var islandRef: summonIsland
+
+                visible: desktopHost.enabled && summonWindow.isFullscreen
+                onVisibleChanged: {
+                    if (!summonWindow.visible) summonIsland.collapse()
+                }
+
+                TopIslandAnchor {
+                    id: summonIsland
+                    theme: desktopHost.theme
+                    fullscreenSummon: true
+                    actionRegistry: desktopHost.actionRegistry
+                    workspaceModel: desktopHost.workspaceModel
+                    windowModel: desktopHost.windowModel
+                    monitorIndex: summonWindow.monitorIndex
                 }
             }
         }

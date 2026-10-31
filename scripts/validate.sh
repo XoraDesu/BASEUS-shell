@@ -112,6 +112,7 @@ validate_structure() {
     check_dir "src/desktop"
     check_file "src/desktop/DesktopHost.qml"
     check_file "src/desktop/TopIslandAnchor.qml"
+    check_file "src/desktop/TopIslandHeader.qml"
     check_file "src/desktop/WorkspaceIndicator.qml"
     check_file "src/desktop/DockAnchor.qml"
     check_file "src/desktop/DockModel.qml"

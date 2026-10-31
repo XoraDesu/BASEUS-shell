@@ -179,14 +179,14 @@ M2-T6 (M2 Integration, Anti-Slop Audit & Checkpoint CP-M2-001)
 
 ## Task M2-T3 — Top Island Hover Expansion & Contextual Header
 
-**Goal:** Extend `TopIslandAnchor` with interactive hover expansion, revealing contextual system controls (volume/network/power indicators) without breaking idle simplicity.
+**Goal:** Extend `TopIslandAnchor` with interactive downward expansion, revealing quiet contextual header controls (date, active session workspace/window context, ActionRegistry navigation triggers) without breaking idle simplicity, respecting Anti-Slop (no permanent telemetry dashboards, no volume/media OSDs reserved for M3) and fullscreen notch summon (`DESIGN.md` §14, `DEC-016`).
 
 ### Sub-tasks
 
-- [ ] Extend `src/desktop/TopIslandAnchor.qml` with hover expansion state machine.
-- [ ] Implement contextual header showing active workspace context, volume/network status chips, and quick control triggers.
-- [ ] Implement fullscreen compact clock summon behavior (`DESIGN.md` §14).
-- [ ] Validate click-through and input mask dynamic resizing.
+- [x] Extend `src/desktop/TopIslandAnchor.qml` with downward curtain expansion driven by `Theme.motion` tokens, 120ms hover intent, 350ms exit grace period, and InverseCorner (ICR) organic fillets.
+- [x] Implement `src/desktop/TopIslandHeader.qml` showing full formatted date, active session context (workspace, label, window counts), and ActionRegistry navigation triggers (`navigation.back`, `navigation.home`, `navigation.overview`) with discoverable keyboard shortcuts.
+- [x] Implement native fullscreen notch summon in `src/desktop/DesktopHost.qml` (`summonVariants` on Overlay layer with 2px top edge trigger, hover summoning compact clock, click expanding contextual header, and clean auto-recess).
+- [x] Validate click-through and input mask dynamic resizing across idle (clock footprint / 2px trigger in fullscreen) and expanded header states.
 
 ---
 
@@ -281,5 +281,6 @@ The agent must **STOP**:
 - **Completed Tasks in Phase:**
   - `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding — `COMPLETE / VERIFIED`)
   - `M2-T2` (Dock Application State & Pinning — `COMPLETE / VERIFIED`)
-- **Active Task:** `M2-T2` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M2-T3` (Top Island Hover Expansion & Contextual Header — awaiting user prompt).
+  - `M2-T3` (Top Island Hover Expansion & Contextual Header — `COMPLETE / VERIFIED`)
+- **Active Task:** `M2-T3` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M2-T4` (Command Center Surface & Action Prefix Routing — awaiting user prompt).
