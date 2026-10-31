@@ -90,6 +90,9 @@ Scope {
                 },
                 commandCenter: {
                     active: desktopHost.commandCenterActive && (desktopHost.commandCenterMonitorIndex === s.monitorIndex)
+                },
+                appDrawer: {
+                    active: desktopHost.appDrawerActive && (desktopHost.appDrawerMonitorIndex === s.monitorIndex)
                 }
             })
         }
@@ -291,6 +294,72 @@ Scope {
         return snap
     }
 
+    // =========================================================
+    // App Drawer State & Control (M2-T5, DEC-018, DEC-022)
+    // =========================================================
+    property bool _appDrawerOpen: false
+    property int _appDrawerMonitor: 0
+
+    readonly property bool appDrawerActive: desktopHost._appDrawerOpen || (desktopHost.shellState && desktopHost.shellState.mode === "app-drawer")
+    readonly property int appDrawerMonitorIndex: desktopHost._appDrawerMonitor
+
+    function openAppDrawer(monitorIndex: int) {
+        if (typeof monitorIndex === "number" && monitorIndex >= 0) {
+            desktopHost._appDrawerMonitor = monitorIndex
+        } else if (desktopHost.shellState) {
+            desktopHost._appDrawerMonitor = desktopHost.shellState.activeMonitorIndex
+        }
+        desktopHost._appDrawerOpen = true
+        if (desktopHost.shellState && desktopHost.shellState.mode !== "app-drawer") {
+            desktopHost.shellState.setMode("app-drawer")
+        }
+        var ad = desktopHost._appDrawerFor(desktopHost._appDrawerMonitor)
+        if (ad) {
+            ad.open()
+        }
+    }
+
+    function closeAppDrawer() {
+        desktopHost._appDrawerOpen = false
+        if (desktopHost.shellState && desktopHost.shellState.mode === "app-drawer") {
+            desktopHost.shellState.dismissOverlay()
+        }
+        var ad = desktopHost._appDrawerFor(desktopHost._appDrawerMonitor)
+        if (ad) {
+            ad.close()
+        }
+    }
+
+    function toggleAppDrawer(monitorIndex: int) {
+        if (desktopHost.appDrawerActive) {
+            desktopHost.closeAppDrawer()
+        } else {
+            desktopHost.openAppDrawer(monitorIndex)
+        }
+    }
+
+    function _appDrawerFor(monitorIndex: int): var {
+        var list = appDrawerVariants.instances
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].monitorIndex === monitorIndex) {
+                return list[i].appDrawerRef
+            }
+        }
+        return null
+    }
+
+    function getAppDrawerState(monitorIndex: int): var {
+        var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+            ? monitorIndex
+            : desktopHost.appDrawerMonitorIndex
+        var ad = desktopHost._appDrawerFor(mon)
+        if (!ad) return { available: false, active: false }
+        var snap = ad.getSnapshot()
+        snap.available = true
+        snap.monitorIndex = mon
+        return snap
+    }
+
     Connections {
         target: desktopHost.shellState ? desktopHost.shellState : null
         function onModeChanged() {
@@ -301,6 +370,14 @@ Scope {
                     desktopHost._commandCenterOpen = false
                     var cc = desktopHost._commandCenterFor(desktopHost._commandCenterMonitor)
                     if (cc) cc.close()
+                }
+
+                if (desktopHost.shellState.mode === "app-drawer" && !desktopHost._appDrawerOpen) {
+                    desktopHost.openAppDrawer(desktopHost.shellState.activeMonitorIndex)
+                } else if (desktopHost.shellState.mode !== "app-drawer" && desktopHost._appDrawerOpen) {
+                    desktopHost._appDrawerOpen = false
+                    var ad = desktopHost._appDrawerFor(desktopHost._appDrawerMonitor)
+                    if (ad) ad.close()
                 }
             }
         }
@@ -599,6 +676,66 @@ Scope {
                     onDismissRequested: desktopHost.closeCommandCenter()
                     onActionExecuted: function(actionId, ok) {
                         desktopHost.closeCommandCenter()
+                    }
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // App Drawer Surface Overlay (DEC-018, DEC-022, MASTER.md §14)
+    // =========================================================
+    Variants {
+        id: appDrawerVariants
+        model: desktopHost.enabled ? Quickshell.screens : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: drawerWindow
+                required property var modelData
+
+                screen: modelData
+
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+
+                color: "transparent"
+                layer: WlrLayer.Overlay
+                namespace: desktopHost.layerNamespace + "-drawer"
+                keyboardFocus: (appDrawer.active && drawerWindow.isTargetMonitor)
+                    ? WlrKeyboardFocus.Exclusive
+                    : WlrKeyboardFocus.None
+                exclusiveZone: 0
+
+                mask: Region {
+                    item: (appDrawer.active && drawerWindow.isTargetMonitor) ? appDrawer : null
+                }
+
+                readonly property string screenName: modelData ? modelData.name : ""
+                readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
+                readonly property int monitorIndex: {
+                    var dummy = drawerWindow._monitorsRef
+                    return desktopHost.resolveMonitorIndex(drawerWindow.screenName)
+                }
+                readonly property bool isTargetMonitor: drawerWindow.monitorIndex === desktopHost.appDrawerMonitorIndex
+                readonly property var appDrawerRef: appDrawer
+
+                visible: desktopHost.enabled && desktopHost.appDrawerActive && drawerWindow.isTargetMonitor
+
+                AppDrawer {
+                    id: appDrawer
+                    anchors.fill: parent
+                    theme: desktopHost.theme
+                    bridge: desktopHost.bridge
+                    config: desktopHost.config
+                    monitorIndex: drawerWindow.monitorIndex
+                    active: drawerWindow.visible
+
+                    onDismissRequested: desktopHost.closeAppDrawer()
+                    onAppLaunched: function(item) {
+                        desktopHost.closeAppDrawer()
                     }
                 }
             }

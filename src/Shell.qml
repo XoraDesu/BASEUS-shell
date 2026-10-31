@@ -642,6 +642,76 @@ Item {
             var ok = (index >= 0) ? cc.executeIndex(index) : cc.executeSelected()
             return JSON.stringify({ ok: ok, state: cc.getSnapshot() })
         }
+
+        // -----------------------------------------------------
+        // App Drawer Diagnostic Telemetry & Control (M2-T5)
+        // -----------------------------------------------------
+
+        function toggleAppDrawer(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.toggleAppDrawer(monArg)
+            return JSON.stringify({
+                active: _desktopHost.appDrawerActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.appDrawerMonitorIndex
+            })
+        }
+
+        function openAppDrawer(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.openAppDrawer(monArg)
+            return JSON.stringify({
+                active: _desktopHost.appDrawerActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.appDrawerMonitorIndex
+            })
+        }
+
+        function closeAppDrawer(): string {
+            _desktopHost.closeAppDrawer()
+            return JSON.stringify({
+                active: _desktopHost.appDrawerActive,
+                mode: _shellState.mode
+            })
+        }
+
+        function appDrawerState(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            return JSON.stringify(_desktopHost.getAppDrawerState(monArg))
+        }
+
+        function appDrawerSearch(query: string, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            var mon = (monArg !== undefined) ? monArg : _desktopHost.appDrawerMonitorIndex
+            var ad = _desktopHost._appDrawerFor(mon)
+            if (!ad) return JSON.stringify({ ok: false, reason: "not-available" })
+            ad.setSearch(query)
+            return JSON.stringify({ ok: true, state: ad.getSnapshot() })
+        }
+
+        function appDrawerScrub(letter: string, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            var mon = (monArg !== undefined) ? monArg : _desktopHost.appDrawerMonitorIndex
+            var ad = _desktopHost._appDrawerFor(mon)
+            if (!ad) return JSON.stringify({ ok: false, reason: "not-available" })
+            var ok = ad.scrubTo(letter)
+            return JSON.stringify({ ok: ok, letter: letter, state: ad.getSnapshot() })
+        }
+
+        function appDrawerLaunch(idOrIndex: string, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            var mon = (monArg !== undefined) ? monArg : _desktopHost.appDrawerMonitorIndex
+            var ad = _desktopHost._appDrawerFor(mon)
+            if (!ad) return JSON.stringify({ ok: false, reason: "not-available" })
+            var idx = parseInt(idOrIndex, 10)
+            var ok = false
+            if (!isNaN(idx) && String(idx) === String(idOrIndex).trim()) {
+                ok = ad.launchIndex(idx)
+            } else {
+                ok = ad.launchId(idOrIndex)
+            }
+            return JSON.stringify({ ok: ok, state: ad.getSnapshot() })
+        }
     }
 
     function _executeActionWithState(id, payload) {

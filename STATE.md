@@ -80,7 +80,7 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Active milestone transitioned from M1 to M2 following verified approval of `CP-M1-001`. Tasks `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding), `M2-T2` (Dock Application State & Pinning), `M2-T3` (Top Island Hover Expansion & Contextual Header), and `M2-T4` (Command Center Surface & Action Prefix Routing) are COMPLETE and VERIFIED. STOPPED at M2-T4 task boundary per `AGENTS.md` §46.**
+**IN PROGRESS — Active milestone transitioned from M1 to M2 following verified approval of `CP-M1-001`. Tasks `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding), `M2-T2` (Dock Application State & Pinning), `M2-T3` (Top Island Hover Expansion & Contextual Header), `M2-T4` (Command Center Surface & Action Prefix Routing), and `M2-T5` (Fullscreen App Drawer & Alphabet Fast Scroller) are COMPLETE and VERIFIED. STOPPED at M2-T5 task boundary per `AGENTS.md` §46.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -92,7 +92,9 @@ Task `M2-T2` (*Dock Application State & Pinning*) is implemented and verified.
 
 Task `M2-T3` (*Top Island Hover Expansion & Contextual Header*) is implemented, audited, and verified.
 
-Task `M2-T4` (*Command Center Surface & Action Prefix Routing*) is implemented, audited (0 anti-slop violations, 0 scope leakage, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 30 QML files), and runtime-verified under both offline simulation (`BASEUS_SIMULATION=1`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux.
+Task `M2-T4` (*Command Center Surface & Action Prefix Routing*) is implemented, audited, and verified.
+
+Task `M2-T5` (*Fullscreen App Drawer & Alphabet Fast Scroller*) is implemented, audited (0 anti-slop violations, 0 scope leakage, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 33 QML files), and runtime-verified under both offline simulation (`BASEUS_SIMULATION=1`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux.
 
 ---
 
@@ -104,7 +106,7 @@ Task `M2-T4` (*Command Center Surface & Action Prefix Routing*) is implemented, 
 2. **`M2-T2` — Dock Application State & Pinning:** `COMPLETE / VERIFIED`
 3. **`M2-T3` — Top Island Hover Expansion & Contextual Header:** `COMPLETE / VERIFIED`
 4. **`M2-T4` — Command Center Surface & Action Prefix Routing:** `COMPLETE / VERIFIED`
-5. **`M2-T5` — Fullscreen App Drawer & Alphabet Fast Scroller:** `NOT STARTED`
+5. **`M2-T5` — Fullscreen App Drawer & Alphabet Fast Scroller:** `COMPLETE / VERIFIED`
 6. **`M2-T6` — M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001`:** `NOT STARTED`
 
 No M2 task should be considered complete merely because it has been designed or documented.
@@ -135,9 +137,12 @@ Current factual implementation status:
 - `DockModel.qml` (`src/desktop/DockModel.qml`) implements the reactive dock data model distinguishing global pinned applications (`dockPinnedApps` from `config/baseus.json`) from workspace-specific active applications (`WindowModel`), enforcing DEC-015: pinned applications remain globally present across all 10 workspaces while unpinned running applications appear only on their active workspace, tracking multi-window aggregation, MRU focus order, and single-click focus / multi-click MRU cycling / inactive pin launch (`launchApp`);
 - `DockItem.qml` (`src/desktop/DockItem.qml`) implements the solid Wabi-sabi application tile without nested card slop (`ANTI-SLOP.md` §6.1), composed of `IconImage` with typographic uppercase fallback, hierarchical running indicator pip (prominent elongated pill for focused window, primary pip for active workspace window, subtle pip for other workspace), multi-window count badge (> 1), and interactive click/hover dispatch;
 - `CommandCenter.qml` (`src/desktop/CommandCenter.qml`) implements the universal action and search surface positioned slightly above vertical center (`y: Math.round((parent.height - height) * 0.38)`) with dynamic fit-content height capped at `maxHeight = Math.min(480, height - 80)`, solid Wabi-sabi surface (`colors.surfaceSolid` + 1px hairline `borderSubtle`, zero blur, zero glassmorphism, zero drop shadows), top-to-bottom curtain reveal respecting `reducedMotion`, prefix routing engine (`>` direct action execution routed to `ActionRegistry`, `?help` inline quick reference of supported prefixes and shortcuts, plain text app search matching active windows and pinned apps), keyboard navigation (Up/Down selection, Enter execution, Escape dismissal), dynamic layer-shell input region masking on `WlrLayer.Overlay`, and backdrop click dismissal;
-- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`;
-- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 30 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- Tasks `M2-T1`, `M2-T2`, `M2-T3`, and `M2-T4` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- `AppDrawer.qml` (`src/desktop/AppDrawer.qml`) implements the fullscreen application discovery drawer with rounded top corners (`radiusLarge: 12`) and flush bottom edges (`radiusFlush: 0`), smooth bottom-to-top curtain reveal, persistent top search bar, landing state Recent/Suggested applications layer on darker tonal surface (`surfaceHighlight`) with upward collapse transition on search, continuous dynamic application grid sorted strictly in fixed `A–Z–0–9–#` order without cardified headers, zero running state indicators (`DEC-018`), and launch dispatch via `bridge.launchApp()`;
+- `AppDrawerItem.qml` (`src/desktop/AppDrawerItem.qml`) implements the application grid tile with `IconImage` and typographical uppercase fallback, readable title, hover highlight, and zero running indicators;
+- `AlphabetScroller.qml` (`src/desktop/AlphabetScroller.qml`) implements the right-edge fast scroller (`A–Z–0–9–#`) transitioning from a subtle 1px hairline rail at idle to an active 3px rail with hierarchical scrubbing ("Focus grows. Context recedes.") and instant grid index jumping;
+- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`;
+- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 33 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- Tasks `M2-T1`, `M2-T2`, `M2-T3`, `M2-T4`, and `M2-T5` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
 - M1 task `M1-T6` (E2E multi-monitor validation, anti-slop audit & checkpoint `CP-M1-001`) is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across all live dual-monitor E2E tests;
 - Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;
 - No performance baseline is claimed;

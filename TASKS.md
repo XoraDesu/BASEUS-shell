@@ -206,15 +206,15 @@ M2-T6 (M2 Integration, Anti-Slop Audit & Checkpoint CP-M2-001)
 
 ## Task M2-T5 — Fullscreen App Drawer & Alphabet Fast Scroller
 
-**Goal:** Implement the fullscreen application discovery drawer (`src/surfaces/AppDrawer.qml`) with persistent search, A–Z–0–9–# fast scroller, and continuous app grid.
+**Goal:** Implement the fullscreen application discovery drawer (`src/desktop/AppDrawer.qml`) with persistent search, A–Z–0–9–# fast scroller, and continuous app grid.
 
 ### Sub-tasks
 
-- [ ] Implement `src/surfaces/AppDrawer.qml` fullscreen surface with flush bottom edge and rounded top corners (`drawerRadiusTop: 12`).
-- [ ] Implement desktop entry discovery and parsing.
-- [ ] Implement A–Z–0–9–# alphabet fast scroller and section headers.
-- [ ] Implement recent/suggested applications header row.
-- [ ] Wire launcher dispatch hooks.
+- [x] Implement `src/desktop/AppDrawer.qml` fullscreen surface with flush bottom edge and rounded top corners (`radiusLarge: 12`).
+- [x] Implement desktop entry discovery and parsing.
+- [x] Implement A–Z–0–9–# alphabet fast scroller and continuous dynamic grid without cardified headers.
+- [x] Implement recent/suggested applications header row with search collapse transition.
+- [x] Wire launcher dispatch hooks and clean dismissal mechanics.
 
 ---
 
@@ -283,5 +283,6 @@ The agent must **STOP**:
   - `M2-T2` (Dock Application State & Pinning — `COMPLETE / VERIFIED`)
   - `M2-T3` (Top Island Hover Expansion & Contextual Header — `COMPLETE / VERIFIED`)
   - `M2-T4` (Command Center Surface & Action Prefix Routing — `COMPLETE / VERIFIED`)
-- **Active Task:** `M2-T4` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M2-T5` (Fullscreen App Drawer & Alphabet Fast Scroller — awaiting user prompt).
+  - `M2-T5` (Fullscreen App Drawer & Alphabet Fast Scroller — `COMPLETE / VERIFIED`)
+- **Active Task:** `M2-T5` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M2-T6` (M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001` — awaiting user prompt).
