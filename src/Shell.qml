@@ -129,7 +129,15 @@ Item {
         bridge: shell.activeBridge
     }
 
-    // 11. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 11. Notification Domain Model (M3-T1, DEC-020)
+    Core.NotificationModel {
+        id: _notificationModel
+        logger: _logger
+        eventBus: _eventBus
+        config: _config
+    }
+
+    // 12. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -142,6 +150,7 @@ Item {
         bridge: shell.activeBridge
         theme: _theme
         actionRegistry: _actionRegistry
+        notificationModel: _notificationModel
         enabled: _lifecycle.initialized
     }
 
@@ -165,6 +174,7 @@ Item {
     readonly property alias navigationController: _navigationController
     readonly property alias actionRegistry: _actionRegistry
     readonly property alias desktopHost: _desktopHost
+    readonly property alias notificationModel: _notificationModel
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -207,6 +217,7 @@ Item {
                     surfaceCount: _desktopHost.surfaceCount,
                     surfaces: _desktopHost.getSurfaceSnapshot()
                 },
+                notifications: _notificationModel.getSnapshot(),
                 subscriptions: {
                     monitor: _eventBus.getSubscriptionCount("monitor"),
                     workspace: _eventBus.getSubscriptionCount("workspace"),
@@ -712,6 +723,51 @@ Item {
             }
             return JSON.stringify({ ok: ok, state: ad.getSnapshot() })
         }
+
+        // -----------------------------------------------------
+        // M3-T1: Notifications Domain & IPC
+        // -----------------------------------------------------
+
+        function postNotification(appName: string, appIcon: string, summary: string, body: string, urgency: string): string {
+            var id = _notificationModel.postNotification(appName, appIcon, summary, body, urgency, undefined, 0)
+            return JSON.stringify({
+                ok: id > 0,
+                id: id,
+                count: _notificationModel.count,
+                state: _notificationModel.getSnapshot()
+            })
+        }
+
+        function dismissNotification(id: int): string {
+            _notificationModel.dismiss(id)
+            return JSON.stringify({
+                ok: true,
+                id: id,
+                count: _notificationModel.count,
+                state: _notificationModel.getSnapshot()
+            })
+        }
+
+        function silenceNotifications(): string {
+            _notificationModel.silenceAll()
+            return JSON.stringify({
+                ok: true,
+                silenced: _notificationModel.silenced,
+                count: _notificationModel.count
+            })
+        }
+
+        function resetSilence(): string {
+            _notificationModel.resetSilence()
+            return JSON.stringify({
+                ok: true,
+                silenced: _notificationModel.silenced
+            })
+        }
+
+        function notificationState(): string {
+            return JSON.stringify(_notificationModel.getSnapshot())
+        }
     }
 
     function _executeActionWithState(id, payload) {
@@ -748,6 +804,7 @@ Item {
     }
 
     function _teardownSubsystems() {
+        _notificationModel.dismissAll()
         _desktopHost.teardown()
         _actionRegistry.teardown()
         _mockBridge.teardown()

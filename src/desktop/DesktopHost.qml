@@ -27,6 +27,7 @@ Scope {
     property var bridge: null
     property var theme: null
     property var actionRegistry: null
+    property var notificationModel: null
 
     // =========================================================
     // Host Configuration
@@ -93,7 +94,8 @@ Scope {
                 },
                 appDrawer: {
                     active: desktopHost.appDrawerActive && (desktopHost.appDrawerMonitorIndex === s.monitorIndex)
-                }
+                },
+                notifications: s.notificationHostRef ? s.notificationHostRef.getSnapshot() : { available: false, count: 0 }
             })
         }
         return snapshot
@@ -360,6 +362,16 @@ Scope {
         return snap
     }
 
+    function getNotificationState(monitorIndex: int): var {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.notificationHostRef) {
+                return s.notificationHostRef.getSnapshot()
+            }
+        }
+        return { available: false, count: 0 }
+    }
+
     Connections {
         target: desktopHost.shellState ? desktopHost.shellState : null
         function onModeChanged() {
@@ -499,6 +511,9 @@ Scope {
                     Region {
                         item: dock.hitRegionItem
                     }
+                    Region {
+                        item: notificationHost.hitRegionItem
+                    }
                 }
 
                 readonly property string screenName: modelData ? modelData.name : ""
@@ -515,6 +530,7 @@ Scope {
                 readonly property var topIslandRef: topIsland
                 readonly property var workspaceIndicatorRef: workspaceIndicator
                 readonly property var dockRef: dock
+                readonly property var notificationHostRef: notificationHost
 
                 // Foundational M1 Desktop Surfaces (DEC-045)
                 TopIslandAnchor {
@@ -544,6 +560,15 @@ Scope {
                     bridge: desktopHost.bridge
                     monitorIndex: layerWindow.monitorIndex
                     isFullscreen: layerWindow.isFullscreen
+                }
+
+                // System Feedback Surfaces (M3-T1, DEC-020)
+                NotificationHost {
+                    id: notificationHost
+                    theme: desktopHost.theme
+                    notificationModel: desktopHost.notificationModel
+                    isFullscreen: layerWindow.isFullscreen
+                    monitorIndex: layerWindow.monitorIndex
                 }
 
                 Component.onCompleted: {

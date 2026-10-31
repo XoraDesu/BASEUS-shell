@@ -72,15 +72,15 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Milestone
 
-**M2 — Interaction** (*`ROADMAP.md` §9: `M2 — Interaction`*)
+**M3 — System Feedback** (*`ROADMAP.md` §10: `M3 — System Feedback`*)
 
 ## Phase
 
-**M2 — Interaction**
+**M3 — System Feedback**
 
 ## Execution Status
 
-**COMPLETE & VERIFIED — Milestone M2 (Interaction) is 100% complete and verified across all 6 atomic tasks (M2-T1 through M2-T6) and anchored at verified checkpoint `CP-M2-001`. STOPPED at M2 → M3 milestone boundary per `AGENTS.md` §46 and §48.**
+**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Task M3-T1 (Notification Daemon & Floating Surface) is complete and verified.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -92,14 +92,14 @@ The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations
 
 # 5. Current Task Tracker Position
 
-`TASKS.md` defines the executable **M2 — Interaction** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
+`TASKS.md` defines the executable **M3 — System Feedback** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
 
-1. **`M2-T1` — Bottom-Edge Cursor Trigger & Dock Scaffolding:** `COMPLETE / VERIFIED`
-2. **`M2-T2` — Dock Application State & Pinning:** `COMPLETE / VERIFIED`
-3. **`M2-T3` — Top Island Hover Expansion & Contextual Header:** `COMPLETE / VERIFIED`
-4. **`M2-T4` — Command Center Surface & Action Prefix Routing:** `COMPLETE / VERIFIED`
-5. **`M2-T5` — Fullscreen App Drawer & Alphabet Fast Scroller:** `COMPLETE / VERIFIED`
-6. **`M2-T6` — M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001`:** `COMPLETE / VERIFIED`
+1. **`M3-T1` — Notification Daemon & Floating Surface:** `COMPLETE / VERIFIED`
+2. **`M3-T2` — Top Island OSD Integration:** `NOT STARTED`
+3. **`M3-T3` — Media Player Architecture & Top Island Compact Integration:** `NOT STARTED`
+4. **`M3-T4` — Dedicated Media Widget & Bongo Cat Companion Integration:** `NOT STARTED`
+5. **`M3-T5` — System Status & Diagnostic Feedback Architecture:** `NOT STARTED`
+6. **`M3-T6` — M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`:** `NOT STARTED`
 
 No M2 task should be considered complete merely because it has been designed or documented.
 
