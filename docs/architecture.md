@@ -69,9 +69,37 @@ Root composition. Instantiates all foundation singletons in dependency order:
 
 BASEUS introduces desktop visual surfaces following the **Capability → Surface** pattern (`DEC-045`):
 
-- **DesktopHost (`DesktopHost.qml`)**: Multi-monitor Wayland layer-shell host scaffolding using Quickshell `Variants` over `Quickshell.screens` and `WlrLayershell.layer: Top`. It anchors across screen bounds, maintains transparent background geometry, and constrains the layer-shell input region strictly to interactive surface bodies (`mask: Region { item: topIsland.anchorItem }`), guaranteeing 100% click-through for idle desktop space.
-- **TopIslandAnchor (`TopIslandAnchor.qml`)**: Edge-integrated top-center solid Wabi-sabi idle anchor (`islandRadiusTop: 0`, `islandRadiusBottom: 12`) flanked by `InverseCorner` (`ICR`) organic fillets. Displays a quiet typographic clock updated on minute boundaries without polling, and recedes (`visible: false`) during per-monitor native application fullscreen (`DESIGN.md` §14).
+- **DesktopHost (`DesktopHost.qml`)**: Multi-monitor Wayland layer-shell host scaffolding using Quickshell `Variants` over `Quickshell.screens` (`WlrLayershell.layer: Top`). Anchors across screen bounds with transparent background geometry, dynamically adjusting `mask: Region` to encompass only interactive elements (`topIsland.anchorItem`, `dock.hitRegionItem`). Dedicated overlay variants (`commandCenterVariants`, `appDrawerVariants`, `summonVariants`) operate on `WlrLayershell.layer: Overlay` with on-demand input grab regions, ensuring 100% click-through for idle desktop space.
+- **DockAnchor (`DockAnchor.qml`) & DockModel (`DockModel.qml`) & DockItem (`DockItem.qml`)**: Edge-integrated bottom dock (`DEC-015`) flush with the bottom screen edge (`dockRadiusBottom: 0`, `dockRadiusTop: 12`) flanked by `InverseCorner` (`ICR`) fillets. Features a 1–2px bottom-edge cursor trigger strip (`triggerHeight: 2`) revealing the solid Wabi-sabi dock surface upon hover. Enforces strict separation: global pinned applications (`dock.pinnedApps` in `config/baseus.json`) persist across all workspaces, whereas unpinned running client windows appear exclusively on the workspace where they are active. Supports multi-window instance MRU cycling and window focus/raising dispatch via `WindowModel` and `HyprlandBridge`. Recedes cleanly during per-monitor native application fullscreen (`DESIGN.md` §14). Strictly contains NO search bar (`DEC-015`).
+- **TopIslandAnchor (`TopIslandAnchor.qml`) & TopIslandHeader (`TopIslandHeader.qml`)**: Edge-integrated top-center solid Wabi-sabi anchor with unified C1 continuous `InverseCorner` fillets (`DEC-016`, `DEC-029`). Displays a minute-aligned typographic clock at idle without polling. Expands smoothly downward on hover (or tap) into a contextual header displaying formatted date, active session metrics (workspace number, user label, running window count), and action trigger shortcuts. During native fullscreen, recedes into a dedicated 2px top-edge notch summon surface that summons the compact clock on hover and expands the header on click.
+- **CommandCenter (`CommandCenter.qml`)**: Universal search and action launcher positioned horizontally centered and slightly above vertical center (`DEC-017`). Top-to-bottom curtain reveal, dynamic fit-content height up to 520px with internal scrolling, instant input focus, and prefix routing engine:
+  - `>`: direct action execution routed to `ActionRegistry` (22 core actions);
+  - `?help`: quick reference and prefix syntax guide;
+  - Plain text: application search with MRU tracking and enter-key launch.
+- **AppDrawer (`AppDrawer.qml`), AppDrawerItem (`AppDrawerItem.qml`), AlphabetScroller (`AlphabetScroller.qml`)**: Fullscreen application discovery surface (`DEC-018`) with rounded top corners (`floatingRadius: 12`) and flush bottom edge. Smooth bottom-to-top curtain reveal. Features a persistent top search bar, initial landing state with recent/suggested applications (max 3 columns) that smoothly collapses upward upon typing, continuous dynamic catalog grid in strict fixed `A–Z–0–9–#` order without cardified headers, zero running state indicators (`DEC-018`), and right-edge 1px-to-3px alphabet fast scroller (`DEC-022`) with pointer and touch scrub jumping.
 - **WorkspaceIndicator (`WorkspaceIndicator.qml`)**: Contextual workspace HUD triggered on workspace switch events, auto-hiding after ~2000ms (`DEC-029`). Employs hierarchical scaling (*"Focus grows. Context recedes."*), morphs into a compact labeled pill (`2 — WEB`) when user labels exist, updates/resets in place without animation stacking during rapid switches, and suppresses initial compositor startup discovery bursts.
+
+### Overlay Mode Transitions & Mutual Exclusivity
+
+Overlay surfaces (`CommandCenter`, `AppDrawer`) are governed by `ShellState.mode`:
+
+```text
+Desktop Mode ("desktop")
+       │
+       ├─► Super+Space / Action  ──► CommandCenter ("command-center")
+       │                                     │
+       │                                     ├─► Super+A / Action ──► AppDrawer ("app-drawer")
+       │                                     │
+       ├─► Super+A / Action      ──► AppDrawer ("app-drawer")
+       │                                     │
+       │                                     ├─► Super+Space      ──► CommandCenter ("command-center")
+       │                                     │
+       └─► navigation.back / Esc ◄───────────┴──────────────────────── Dismiss Overlay
+```
+
+- **Mutual Exclusivity:** Opening any overlay immediately and cleanly dismisses any previously active overlay without animation collision or leaked keyboard focus.
+- **Universal Dismissal:** `navigation.back` (`Super+Escape`), `Escape`, or clicking outside the active surface footprint dismisses the active overlay and returns shell mode to `"desktop"`.
+- **Dynamic Layer-Shell Hitmasking:** Overlays grab keyboard focus and pointer events exclusively while active; upon dismissal, their layer-shell windows are fully unmapped, restoring zero-cost desktop transparency.
 
 ---
 

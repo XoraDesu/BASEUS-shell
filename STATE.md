@@ -80,21 +80,13 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Active milestone transitioned from M1 to M2 following verified approval of `CP-M1-001`. Tasks `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding), `M2-T2` (Dock Application State & Pinning), `M2-T3` (Top Island Hover Expansion & Contextual Header), `M2-T4` (Command Center Surface & Action Prefix Routing), and `M2-T5` (Fullscreen App Drawer & Alphabet Fast Scroller) are COMPLETE and VERIFIED. STOPPED at M2-T5 task boundary per `AGENTS.md` §46.**
+**COMPLETE & VERIFIED — Milestone M2 (Interaction) is 100% complete and verified across all 6 atomic tasks (M2-T1 through M2-T6) and anchored at verified checkpoint `CP-M2-001`. STOPPED at M2 → M3 milestone boundary per `AGENTS.md` §46 and §48.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
 The **M1 — Desktop Core** baseline is complete, approved, and anchored at verified checkpoint `CP-M1-001` (commit `d29a54f6a2a32658ba9ddc03ebf2e7a1bb41301b`) with zero anti-slop violations, 100% `pragma ComponentBehavior: Bound` compliance, and verified live dual-monitor Hyprland 0.57.0 runtime behavior.
 
-Task `M2-T1` (*Bottom-Edge Cursor Trigger & Dock Scaffolding*) is implemented and verified.
-
-Task `M2-T2` (*Dock Application State & Pinning*) is implemented and verified.
-
-Task `M2-T3` (*Top Island Hover Expansion & Contextual Header*) is implemented, audited, and verified.
-
-Task `M2-T4` (*Command Center Surface & Action Prefix Routing*) is implemented, audited, and verified.
-
-Task `M2-T5` (*Fullscreen App Drawer & Alphabet Fast Scroller*) is implemented, audited (0 anti-slop violations, 0 scope leakage, 100% `pragma ComponentBehavior: Bound`), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings across all 33 QML files), and runtime-verified under both offline simulation (`BASEUS_SIMULATION=1`) and live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux.
+The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations, 0 scope leakage, 100% `pragma ComponentBehavior: Bound` across all 33 QML files), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings), and validated end-to-end under live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux. Anchored at checkpoint `CP-M2-001`.
 
 ---
 
@@ -107,7 +99,7 @@ Task `M2-T5` (*Fullscreen App Drawer & Alphabet Fast Scroller*) is implemented, 
 3. **`M2-T3` — Top Island Hover Expansion & Contextual Header:** `COMPLETE / VERIFIED`
 4. **`M2-T4` — Command Center Surface & Action Prefix Routing:** `COMPLETE / VERIFIED`
 5. **`M2-T5` — Fullscreen App Drawer & Alphabet Fast Scroller:** `COMPLETE / VERIFIED`
-6. **`M2-T6` — M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001`:** `NOT STARTED`
+6. **`M2-T6` — M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001`:** `COMPLETE / VERIFIED`
 
 No M2 task should be considered complete merely because it has been designed or documented.
 

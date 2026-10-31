@@ -491,6 +491,91 @@ This checkpoint represents the conceptual/documentation baseline from which the 
 
 ---
 
+# 16. M2 Interaction Baseline Checkpoint
+
+## CP-M2-001 — Interaction Baseline
+
+**Status:** VERIFIED (Static `qmllint 6.12.0` across 33 QML files, zero ANTI-SLOP violations, Quickshell 0.3.2 Runtime, and Live Hyprland 0.57.0 Dual-Monitor Compositor E2E Integration Verified on WSL2 Arch Linux)  
+**Date:** 2026-10-31  
+**Phase:** M2 — Interaction  
+**Scope:** Bottom-edge cursor trigger and edge-integrated Dock scaffolding (`DEC-015`), global pinned applications vs workspace-isolated client windows, multi-window instance MRU cycling, Top Island hover expansion into contextual header with unified InverseCorner silhouette (`DEC-016`), 2px fullscreen notch summon surface during native fullscreen (`DESIGN.md` §14), universal Command Center with `>` ActionRegistry routing engine (`DEC-017`), fullscreen App Drawer with landing state recents, upward search collapse transition, continuous dynamic catalog grid in fixed `A–Z–0–9–#` order without cardified headers (`DEC-018`), right-edge 1px-to-3px alphabet fast scroller (`DEC-022`), dynamic layer-shell hitmasking ensuring 100% click-through idle desktop space, and overlay mutual exclusivity.
+
+### Repository
+
+- **Commit:** `e58eac3180cb8b0d3b4e7f7642348e02e31db2ad` (`feat(m2): complete M2-T6 e2e validation, anti-slop audit, and checkpoint CP-M2-001`)
+- **Branch:** `main`
+- **Working tree:** Implementation files present (`shell.qml`, `src/`, `config/`, `docs/`, `scripts/`)
+- **Repository structure:** Matches `MASTER.md` §59 and `TASKS.md` §7
+
+### Environment
+
+- **Host OS:** Windows with WSL2 Linux runtime (`/mnt/d/Linux/BASEUS`)
+- **Linux Distribution & Kernel:** `Arch Linux` on WSL2 (`Linux 6.18.54.1-microsoft-standard-WSL2`)
+- **Display Connection:** WSLg Wayland (`WAYLAND_DISPLAY=wayland-0`) and nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128` → live Hyprland child `WAYLAND_DISPLAY=wayland-1`)
+- **Shell Runtime:** `Quickshell 0.3.2` (`quickshell-git`, rev `9b0f339b19057f4731bf3b48293307d7ef241671`)
+- **Qt / QML Tooling:** Qt 6 (`qmllint 6.12.0` at `/usr/lib/qt6/bin/qmllint`)
+- **Live Compositor:** `Hyprland 0.57.0` (commit `0aa6745f705f2c4b0a5004eb019ef76e5bbdb426`, `Aquamarine 0.15.1`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`, Lua config manager `Hyprland.usingLua == true`, dual headless outputs `VIRTUAL-1` and `VIRTUAL-2`)
+
+### Implementation
+
+- **Dock Surface & Application State (`DockAnchor.qml`, `DockModel.qml`, `DockItem.qml`)**:
+  - Edge-integrated bottom dock flush with bottom screen edge (`dockRadiusBottom: 0`, `dockRadiusTop: 12`) flanked by `InverseCorner` (`ICR`) fillets.
+  - 1–2px bottom cursor trigger region (`triggerHeight: 2`) revealing the solid Wabi-sabi dock surface upon hover; auto-recedes cleanly after 400ms delay.
+  - Strict separation: global pinned applications (`dock.pinnedApps` in `config/baseus.json`) persist across all workspaces; unpinned running windows appear exclusively on the workspace where they are active.
+  - Multi-window instance MRU cycling and window focus/raising dispatch via `WindowModel` and `HyprlandBridge`.
+  - Recedes cleanly during per-monitor native application fullscreen (`DESIGN.md` §14). Strictly contains NO search bar (`DEC-015`).
+- **Top Island Hover Expansion & Fullscreen Summon (`TopIslandAnchor.qml`, `TopIslandHeader.qml`)**:
+  - Edge-integrated top-center solid Wabi-sabi anchor with unified C1 continuous `InverseCorner` fillets (`DEC-016`, `DEC-029`).
+  - Minute-aligned typographic clock at idle without polling.
+  - Hover expansion downward into contextual header displaying formatted date, active session metrics (workspace number, user label, running window count), and action trigger shortcuts.
+  - Dedicated Overlay fullscreen summon surface providing a 2px top-edge notch trigger during native fullscreen applications, summoning compact clock on hover and expanding the header on click (`DEC-016`).
+- **Command Center Surface & Prefix Routing Engine (`CommandCenter.qml`)**:
+  - Universal search and action launcher positioned horizontally centered and slightly above vertical center (`DEC-017`).
+  - Top-to-bottom curtain reveal, dynamic fit-content height up to 520px with internal scrolling, instant input focus.
+  - Prefix routing engine: `>` routes to `ActionRegistry` (22 core actions); `?help` lists quick reference; plain text searches applications with MRU tracking.
+- **Fullscreen App Drawer & Fast Scroller (`AppDrawer.qml`, `AppDrawerItem.qml`, `AlphabetScroller.qml`)**:
+  - Fullscreen application discovery surface (`DEC-018`) with rounded top corners (`floatingRadius: 12`) and flush bottom edge. Smooth bottom-to-top curtain reveal.
+  - Persistent top search bar, initial landing state with recent/suggested applications (max 3 columns) that smoothly collapses upward upon typing.
+  - Continuous dynamic catalog grid in strict fixed `A–Z–0–9–#` order without cardified headers.
+  - Zero running state indicators (`DEC-018`).
+  - Right-edge 1px-to-3px alphabet fast scroller (`DEC-022`) with pointer and touch scrub jumping.
+- **Overlay Mutual Exclusivity & Dynamic Hitmasking**:
+  - Governed by `ShellState.mode` (`desktop`, `overview`, `command-center`, `app-drawer`).
+  - Opening an overlay cleanly supersedes any existing overlay without collision or leaked focus.
+  - Clean Layer-Shell input mask release upon dismissal via `navigation.back`, `Escape`, or clicking outside.
+- **Design Token Discipline & Anti-Slop**:
+  - All 33 QML files enforce `pragma ComponentBehavior: Bound`.
+  - Strict 4-color palette tokens (`dominant`, `secondary`, `accent`, `neutral`) per `DEC-011`.
+  - Zero hardcoded hex colors, zero glassmorphism, zero blur filters, zero glow/neon drop shadows.
+
+### Validation
+
+| Area | Status | Evidence |
+|---|---|---|
+| Anti-Slop & Design Audit | VERIFIED | Automated audit across all 33 QML files: 0 violations, zero hardcoded hex colors, zero blur/glass/shadows, 100% `pragma ComponentBehavior: Bound` |
+| QML Static & Type Linting | VERIFIED | `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` 6.12.0) and `scripts/validate.ps1 -All` passed with 0 errors and 0 warnings across all 33 QML files |
+| Configuration Validation | VERIFIED | `config/baseus.json` validated JSON; `dock.pinnedApps` and `commandCenter.actionPrefix` verified |
+| Dock Scaffolding & Reveal | VERIFIED | `verify_m2_t1.py` live dual-monitor Hyprland 0.57.0: 2px trigger reveal, input region containment, clean 400ms hide, and per-monitor fullscreen recession verified |
+| Dock Application State & Pinning | VERIFIED | `verify_m2_t2.py` live dual-monitor Hyprland 0.57.0: global pins persist across workspaces, active Wayland window isolated to Monitor 0 dock, click-to-focus dispatched |
+| Top Island Hover & Fullscreen Summon | VERIFIED | `verify_m2_t3.py` live dual-monitor Hyprland 0.57.0: unified ICR silhouette, hover expansion, header action dispatch, and 2px fullscreen notch summon verified |
+| Command Center & Prefix Routing | VERIFIED | `verify_m2_t4.py` live dual-monitor Hyprland 0.57.0: centered reveal, `>` prefix routes to 22 core actions, `?help`, keyboard navigation, and execution dismissal verified |
+| App Drawer & Alphabet Scroller | VERIFIED | `verify_m2_t5.py` live dual-monitor Hyprland 0.57.0: fullscreen curtain reveal, search collapse, alphabet fast scroller scrubbing across A–Z–0–9–#, launch dispatch, and Back dismissal verified |
+| Comprehensive Multi-Monitor E2E | VERIFIED | `verify_m2_e2e.py` executed Phase A (static audit), Phase B (offline simulation), and Phase C (live dual-monitor Hyprland C1–C7) with 100% PASS |
+| Overlay Mutual Exclusivity | VERIFIED | Switching between Command Center and App Drawer cleanly supersedes active overlay without animation collision or leaked keyboard focus |
+| Lifecycle & Shell Restart Recovery | VERIFIED | `quickshell ipc call baseus restart` cleanly recovers 2 monitors, 2 desktop host surfaces, docks, islands, and zero leaked input grab regions |
+
+### Known Limitations
+
+- **WSL2 virtual scanout:** Physical multi-monitor DRM master hardware scanout, physical 4-finger touchpad gestures, and hardware GPU performance benchmarks require bare-metal Linux.
+- **WSL2 `quickshell-git` daemon teardown quirk:** Daemon termination under WSL2 can park in `futex_do_wait` after clean destruction; handled cleanly by test harnesses.
+
+### Recovery / Resume Meaning
+
+`CP-M2-001` is the authoritative, verified **M2 — Interaction** baseline. From this checkpoint, the repository safely transitions to **M3 — Status, Notification & Audio/Brightness Overlays** (Notification daemon, OSD, Media controls, and Personality surfaces).
+
+
+---
+
 # 15. Recovery Principle
 
 A checkpoint is useful only if it can be returned to or reconstructed.
@@ -812,6 +897,7 @@ If any critical answer is no, keep the checkpoint as `CANDIDATE` or fix the reco
 | `CP-000` | VERIFIED | Documentation baseline |
 | `CP-M0-001` | VERIFIED | M0 Foundation (static `qmllint 6.12.0`, `Quickshell 0.3.2` runtime, and live `Hyprland 0.57.0` compositor IPC verified on WSL2 Arch Linux) |
 | `CP-M1-001` | VERIFIED | M1 Desktop Core (fixed 10 workspaces, per-monitor navigation, freeform floating/centering, maximize vs native fullscreen, scratchpad-free minimize & restore, Action Registry, navigation primitives, DesktopHost layer scaffolding, TopIslandAnchor with ICR, contextual WorkspaceIndicator HUD, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
+| `CP-M2-001` | VERIFIED | M2 Interaction (Dock 2px trigger & scaffolding, global pins vs workspace clients, Top Island hover expansion & fullscreen notch summon, Command Center `>` prefix routing, App Drawer with search collapse & alphabet fast scroller, overlay mutual exclusivity, dynamic layer-shell hitmasking, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
 
 This index should grow as verified states are created.
 

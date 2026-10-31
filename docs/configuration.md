@@ -25,7 +25,37 @@ Default configuration: `config/baseus.json` (in the project)
         "dock": {
             "triggerHeight": 2,
             "revealDuration": 200,
-            "showLauncher": true
+            "showLauncher": true,
+            "pinnedApps": [
+                {
+                    "id": "terminal",
+                    "title": "Terminal",
+                    "appClass": "kitty",
+                    "command": "kitty",
+                    "icon": "utilities-terminal"
+                },
+                {
+                    "id": "browser",
+                    "title": "Browser",
+                    "appClass": "firefox",
+                    "command": "firefox",
+                    "icon": "firefox"
+                },
+                {
+                    "id": "editor",
+                    "title": "Editor",
+                    "appClass": "code",
+                    "command": "code",
+                    "icon": "text-editor"
+                },
+                {
+                    "id": "files",
+                    "title": "Files",
+                    "appClass": "thunar",
+                    "command": "thunar",
+                    "icon": "system-file-manager"
+                }
+            ]
         },
         "topIsland": {
             "idleTimeout": 2000
@@ -113,7 +143,11 @@ BASEUS should never fail to start due to a configuration error.
 | `dock.triggerHeight` | `2` | 1–10 px | Bottom-edge trigger region |
 | `dock.revealDuration` | `200` | ms | Dock reveal animation duration |
 | `dock.showLauncher` | `true` | bool | Show BASEUS launcher in Dock |
+| `dock.pinnedApps` | `[...]` | array of objects | Globally pinned applications (`id`, `title`, `appClass`, `command`, `icon`) |
 | `topIsland.idleTimeout` | `2000` | ms | Secondary info hide delay |
+| `commandCenter.defaultPrefix` | `""` | string | Default prefix for universal launcher |
+| `commandCenter.actionPrefix` | `">"` | string | Action execution prefix routed to `ActionRegistry` |
+| `appDrawer.fastScroller` | `true` | bool | Enable right-edge alphabet fast scroller (A–Z–0–9–#) |
 | `notifications.timeout` | `3000` | ms | Default notification display time |
 | `notifications.position` | `"top-left"` | string | Notification placement |
 | `performance.reducedMotion` | `false` | bool | Reduce animation for accessibility |

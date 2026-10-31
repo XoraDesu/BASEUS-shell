@@ -224,10 +224,10 @@ M2-T6 (M2 Integration, Anti-Slop Audit & Checkpoint CP-M2-001)
 
 ### Sub-tasks
 
-- [ ] Run integrated E2E test suite combining Dock, Top Island, Command Center, and App Drawer across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
-- [ ] Perform comprehensive anti-slop audit across all QML surfaces.
-- [ ] Update `docs/architecture.md` and `docs/configuration.md`.
-- [ ] Update `STATE.md`, record `CP-M2-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
+- [x] Run integrated E2E test suite combining Dock, Top Island, Command Center, and App Drawer across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
+- [x] Perform comprehensive anti-slop audit across all QML surfaces.
+- [x] Update `docs/architecture.md` and `docs/configuration.md`.
+- [x] Update `STATE.md`, record `CP-M2-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
 
 ---
 
@@ -274,15 +274,17 @@ The agent must **STOP**:
 
 # 11. Current Status
 
-- **Active Phase:** `M2 — Interaction` (*`ROADMAP.md` §9: `M2 — Interaction`*)
+- **Active Phase:** `M2 — Interaction` (*`ROADMAP.md` §9: `M2 — Interaction`*) — **COMPLETE & VERIFIED (6/6 Tasks Complete, Checkpoint `CP-M2-001`)**
 - **Completed Milestones:**
   - `M0 — Foundation` (`CP-M0-001` `VERIFIED`)
   - `M1 — Desktop Core` (`CP-M1-001` `VERIFIED`)
+  - `M2 — Interaction` (`CP-M2-001` `VERIFIED`)
 - **Completed Tasks in Phase:**
   - `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding — `COMPLETE / VERIFIED`)
   - `M2-T2` (Dock Application State & Pinning — `COMPLETE / VERIFIED`)
   - `M2-T3` (Top Island Hover Expansion & Contextual Header — `COMPLETE / VERIFIED`)
   - `M2-T4` (Command Center Surface & Action Prefix Routing — `COMPLETE / VERIFIED`)
   - `M2-T5` (Fullscreen App Drawer & Alphabet Fast Scroller — `COMPLETE / VERIFIED`)
-- **Active Task:** `M2-T5` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M2-T6` (M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001` — awaiting user prompt).
+  - `M2-T6` (M2 Integration, Anti-Slop Audit & Checkpoint `CP-M2-001` — `COMPLETE / VERIFIED`)
+- **Active Task:** `M2-T6` complete; stopped at milestone boundary per `AGENTS.md` §46 and §48.
+- **Next Executable Milestone:** `M3 — Status, Notification & Audio/Brightness Overlays` (awaiting user prompt).
