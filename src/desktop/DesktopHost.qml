@@ -87,6 +87,9 @@ Scope {
                     visible: s.dockRef ? s.dockRef.visible : false,
                     itemCount: s.dockRef ? s.dockRef.itemCount : 0,
                     items: s.dockRef ? s.dockRef.getSnapshot() : []
+                },
+                commandCenter: {
+                    active: desktopHost.commandCenterActive && (desktopHost.commandCenterMonitorIndex === s.monitorIndex)
                 }
             })
         }
@@ -220,6 +223,87 @@ Scope {
             }
         }
         return false
+    }
+
+    // =========================================================
+    // Command Center State & Control (M2-T4, DEC-017)
+    // =========================================================
+    property bool _commandCenterOpen: false
+    property int _commandCenterMonitor: 0
+
+    readonly property bool commandCenterActive: desktopHost._commandCenterOpen || (desktopHost.shellState && desktopHost.shellState.mode === "command-center")
+    readonly property int commandCenterMonitorIndex: desktopHost._commandCenterMonitor
+
+    function openCommandCenter(prefix: string, monitorIndex: int) {
+        if (typeof monitorIndex === "number" && monitorIndex >= 0) {
+            desktopHost._commandCenterMonitor = monitorIndex
+        } else if (desktopHost.shellState) {
+            desktopHost._commandCenterMonitor = desktopHost.shellState.activeMonitorIndex
+        }
+        desktopHost._commandCenterOpen = true
+        if (desktopHost.shellState && desktopHost.shellState.mode !== "command-center") {
+            desktopHost.shellState.setMode("command-center")
+        }
+        var cc = desktopHost._commandCenterFor(desktopHost._commandCenterMonitor)
+        if (cc) {
+            cc.openWithPrefix(prefix)
+        }
+    }
+
+    function closeCommandCenter() {
+        desktopHost._commandCenterOpen = false
+        if (desktopHost.shellState && desktopHost.shellState.mode === "command-center") {
+            desktopHost.shellState.dismissOverlay()
+        }
+        var cc = desktopHost._commandCenterFor(desktopHost._commandCenterMonitor)
+        if (cc) {
+            cc.close()
+        }
+    }
+
+    function toggleCommandCenter(monitorIndex: int) {
+        if (desktopHost.commandCenterActive) {
+            desktopHost.closeCommandCenter()
+        } else {
+            desktopHost.openCommandCenter("", monitorIndex)
+        }
+    }
+
+    function _commandCenterFor(monitorIndex: int): var {
+        var list = commandCenterVariants.instances
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].monitorIndex === monitorIndex) {
+                return list[i].commandCenterRef
+            }
+        }
+        return null
+    }
+
+    function getCommandCenterState(monitorIndex: int): var {
+        var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+            ? monitorIndex
+            : desktopHost.commandCenterMonitorIndex
+        var cc = desktopHost._commandCenterFor(mon)
+        if (!cc) return { available: false, active: false }
+        var snap = cc.getSnapshot()
+        snap.available = true
+        snap.monitorIndex = mon
+        return snap
+    }
+
+    Connections {
+        target: desktopHost.shellState ? desktopHost.shellState : null
+        function onModeChanged() {
+            if (desktopHost.shellState) {
+                if (desktopHost.shellState.mode === "command-center" && !desktopHost._commandCenterOpen) {
+                    desktopHost.openCommandCenter("", desktopHost.shellState.activeMonitorIndex)
+                } else if (desktopHost.shellState.mode !== "command-center" && desktopHost._commandCenterOpen) {
+                    desktopHost._commandCenterOpen = false
+                    var cc = desktopHost._commandCenterFor(desktopHost._commandCenterMonitor)
+                    if (cc) cc.close()
+                }
+            }
+        }
     }
 
     function _registerSurface(surface: var) {
@@ -453,6 +537,69 @@ Scope {
                     workspaceModel: desktopHost.workspaceModel
                     windowModel: desktopHost.windowModel
                     monitorIndex: summonWindow.monitorIndex
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // Command Center Surface Overlay (DEC-017, MASTER.md §13)
+    // =========================================================
+    Variants {
+        id: commandCenterVariants
+        model: desktopHost.enabled ? Quickshell.screens : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: ccWindow
+                required property var modelData
+
+                screen: modelData
+
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+
+                color: "transparent"
+                layer: WlrLayer.Overlay
+                namespace: desktopHost.layerNamespace + "-command"
+                keyboardFocus: (commandCenter.active && ccWindow.isTargetMonitor)
+                    ? WlrKeyboardFocus.Exclusive
+                    : WlrKeyboardFocus.None
+                exclusiveZone: 0
+
+                mask: Region {
+                    item: (commandCenter.active && ccWindow.isTargetMonitor) ? commandCenter : null
+                }
+
+                readonly property string screenName: modelData ? modelData.name : ""
+                readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
+                readonly property int monitorIndex: {
+                    var dummy = ccWindow._monitorsRef
+                    return desktopHost.resolveMonitorIndex(ccWindow.screenName)
+                }
+                readonly property bool isTargetMonitor: ccWindow.monitorIndex === desktopHost.commandCenterMonitorIndex
+                readonly property var commandCenterRef: commandCenter
+
+                visible: desktopHost.enabled && desktopHost.commandCenterActive && ccWindow.isTargetMonitor
+
+                CommandCenter {
+                    id: commandCenter
+                    anchors.fill: parent
+                    theme: desktopHost.theme
+                    actionRegistry: desktopHost.actionRegistry
+                    windowModel: desktopHost.windowModel
+                    workspaceModel: desktopHost.workspaceModel
+                    config: desktopHost.config
+                    bridge: desktopHost.bridge
+                    monitorIndex: ccWindow.monitorIndex
+                    active: ccWindow.visible
+
+                    onDismissRequested: desktopHost.closeCommandCenter()
+                    onActionExecuted: function(actionId, ok) {
+                        desktopHost.closeCommandCenter()
+                    }
                 }
             }
         }

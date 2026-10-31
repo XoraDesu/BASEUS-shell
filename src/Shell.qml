@@ -586,6 +586,62 @@ Item {
             var ok = _desktopHost.clickTopIslandTrigger(monitorIndex, actionId)
             return JSON.stringify({ ok: ok, monitorIndex: monitorIndex, actionId: actionId })
         }
+
+        // -----------------------------------------------------
+        // M2-T4: Command Center Surface & Action Prefix Routing
+        // -----------------------------------------------------
+
+        function toggleCommandCenter(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.toggleCommandCenter(monArg)
+            return JSON.stringify({
+                active: _desktopHost.commandCenterActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.commandCenterMonitorIndex
+            })
+        }
+
+        function openCommandCenter(prefix: string, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.openCommandCenter(prefix, monArg)
+            return JSON.stringify({
+                active: _desktopHost.commandCenterActive,
+                mode: _shellState.mode,
+                prefix: prefix,
+                monitorIndex: _desktopHost.commandCenterMonitorIndex
+            })
+        }
+
+        function closeCommandCenter(): string {
+            _desktopHost.closeCommandCenter()
+            return JSON.stringify({
+                active: _desktopHost.commandCenterActive,
+                mode: _shellState.mode
+            })
+        }
+
+        function commandCenterState(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            return JSON.stringify(_desktopHost.getCommandCenterState(monArg))
+        }
+
+        function commandCenterInput(text: string, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            var mon = (monArg !== undefined) ? monArg : _desktopHost.commandCenterMonitorIndex
+            var cc = _desktopHost._commandCenterFor(mon)
+            if (!cc) return JSON.stringify({ ok: false, reason: "not-available" })
+            cc.setInput(text)
+            return JSON.stringify({ ok: true, state: cc.getSnapshot() })
+        }
+
+        function commandCenterExecute(index: int, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            var mon = (monArg !== undefined) ? monArg : _desktopHost.commandCenterMonitorIndex
+            var cc = _desktopHost._commandCenterFor(mon)
+            if (!cc) return JSON.stringify({ ok: false, reason: "not-available" })
+            var ok = (index >= 0) ? cc.executeIndex(index) : cc.executeSelected()
+            return JSON.stringify({ ok: ok, state: cc.getSnapshot() })
+        }
     }
 
     function _executeActionWithState(id, payload) {

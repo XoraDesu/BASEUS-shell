@@ -192,15 +192,15 @@ M2-T6 (M2 Integration, Anti-Slop Audit & Checkpoint CP-M2-001)
 
 ## Task M2-T4 — Command Center Surface & Action Prefix Routing
 
-**Goal:** Build the universal action and search surface (`src/surfaces/CommandCenter.qml`) with dynamic bounded height, transient curtain reveal, and `>` action prefix routing to `ActionRegistry`.
+**Goal:** Build the universal action and search surface (`src/desktop/CommandCenter.qml`) with dynamic bounded height, transient curtain reveal, and `>` action prefix routing to `ActionRegistry`.
 
 ### Sub-tasks
 
-- [ ] Implement `src/surfaces/CommandCenter.qml` appearing slightly above center.
-- [ ] Implement search input with keyboard focus grab and ESC dismissal.
-- [ ] Wire `>` prefix routing to query and execute `ActionRegistry` actions (`DEC-028`).
-- [ ] Implement dynamic height sizing capped at maximum threshold.
-- [ ] Validate keyboard navigation (Up/Down/Enter/Escape).
+- [x] Implement `src/desktop/CommandCenter.qml` appearing slightly above center.
+- [x] Implement search input with keyboard focus grab and ESC dismissal.
+- [x] Wire `>` prefix routing to query and execute `ActionRegistry` actions (`DEC-028`).
+- [x] Implement dynamic height sizing capped at maximum threshold.
+- [x] Validate keyboard navigation (Up/Down/Enter/Escape).
 
 ---
 
@@ -282,5 +282,6 @@ The agent must **STOP**:
   - `M2-T1` (Bottom-Edge Cursor Trigger & Dock Scaffolding — `COMPLETE / VERIFIED`)
   - `M2-T2` (Dock Application State & Pinning — `COMPLETE / VERIFIED`)
   - `M2-T3` (Top Island Hover Expansion & Contextual Header — `COMPLETE / VERIFIED`)
-- **Active Task:** `M2-T3` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M2-T4` (Command Center Surface & Action Prefix Routing — awaiting user prompt).
+  - `M2-T4` (Command Center Surface & Action Prefix Routing — `COMPLETE / VERIFIED`)
+- **Active Task:** `M2-T4` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M2-T5` (Fullscreen App Drawer & Alphabet Fast Scroller — awaiting user prompt).
