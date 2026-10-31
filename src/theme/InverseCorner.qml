@@ -23,7 +23,7 @@ Canvas {
     id: icrCanvas
 
     property int cornerRadius: 12
-    property color fillColor: "#1f2335"
+    property color fillColor: "transparent"
     // "bottom-left", "bottom-right", "top-left", "top-right"
     property string position: "bottom-left"
 

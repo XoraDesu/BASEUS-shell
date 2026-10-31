@@ -80,7 +80,7 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Tasks M3-T1 (Notification Daemon & Floating Surface), M3-T2 (Top Island OSD Integration), and M3-T3 (Media Player Architecture & Top Island Compact Integration) are complete and verified.**
+**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Tasks M3-T1 (Notification Daemon & Floating Surface), M3-T2 (Top Island OSD Integration), M3-T3 (Media Player Architecture & Top Island Compact Integration), and M3-T4 (Dedicated Media Widget & Bongo Cat Companion Integration) are complete and verified.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -97,7 +97,7 @@ The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations
 1. **`M3-T1` — Notification Daemon & Floating Surface:** `COMPLETE / VERIFIED`
 2. **`M3-T2` — Top Island OSD Integration:** `COMPLETE / VERIFIED`
 3. **`M3-T3` — Media Player Architecture & Top Island Compact Integration:** `COMPLETE / VERIFIED`
-4. **`M3-T4` — Dedicated Media Widget & Bongo Cat Companion Integration:** `NOT STARTED`
+4. **`M3-T4` — Dedicated Media Widget & Bongo Cat Companion Integration:** `COMPLETE / VERIFIED`
 5. **`M3-T5` — System Status & Diagnostic Feedback Architecture:** `NOT STARTED`
 6. **`M3-T6` — M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`:** `NOT STARTED`
 
@@ -136,9 +136,12 @@ Current factual implementation status:
 - `AudioService.qml` (`src/core/AudioService.qml`) and `TopIslandOsd.qml` (`src/desktop/TopIslandOsd.qml`) implement the PipeWire/WirePlumber volume and brightness OSD subsystem originating geometrically from Top Island with bubble-drop transition, rapid-event in-place morphing without animation stacking, and 100% click-through passthrough hitmask;
 - `MediaService.qml` (`src/core/MediaService.qml`) implements Linux MPRIS integration via `Quickshell.Services.Mpris` with multi-session tracking, controls (`play`, `pause`, `togglePlay`, `next`, `previous`, `seek`), and deterministic mock playlist fallback for headless/simulation environments (`"Midnight City"` by M83, `"Resonance"` by HOME, `"Dayvan Cowboy"` by Boards of Canada); strictly enforces `DEC-039` by never emitting generic notifications on media track or playback changes;
 - `TopIslandMedia.qml` (`src/desktop/TopIslandMedia.qml`) integrates a compact media control surface within `TopIslandHeader.qml` with fixed 328x38px layout, zero dynamic resizing jitter, elided track metadata, restrained pill controls, and 2px hairline playback progress indicator;
-- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerVolumeOsd(...)`, `triggerBrightnessOsd(...)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`;
-- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 40 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- Tasks `M3-T1`, `M3-T2`, and `M3-T3` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- `MediaWidget.qml` (`src/desktop/MediaWidget.qml`) implements the dedicated modular desktop media surface with compact state (108px), auto-expand during playback (254px), extended controls (previous, seek -10, play/pause, seek +10, next), interactive seek slider, session selector, and clean Layer-Shell hitmasking;
+- `BongoCatCompanion.qml` (`src/desktop/BongoCatCompanion.qml`) implements the vector/token-shaped visual companion reacting contextually to playback rhythm with alternating paw taps while halted at rest during pause/idle (zero CPU consumption at idle, `ANTI-SLOP.md` §37);
+- `LyricsContainer.qml` (`src/desktop/LyricsContainer.qml`) implements the dedicated structural lyrics slot within `MediaWidget` with live stream support and clean editorial fallback;
+- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerVolumeOsd(...)`, `triggerBrightnessOsd(...)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`, `mediaWidgetState(monitorIndex)`, `toggleMediaWidget(monitorIndex)`, `bongoCatState(monitorIndex)`;
+- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 43 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- Tasks `M3-T1`, `M3-T2`, `M3-T3`, and `M3-T4` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
 - Milestone M2 — Interaction is 100% COMPLETE and anchored at verified checkpoint `CP-M2-001`;
 - Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;
 - No performance baseline is claimed;
@@ -546,7 +549,7 @@ Implementation must not modify product intent simply because current reality dif
 
 The immediate execution target is:
 
-> **Task M3-T4 — Dedicated Media Widget & Bongo Cat Companion Integration** per `TASKS.md` §7 and `DEC-045`. Task **M3-T3** (Media Player Architecture & Top Island Compact Integration) is 100% complete and verified. The agent must **STOP** at the M3-T3 task boundary per `AGENTS.md` §46 and await user authorization before starting M3-T4.
+> **Task M3-T5 — System Status & Diagnostic Feedback Architecture** per `TASKS.md` §7 and `DEC-045`. Task **M3-T4** (Dedicated Media Widget & Bongo Cat Companion Integration) is 100% complete and verified. The agent must **STOP** at the M3-T4 task boundary per `AGENTS.md` §46 and await user authorization before starting M3-T5.
 
 ---
 
@@ -595,11 +598,11 @@ BASEUS
 ├── Agent protocol           LOCKED
 ├── Current tasks            ACTIVE (M3 — System Feedback: M3-T1..M3-T6)
 │
-├── Active phase             M3 — System Feedback (IN PROGRESS: M3-T1..M3-T3 COMPLETE / VERIFIED)
+├── Active phase             M3 — System Feedback (IN PROGRESS: M3-T1..M3-T4 COMPLETE / VERIFIED)
 ├── Primary surfaces         CP-M2-001 (VERIFIED — commit 2979965)
 ├── Desktop Core baseline    CP-M1-001 (VERIFIED — commit d29a54f)
 ├── Foundation baseline      CP-M0-001 (VERIFIED — commit 9a37a142)
-├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings across all 40 QML files)
+├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings across all 43 QML files)
 ├── Quickshell runtime       VERIFIED (Quickshell 0.3.2 / WSL2 Arch Linux)
 ├── Hyprland live IPC        VERIFIED (Hyprland 0.57.0 + VIRTUAL-1 & VIRTUAL-2 + Wayland clients)
 ├── Multi-monitor state      PARTIALLY VERIFIED (dual virtual outputs & M1/M2/M3 surfaces VERIFIED; DRM pending)

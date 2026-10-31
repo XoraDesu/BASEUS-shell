@@ -200,10 +200,10 @@ M3-T6 (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M
 
 ### Sub-tasks
 
-- [ ] Implement desktop media widget component.
-- [ ] Implement Bongo Cat visual companion with state-driven animation choreography.
-- [ ] Wire synchronized playback tracking and lyrics presentation.
-- [ ] Validate anti-slop compliance and performance.
+- [x] Implement desktop media widget component (`src/desktop/MediaWidget.qml`).
+- [x] Implement Bongo Cat visual companion with state-driven animation choreography (`src/desktop/BongoCatCompanion.qml`).
+- [x] Wire synchronized playback tracking and lyrics presentation (`src/desktop/LyricsContainer.qml`).
+- [x] Validate anti-slop compliance and performance (zero idle CPU consumption, verified live in Hyprland 0.57.0).
 
 ---
 
@@ -283,5 +283,6 @@ The agent must **STOP**:
   - `M3-T1` (Notification Daemon & Floating Surface — `COMPLETE / VERIFIED`)
   - `M3-T2` (Top Island OSD Integration — `COMPLETE / VERIFIED`)
   - `M3-T3` (Media Player Architecture & Top Island Compact Integration — `COMPLETE / VERIFIED`)
-- **Active Task:** `M3-T3` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M3-T4` (Dedicated Media Widget & Bongo Cat Companion Integration).
+  - `M3-T4` (Dedicated Media Widget & Bongo Cat Companion Integration — `COMPLETE / VERIFIED`)
+- **Active Task:** `M3-T4` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M3-T5` (System Status & Diagnostic Feedback Architecture).

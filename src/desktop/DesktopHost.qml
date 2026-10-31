@@ -30,6 +30,7 @@ Scope {
     property var notificationModel: null
     property var audioService: null
     property var mediaService: null
+    property bool mediaWidgetEnabled: false
 
     // =========================================================
     // Host Configuration
@@ -98,7 +99,8 @@ Scope {
                     active: desktopHost.appDrawerActive && (desktopHost.appDrawerMonitorIndex === s.monitorIndex)
                 },
                 notifications: s.notificationHostRef ? s.notificationHostRef.getSnapshot() : { available: false, count: 0 },
-                osd: s.topIslandRef ? s.topIslandRef.getOsdState() : { available: false, active: false }
+                osd: s.topIslandRef ? s.topIslandRef.getOsdState() : { available: false, active: false },
+                mediaWidget: s.mediaWidgetRef ? s.mediaWidgetRef.getSnapshot() : { available: false, visible: false, expanded: false }
             })
         }
         return snapshot
@@ -490,6 +492,25 @@ Scope {
     }
 
     // =========================================================
+    // Desktop Media Widget Access (M3-T4, DEC-026)
+    // =========================================================
+
+    function getMediaWidgetSnapshot(monitorIndex: int): var {
+        for (var i = 0; i < desktopHost._surfaces.length; i++) {
+            var s = desktopHost._surfaces[i]
+            if (s && s.monitorIndex === monitorIndex && s.mediaWidgetRef) {
+                return s.mediaWidgetRef.getSnapshot()
+            }
+        }
+        return { available: false, visible: false, expanded: false }
+    }
+
+    function toggleMediaWidget(monitorIndex: int): bool {
+        desktopHost.mediaWidgetEnabled = !desktopHost.mediaWidgetEnabled
+        return desktopHost.mediaWidgetEnabled
+    }
+
+    // =========================================================
     // Lifecycle Operations
     // =========================================================
 
@@ -549,6 +570,9 @@ Scope {
                     Region {
                         item: notificationHost.hitRegionItem
                     }
+                    Region {
+                        item: (desktopHost.mediaWidgetEnabled && mediaWidget.widgetVisible) ? mediaWidget : null
+                    }
                 }
 
                 readonly property string screenName: modelData ? modelData.name : ""
@@ -566,6 +590,7 @@ Scope {
                 readonly property var workspaceIndicatorRef: workspaceIndicator
                 readonly property var dockRef: dock
                 readonly property var notificationHostRef: notificationHost
+                readonly property var mediaWidgetRef: mediaWidget
 
                 // Foundational M1 Desktop Surfaces (DEC-045)
                 TopIslandAnchor {
@@ -605,6 +630,18 @@ Scope {
                     notificationModel: desktopHost.notificationModel
                     isFullscreen: layerWindow.isFullscreen
                     monitorIndex: layerWindow.monitorIndex
+                }
+
+                // Dedicated Desktop Media Widget (M3-T4, DEC-026)
+                MediaWidget {
+                    id: mediaWidget
+                    theme: desktopHost.theme
+                    mediaService: desktopHost.mediaService
+                    widgetVisible: desktopHost.mediaWidgetEnabled
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    anchors.rightMargin: 24
+                    anchors.bottomMargin: 24
                 }
 
                 Component.onCompleted: {

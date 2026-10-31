@@ -881,6 +881,23 @@ Item {
             _mediaService.seek(pos)
             return JSON.stringify(_mediaService.getSnapshot())
         }
+
+        function mediaWidgetState(monitorIndex: int): string {
+            return JSON.stringify(_desktopHost.getMediaWidgetSnapshot(typeof monitorIndex === "number" ? monitorIndex : 0))
+        }
+
+        function toggleMediaWidget(monitorIndex: int): string {
+            var enabled = _desktopHost.toggleMediaWidget(typeof monitorIndex === "number" ? monitorIndex : 0)
+            return JSON.stringify({
+                enabled: enabled,
+                mediaWidget: _desktopHost.getMediaWidgetSnapshot(typeof monitorIndex === "number" ? monitorIndex : 0)
+            })
+        }
+
+        function bongoCatState(monitorIndex: int): string {
+            var mw = _desktopHost.getMediaWidgetSnapshot(typeof monitorIndex === "number" ? monitorIndex : 0)
+            return JSON.stringify(mw && mw.bongoCat ? mw.bongoCat : { isPlaying: false, resting: true })
+        }
     }
 
     function _executeActionWithState(id, payload) {

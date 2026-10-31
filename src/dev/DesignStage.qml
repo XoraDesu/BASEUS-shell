@@ -29,6 +29,7 @@ Rectangle {
     property int prevWorkspace: 1
     property bool isFullscreen: false
     property bool showM1SurfacesPreview: true
+    property bool showMediaWidgetPreview: true
 
     // =========================================================
     // 1. PRODUCTION SURFACES PREVIEW (M1-T5, M2-T1)
@@ -54,6 +55,16 @@ Rectangle {
         theme: stageTheme
         isFullscreen: stage.isFullscreen
         visible: stage.showM1SurfacesPreview && !stage.isFullscreen
+    }
+
+    DesktopModule.MediaWidget {
+        id: liveMediaWidget
+        theme: stageTheme
+        visible: stage.showMediaWidgetPreview && !stage.isFullscreen
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 24
+        anchors.bottomMargin: 24
     }
 
     // =========================================================
@@ -372,6 +383,31 @@ Rectangle {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: liveDock.toggle()
+                }
+            }
+
+            // Media Widget toggle preview
+            Rectangle {
+                width: parent.width
+                height: 28
+                radius: stageTheme.geometry.radiusSmall
+                color: stage.showMediaWidgetPreview ? stageTheme.colors.surfaceHighlight : stageTheme.colors.surfaceRecessed
+                border.width: stageTheme.geometry.borderWidth
+                border.color: stage.showMediaWidgetPreview ? stageTheme.colors.dominant : stageTheme.colors.borderSubtle
+
+                Text {
+                    anchors.centerIn: parent
+                    text: stage.showMediaWidgetPreview ? "Media Widget: Shown" : "Media Widget: Hidden"
+                    font.family: stageTheme.typography.fontFamily
+                    font.pixelSize: stageTheme.typography.sizeCaption
+                    font.weight: stageTheme.typography.weightMedium
+                    color: stage.showMediaWidgetPreview ? stageTheme.colors.dominant : stageTheme.colors.textSecondary
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: stage.showMediaWidgetPreview = !stage.showMediaWidgetPreview
                 }
             }
 
