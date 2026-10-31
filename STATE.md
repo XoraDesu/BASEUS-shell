@@ -80,7 +80,7 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Task M3-T1 (Notification Daemon & Floating Surface) is complete and verified.**
+**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Tasks M3-T1 (Notification Daemon & Floating Surface) and M3-T2 (Top Island OSD Integration) are complete and verified.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -95,7 +95,7 @@ The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations
 `TASKS.md` defines the executable **M3 — System Feedback** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
 
 1. **`M3-T1` — Notification Daemon & Floating Surface:** `COMPLETE / VERIFIED`
-2. **`M3-T2` — Top Island OSD Integration:** `NOT STARTED`
+2. **`M3-T2` — Top Island OSD Integration:** `COMPLETE / VERIFIED`
 3. **`M3-T3` — Media Player Architecture & Top Island Compact Integration:** `NOT STARTED`
 4. **`M3-T4` — Dedicated Media Widget & Bongo Cat Companion Integration:** `NOT STARTED`
 5. **`M3-T5` — System Status & Diagnostic Feedback Architecture:** `NOT STARTED`

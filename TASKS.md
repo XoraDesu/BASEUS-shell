@@ -174,10 +174,10 @@ M3-T6 (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M
 
 ### Sub-tasks
 
-- [ ] Implement system OSD model and feedback controller.
-- [ ] Extend `TopIslandAnchor` with bubble-drop OSD drop-down surface.
-- [ ] Implement rapid-event in-place value updates and timeout reset without animation queue pile-up.
-- [ ] Validate OSD triggers, timing, and clean recession back to idle clock.
+- [x] Implement system OSD model and feedback controller (`src/core/AudioService.qml`).
+- [x] Extend `TopIslandAnchor` with bubble-drop OSD drop-down surface (`src/desktop/TopIslandOsd.qml`).
+- [x] Implement rapid-event in-place value updates and timeout reset without animation queue pile-up (`AGENTS.md` §20).
+- [x] Validate OSD triggers, timing, and clean recession back to idle clock.
 
 ---
 
@@ -281,5 +281,6 @@ The agent must **STOP**:
   - `M2 — Interaction` (`CP-M2-001` `VERIFIED`)
 - **Completed Tasks in Phase:**
   - `M3-T1` (Notification Daemon & Floating Surface — `COMPLETE / VERIFIED`)
-- **Active Task:** `M3-T1` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M3-T2` (Top Island OSD Integration).
+  - `M3-T2` (Top Island OSD Integration — `COMPLETE / VERIFIED`)
+- **Active Task:** `M3-T2` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M3-T3` (Media Player Architecture & Top Island Compact Integration).

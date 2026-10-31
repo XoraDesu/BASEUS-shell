@@ -146,6 +146,14 @@ Item {
         return topIslandAnchor.expanded ? islandHeader.activate(actionId) : false
     }
 
+    function showOsd(type: string, val: real, isMuted: bool): void {
+        islandOsd.show(type, val, isMuted)
+    }
+
+    function getOsdState(): var {
+        return islandOsd.getSnapshot()
+    }
+
     function getSnapshot(): var {
         return {
             fullscreenSummon: topIslandAnchor.fullscreenSummon,
@@ -159,7 +167,8 @@ Item {
                 width: hitRegion.width,
                 height: hitRegion.height
             },
-            header: islandHeader.getSnapshot()
+            header: islandHeader.getSnapshot(),
+            osd: islandOsd.getSnapshot()
         }
     }
 
@@ -439,6 +448,19 @@ Item {
                 }
             }
         }
+    }
+
+    // =========================================================
+    // System Feedback OSD (M3-T2, DEC-021)
+    // =========================================================
+    // Non-blocking, bubble-drop feedback emerging below the island anchor.
+    // 100% click-through: not included in anchorItem hitRegion.
+    TopIslandOsd {
+        id: islandOsd
+        theme: topIslandAnchor.theme
+        restingY: topIslandAnchor.expanded
+            ? (topIslandAnchor.expandedHeight + 6)
+            : (topIslandAnchor.islandHeight + 6)
     }
 
     // =========================================================

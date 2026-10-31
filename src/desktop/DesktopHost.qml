@@ -28,6 +28,7 @@ Scope {
     property var theme: null
     property var actionRegistry: null
     property var notificationModel: null
+    property var audioService: null
 
     // =========================================================
     // Host Configuration
@@ -95,7 +96,8 @@ Scope {
                 appDrawer: {
                     active: desktopHost.appDrawerActive && (desktopHost.appDrawerMonitorIndex === s.monitorIndex)
                 },
-                notifications: s.notificationHostRef ? s.notificationHostRef.getSnapshot() : { available: false, count: 0 }
+                notifications: s.notificationHostRef ? s.notificationHostRef.getSnapshot() : { available: false, count: 0 },
+                osd: s.topIslandRef ? s.topIslandRef.getOsdState() : { available: false, active: false }
             })
         }
         return snapshot
@@ -165,6 +167,30 @@ Scope {
     function clickTopIslandTrigger(monitorIndex: int, actionId: string): bool {
         var island = desktopHost._islandFor(monitorIndex)
         return island ? island.activateTrigger(actionId) : false
+    }
+
+    function triggerOsd(type: string, value: real, isMuted: bool, monitorIndex: int): bool {
+        var t = (typeof type === "string" && type.length > 0) ? type : "volume"
+        var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+            ? monitorIndex
+            : (desktopHost.shellState ? desktopHost.shellState.activeMonitorIndex : 0)
+        var island = desktopHost._islandFor(mon)
+        if (island) {
+            island.showOsd(t, value, isMuted)
+            return true
+        }
+        return false
+    }
+
+    function getOsdState(monitorIndex: int): var {
+        var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+            ? monitorIndex
+            : (desktopHost.shellState ? desktopHost.shellState.activeMonitorIndex : 0)
+        var island = desktopHost._islandFor(mon)
+        if (!island) return { available: false, active: false }
+        var snap = island.getOsdState()
+        snap.monitorIndex = mon
+        return snap
     }
 
     function clickDockItem(monitorIndex: int, itemId: string): bool {
@@ -392,6 +418,14 @@ Scope {
                     if (ad) ad.close()
                 }
             }
+        }
+    }
+
+    Connections {
+        target: desktopHost.audioService ? desktopHost.audioService : null
+        function onOsdRequested(type, value, isMuted) {
+            var mon = desktopHost.shellState ? desktopHost.shellState.activeMonitorIndex : 0
+            desktopHost.triggerOsd(type, value, isMuted, mon)
         }
     }
 

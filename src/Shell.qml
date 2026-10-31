@@ -137,7 +137,15 @@ Item {
         config: _config
     }
 
-    // 12. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 12. Audio & System Feedback Service (M3-T2, DEC-021)
+    Core.AudioService {
+        id: _audioService
+        logger: _logger
+        eventBus: _eventBus
+        config: _config
+    }
+
+    // 13. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -151,6 +159,7 @@ Item {
         theme: _theme
         actionRegistry: _actionRegistry
         notificationModel: _notificationModel
+        audioService: _audioService
         enabled: _lifecycle.initialized
     }
 
@@ -175,6 +184,7 @@ Item {
     readonly property alias actionRegistry: _actionRegistry
     readonly property alias desktopHost: _desktopHost
     readonly property alias notificationModel: _notificationModel
+    readonly property alias audioService: _audioService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -218,6 +228,7 @@ Item {
                     surfaces: _desktopHost.getSurfaceSnapshot()
                 },
                 notifications: _notificationModel.getSnapshot(),
+                audio: _audioService.getSnapshot(),
                 subscriptions: {
                     monitor: _eventBus.getSubscriptionCount("monitor"),
                     workspace: _eventBus.getSubscriptionCount("workspace"),
@@ -767,6 +778,59 @@ Item {
 
         function notificationState(): string {
             return JSON.stringify(_notificationModel.getSnapshot())
+        }
+
+        // =====================================================
+        // System Feedback & OSD Operations (M3-T2, DEC-021)
+        // =====================================================
+
+        function triggerOsd(type: string, value: real, isMuted: bool): string {
+            var t = (typeof type === "string" && type.length > 0) ? type : "volume"
+            var v = (typeof value === "number") ? value : (t === "brightness" ? _audioService.brightness : _audioService.volume)
+            var m = (typeof isMuted === "boolean") ? isMuted : (t === "volume" ? _audioService.muted : false)
+            _audioService.triggerOsd(t, v, m)
+            var mon = _shellState.activeMonitorIndex
+            _desktopHost.triggerOsd(t, v, m, mon)
+            return JSON.stringify({
+                ok: true,
+                type: t,
+                value: v,
+                percent: Math.round(v * 100),
+                isMuted: m,
+                activeMonitor: mon
+            })
+        }
+
+        function osdState(monitorIndex: int): string {
+            var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+                ? monitorIndex
+                : _shellState.activeMonitorIndex
+            return JSON.stringify(_desktopHost.getOsdState(mon))
+        }
+
+        function setVolume(val: real): string {
+            _audioService.setVolume(val, true)
+            return JSON.stringify(_audioService.getSnapshot())
+        }
+
+        function stepVolume(delta: real): string {
+            _audioService.stepVolume(delta)
+            return JSON.stringify(_audioService.getSnapshot())
+        }
+
+        function toggleMute(): string {
+            _audioService.toggleMute()
+            return JSON.stringify(_audioService.getSnapshot())
+        }
+
+        function setBrightness(val: real): string {
+            _audioService.setBrightness(val, true)
+            return JSON.stringify(_audioService.getSnapshot())
+        }
+
+        function stepBrightness(delta: real): string {
+            _audioService.stepBrightness(delta)
+            return JSON.stringify(_audioService.getSnapshot())
         }
     }
 
