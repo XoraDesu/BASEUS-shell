@@ -38,6 +38,7 @@ Item {
     property var actionRegistry: null
     property var workspaceModel: null
     property var windowModel: null
+    property var mediaService: null
     property int monitorIndex: 0
 
     // Dimensions
@@ -428,6 +429,7 @@ Item {
                 actionRegistry: topIslandAnchor.actionRegistry
                 workspaceModel: topIslandAnchor.workspaceModel
                 windowModel: topIslandAnchor.windowModel
+                mediaService: topIslandAnchor.mediaService
                 monitorIndex: topIslandAnchor.monitorIndex
                 dateText: topIslandAnchor._dateText
                 active: topIslandAnchor.expanded

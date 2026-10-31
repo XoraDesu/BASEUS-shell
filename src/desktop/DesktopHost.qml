@@ -29,6 +29,7 @@ Scope {
     property var actionRegistry: null
     property var notificationModel: null
     property var audioService: null
+    property var mediaService: null
 
     // =========================================================
     // Host Configuration
@@ -574,6 +575,7 @@ Scope {
                     actionRegistry: desktopHost.actionRegistry
                     workspaceModel: desktopHost.workspaceModel
                     windowModel: desktopHost.windowModel
+                    mediaService: desktopHost.mediaService
                     monitorIndex: layerWindow.monitorIndex
                 }
 
@@ -672,6 +674,7 @@ Scope {
                     actionRegistry: desktopHost.actionRegistry
                     workspaceModel: desktopHost.workspaceModel
                     windowModel: desktopHost.windowModel
+                    mediaService: desktopHost.mediaService
                     monitorIndex: summonWindow.monitorIndex
                 }
             }

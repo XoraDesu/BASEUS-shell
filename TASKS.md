@@ -187,10 +187,10 @@ M3-T6 (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M
 
 ### Sub-tasks
 
-- [ ] Implement `src/core/MediaModel.qml` consuming `Quickshell.Services.Mpris`.
-- [ ] Integrate compact fixed media controller in `TopIslandHeader.qml`.
-- [ ] Enforce `DEC-039`: track change updates media state and suppresses standard notification emission.
-- [ ] Validate multi-session switching, playback control dispatch, and metadata formatting.
+- [x] Implement `src/core/MediaService.qml` consuming `Quickshell.Services.Mpris` (with deterministic 3-track mock fallback).
+- [x] Integrate compact fixed media controller in `TopIslandHeader.qml` (`src/desktop/TopIslandMedia.qml`).
+- [x] Enforce `DEC-039`: track change updates media state and suppresses standard notification emission.
+- [x] Validate multi-session switching, playback control dispatch, and metadata formatting.
 
 ---
 
@@ -282,5 +282,6 @@ The agent must **STOP**:
 - **Completed Tasks in Phase:**
   - `M3-T1` (Notification Daemon & Floating Surface — `COMPLETE / VERIFIED`)
   - `M3-T2` (Top Island OSD Integration — `COMPLETE / VERIFIED`)
-- **Active Task:** `M3-T2` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M3-T3` (Media Player Architecture & Top Island Compact Integration).
+  - `M3-T3` (Media Player Architecture & Top Island Compact Integration — `COMPLETE / VERIFIED`)
+- **Active Task:** `M3-T3` complete; stopped at task boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M3-T4` (Dedicated Media Widget & Bongo Cat Companion Integration).

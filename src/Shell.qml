@@ -145,7 +145,15 @@ Item {
         config: _config
     }
 
-    // 13. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 13. Media Player Service & MPRIS Bridge (M3-T3, DEC-026, DEC-039)
+    Core.MediaService {
+        id: _mediaService
+        logger: _logger
+        eventBus: _eventBus
+        config: _config
+    }
+
+    // 14. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -160,6 +168,7 @@ Item {
         actionRegistry: _actionRegistry
         notificationModel: _notificationModel
         audioService: _audioService
+        mediaService: _mediaService
         enabled: _lifecycle.initialized
     }
 
@@ -185,6 +194,7 @@ Item {
     readonly property alias desktopHost: _desktopHost
     readonly property alias notificationModel: _notificationModel
     readonly property alias audioService: _audioService
+    readonly property alias mediaService: _mediaService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -229,6 +239,7 @@ Item {
                 },
                 notifications: _notificationModel.getSnapshot(),
                 audio: _audioService.getSnapshot(),
+                media: _mediaService.getSnapshot(),
                 subscriptions: {
                     monitor: _eventBus.getSubscriptionCount("monitor"),
                     workspace: _eventBus.getSubscriptionCount("workspace"),
@@ -831,6 +842,44 @@ Item {
         function stepBrightness(delta: real): string {
             _audioService.stepBrightness(delta)
             return JSON.stringify(_audioService.getSnapshot())
+        }
+
+        // =====================================================
+        // Media Operations (M3-T3, DEC-026, DEC-039)
+        // =====================================================
+
+        function mediaStatus(): string {
+            return JSON.stringify(_mediaService.getSnapshot())
+        }
+
+        function mediaPlay(): string {
+            _mediaService.play()
+            return JSON.stringify(_mediaService.getSnapshot())
+        }
+
+        function mediaPause(): string {
+            _mediaService.pause()
+            return JSON.stringify(_mediaService.getSnapshot())
+        }
+
+        function mediaToggle(): string {
+            _mediaService.togglePlay()
+            return JSON.stringify(_mediaService.getSnapshot())
+        }
+
+        function mediaNext(): string {
+            _mediaService.next()
+            return JSON.stringify(_mediaService.getSnapshot())
+        }
+
+        function mediaPrevious(): string {
+            _mediaService.previous()
+            return JSON.stringify(_mediaService.getSnapshot())
+        }
+
+        function mediaSeek(pos: real): string {
+            _mediaService.seek(pos)
+            return JSON.stringify(_mediaService.getSnapshot())
         }
     }
 

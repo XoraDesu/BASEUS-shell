@@ -80,7 +80,7 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Tasks M3-T1 (Notification Daemon & Floating Surface) and M3-T2 (Top Island OSD Integration) are complete and verified.**
+**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Tasks M3-T1 (Notification Daemon & Floating Surface), M3-T2 (Top Island OSD Integration), and M3-T3 (Media Player Architecture & Top Island Compact Integration) are complete and verified.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -96,12 +96,12 @@ The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations
 
 1. **`M3-T1` — Notification Daemon & Floating Surface:** `COMPLETE / VERIFIED`
 2. **`M3-T2` — Top Island OSD Integration:** `COMPLETE / VERIFIED`
-3. **`M3-T3` — Media Player Architecture & Top Island Compact Integration:** `NOT STARTED`
+3. **`M3-T3` — Media Player Architecture & Top Island Compact Integration:** `COMPLETE / VERIFIED`
 4. **`M3-T4` — Dedicated Media Widget & Bongo Cat Companion Integration:** `NOT STARTED`
 5. **`M3-T5` — System Status & Diagnostic Feedback Architecture:** `NOT STARTED`
 6. **`M3-T6` — M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`:** `NOT STARTED`
 
-No M2 task should be considered complete merely because it has been designed or documented.
+No M3 task should be considered complete merely because it has been designed or documented.
 
 ---
 
@@ -132,10 +132,14 @@ Current factual implementation status:
 - `AppDrawer.qml` (`src/desktop/AppDrawer.qml`) implements the fullscreen application discovery drawer with rounded top corners (`radiusLarge: 12`) and flush bottom edges (`radiusFlush: 0`), smooth bottom-to-top curtain reveal, persistent top search bar, landing state Recent/Suggested applications layer on darker tonal surface (`surfaceHighlight`) with upward collapse transition on search, continuous dynamic application grid sorted strictly in fixed `A–Z–0–9–#` order without cardified headers, zero running state indicators (`DEC-018`), and launch dispatch via `bridge.launchApp()`;
 - `AppDrawerItem.qml` (`src/desktop/AppDrawerItem.qml`) implements the application grid tile with `IconImage` and typographical uppercase fallback, readable title, hover highlight, and zero running indicators;
 - `AlphabetScroller.qml` (`src/desktop/AlphabetScroller.qml`) implements the right-edge fast scroller (`A–Z–0–9–#`) transitioning from a subtle 1px hairline rail at idle to an active 3px rail with hierarchical scrubbing ("Focus grows. Context recedes.") and instant grid index jumping;
-- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`;
-- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 33 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- Tasks `M2-T1`, `M2-T2`, `M2-T3`, `M2-T4`, and `M2-T5` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
-- M1 task `M1-T6` (E2E multi-monitor validation, anti-slop audit & checkpoint `CP-M1-001`) is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across all live dual-monitor E2E tests;
+- `NotificationModel.qml` (`src/core/NotificationModel.qml`), `NotificationHost.qml`, and `NotificationItem.qml` (`src/desktop/`) implement the top-left floating notification daemon and surface with 70% icon backdrop, ~3000ms hover-pauseable timeout, hold-to-silence feedback, zero cardification, and dynamic 0x0 click-through input masking;
+- `AudioService.qml` (`src/core/AudioService.qml`) and `TopIslandOsd.qml` (`src/desktop/TopIslandOsd.qml`) implement the PipeWire/WirePlumber volume and brightness OSD subsystem originating geometrically from Top Island with bubble-drop transition, rapid-event in-place morphing without animation stacking, and 100% click-through passthrough hitmask;
+- `MediaService.qml` (`src/core/MediaService.qml`) implements Linux MPRIS integration via `Quickshell.Services.Mpris` with multi-session tracking, controls (`play`, `pause`, `togglePlay`, `next`, `previous`, `seek`), and deterministic mock playlist fallback for headless/simulation environments (`"Midnight City"` by M83, `"Resonance"` by HOME, `"Dayvan Cowboy"` by Boards of Canada); strictly enforces `DEC-039` by never emitting generic notifications on media track or playback changes;
+- `TopIslandMedia.qml` (`src/desktop/TopIslandMedia.qml`) integrates a compact media control surface within `TopIslandHeader.qml` with fixed 328x38px layout, zero dynamic resizing jitter, elided track metadata, restrained pill controls, and 2px hairline playback progress indicator;
+- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerVolumeOsd(...)`, `triggerBrightnessOsd(...)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`;
+- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 40 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- Tasks `M3-T1`, `M3-T2`, and `M3-T3` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- Milestone M2 — Interaction is 100% COMPLETE and anchored at verified checkpoint `CP-M2-001`;
 - Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;
 - No performance baseline is claimed;
 - Release readiness is NOT APPLICABLE.
@@ -350,7 +354,7 @@ This table must be updated from evidence, not assumptions.
 
 # 14. Current Blockers
 
-- **None.** All tasks in **M1 — Desktop Core** (`M1-T1` through `M1-T6`) are complete, validated, and anchored at verified checkpoint `CP-M1-001`. The repository is halted at the M1 → M2 phase gate awaiting user kickoff per `AGENTS.md` §46. Live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) multi-output execution in WSL2 runs deterministically via the user-space nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`) with headless outputs `VIRTUAL-1` and `VIRTUAL-2`, and `HyprlandBridge.qml` queries `j/monitors` & `j/clients` and dispatches batched commands directly over `.socket.sock` (`Quickshell.Io.Socket` + `SplitParser`). (Physical multi-monitor DRM hardware scanout, physical 4-finger touchpad hardware gestures, and hardware GPU performance measurement still require a native Linux desktop machine.)
+- **None.** Tasks `M3-T1`, `M3-T2`, and `M3-T3` in **M3 — System Feedback** are complete, validated, and verified. The repository is halted at the M3-T3 task boundary awaiting user kickoff per `AGENTS.md` §46. Live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) multi-output execution in WSL2 runs deterministically via the user-space nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`) with headless outputs `VIRTUAL-1` and `VIRTUAL-2`.
 
 ---
 
@@ -376,17 +380,17 @@ A task may be marked complete because code exists without runtime validation.
 
 **Control:** Completion requires evidence and validation.
 
-### Risk: Scope creep into M2+
+### Risk: Scope creep into M4+
 
-Interactive M2 surfaces (Dock, full Top Island hover expansion/quick controls, Command Center, App Drawer) or M5 Overview UI may accidentally creep into M1's minimal foundational scope.
+M4 theme/wallpaper runtime, widgets, or M5 Overview UI may accidentally creep into M3's system feedback scope.
 
-**Control:** `TASKS.md` strictly limits M1 to workspace/window/navigation capabilities plus minimal `DesktopHost`, transient `WorkspaceIndicator`, and idle `TopIslandAnchor`.
+**Control:** `TASKS.md` strictly limits M3 to notifications, OSD, media player architecture, Bongo Cat companion, and system status feedback.
 
 ### Risk: Architecture violating Foundation Freeze
 
-M1 tasks could bypass M0 `ShellState` / `EventBus` / `HyprlandBridge` boundaries (`DEC-043`).
+M3 tasks could bypass M0/M1/M2 `ShellState` / `EventBus` / `HyprlandBridge` boundaries (`DEC-043`).
 
-**Control:** All M1 capabilities and surfaces must consume and extend M0 state/event infrastructure cleanly.
+**Control:** All M3 capabilities and surfaces must consume and extend M0/M1/M2 state/event infrastructure cleanly.
 
 ---
 
@@ -394,8 +398,8 @@ M1 tasks could bypass M0 `ShellState` / `EventBus` / `HyprlandBridge` boundaries
 
 These are implementation assumptions, not new product decisions:
 
-- **M1 — Desktop Core** (*`ROADMAP.md` §8: `M1 — Desktop Foundation`*) is the active phase.
-- M0 Foundation (`CP-M0-001`) is frozen under Foundation Freeze (`DEC-043`) and extended cleanly rather than rewritten.
+- **M3 — System Feedback** (*`ROADMAP.md` §10: `M3 — System Feedback`*) is the active phase.
+- M0 Foundation (`CP-M0-001`), M1 Desktop Core (`CP-M1-001`), and M2 Primary Surfaces (`CP-M2-001`) are frozen under Foundation Freeze (`DEC-043`) and extended cleanly rather than rewritten.
 - Current implementation status must be discovered from actual files/runtime.
 - Quickshell is the shell runtime.
 - Hyprland is the required compositor environment (`Hyprland 0.57+` Lua primary preset with `< 0.57` Hyprlang compatibility).
@@ -542,21 +546,21 @@ Implementation must not modify product intent simply because current reality dif
 
 The immediate execution target is:
 
-> **Task M2-T4 — Command Center Surface & Action Prefix Routing** per `TASKS.md` §7 and `DEC-045`. Task **M2-T3** (Top Island Hover Expansion & Contextual Header) is 100% complete and verified. The agent must **STOP** at the M2-T3 task boundary per `AGENTS.md` §46 and await user authorization before starting M2-T4.
+> **Task M3-T4 — Dedicated Media Widget & Bongo Cat Companion Integration** per `TASKS.md` §7 and `DEC-045`. Task **M3-T3** (Media Player Architecture & Top Island Compact Integration) is 100% complete and verified. The agent must **STOP** at the M3-T3 task boundary per `AGENTS.md` §46 and await user authorization before starting M3-T4.
 
 ---
 
 # 22. Transition Conditions
 
-M2 should transition toward M3 only after:
+M3 should transition toward M4 only after:
 
-- all M2 tasks (`M2-T1` through `M2-T6`) are complete;
-- M2 acceptance criteria (`TASKS.md` §8) are satisfied;
+- all M3 tasks (`M3-T1` through `M3-T6`) are complete;
+- M3 acceptance criteria (`TASKS.md` §8) are satisfied;
 - required static, live multi-monitor runtime, and `ANTI-SLOP.md` / `DESIGN.md` reviews have been performed;
 - unresolved blockers are understood;
 - `STATE.md` accurately reflects reality;
-- verified checkpoint `CP-M2-001` exists in `CHECKPOINT.md`;
-- the M2 phase gate passes (`DEC-042`).
+- verified checkpoint `CP-M3-001` exists in `CHECKPOINT.md`;
+- the M3 phase gate passes (`DEC-042`).
 
 Completion of documentation alone does not transition the phase.
 
@@ -589,16 +593,16 @@ BASEUS
 ├── Decision ledger          LOCKED
 ├── Roadmap                  LOCKED
 ├── Agent protocol           LOCKED
-├── Current tasks            ACTIVE (M2 — Interaction: M2-T1..M2-T6)
+├── Current tasks            ACTIVE (M3 — System Feedback: M3-T1..M3-T6)
 │
-├── Active phase             M2 — Interaction (IN PROGRESS: M2-T1..M2-T3 COMPLETE / VERIFIED)
-├── Interaction baseline     IN PROGRESS (M2-T1..M2-T3 COMPLETE)
+├── Active phase             M3 — System Feedback (IN PROGRESS: M3-T1..M3-T3 COMPLETE / VERIFIED)
+├── Primary surfaces         CP-M2-001 (VERIFIED — commit 2979965)
 ├── Desktop Core baseline    CP-M1-001 (VERIFIED — commit d29a54f)
 ├── Foundation baseline      CP-M0-001 (VERIFIED — commit 9a37a142)
-├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings across all 29 QML files)
+├── Static validation        VERIFIED (qmllint 6.12.0: 0 errors, 0 warnings across all 40 QML files)
 ├── Quickshell runtime       VERIFIED (Quickshell 0.3.2 / WSL2 Arch Linux)
 ├── Hyprland live IPC        VERIFIED (Hyprland 0.57.0 + VIRTUAL-1 & VIRTUAL-2 + Wayland clients)
-├── Multi-monitor state      PARTIALLY VERIFIED (dual virtual outputs & M1/M2 surfaces VERIFIED; DRM pending)
+├── Multi-monitor state      PARTIALLY VERIFIED (dual virtual outputs & M1/M2/M3 surfaces VERIFIED; DRM pending)
 ├── Performance              NOT YET VERIFIED
 └── Release readiness        NOT APPLICABLE
 ```

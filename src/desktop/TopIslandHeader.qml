@@ -23,6 +23,7 @@ Item {
     property var actionRegistry: null
     property var workspaceModel: null
     property var windowModel: null
+    property var mediaService: null
     property int monitorIndex: 0
 
     // Provided by the island clock (updated on minute boundaries, no polling here)
@@ -102,7 +103,8 @@ Item {
             dateText: header.dateText,
             sessionText: header.sessionText,
             activeWorkspace: header.activeWorkspace,
-            triggers: ids
+            triggers: ids,
+            media: header.mediaService ? header.mediaService.getSnapshot() : null
         }
     }
 
@@ -143,6 +145,14 @@ Item {
             font.family: header.currentTheme.typography.fontFamily
             font.pixelSize: header.currentTheme.typography.sizeCaption
             color: header.currentTheme.colors.textSecondary
+        }
+
+        // Compact Media Integration (M3-T3, DEC-026, MASTER.md §31)
+        TopIslandMedia {
+            id: headerMedia
+            theme: header.currentTheme
+            mediaService: header.mediaService
+            width: parent.width
         }
 
         // Navigation triggers: title + registry shortcut, no containers
