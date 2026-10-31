@@ -18,6 +18,7 @@
 
 pragma ComponentBehavior: Bound
 import QtQuick
+import QtQuick.Shapes
 import "../theme" as ThemeModule
 
 Item {
@@ -217,7 +218,7 @@ Item {
         anchors.top: parent.top
         anchors.topMargin: topIslandAnchor.bodyRevealed ? 0 : -topIslandAnchor.islandHeight
         anchors.horizontalCenter: parent.horizontalCenter
-        width: islandBody.width
+        width: islandBody.width + (topIslandAnchor.currentTheme.geometry.islandIcr * 2)
         height: islandBody.height
 
         Behavior on anchors.topMargin {
@@ -227,36 +228,156 @@ Item {
             }
         }
 
-        // Left ICR Fillet (flares into top display perimeter)
-        ThemeModule.InverseCorner {
-            id: leftIcr
-            anchors.right: islandBody.left
-            anchors.top: islandBody.top
-            cornerRadius: topIslandAnchor.currentTheme.geometry.islandIcr
-            fillColor: topIslandAnchor.currentTheme.colors.surfaceSolid
-            position: "top-left"
+        // Unified Edge-Integrated Surface (Shape)
+        // Renders the continuous Wabi-sabi notch silhouette matching DESIGN.md §10, §13
+        // and MASTER.md §12: flush top edge with bezel, smooth concave ICR fillets,
+        // straight side walls, and convex rounded bottom corners with zero internal seams.
+        Shape {
+            id: islandShape
+            anchors.fill: parent
+            asynchronous: false
+
+            readonly property int flareWidth: topIslandAnchor.currentTheme.geometry.islandIcr
+            readonly property int flareHeight: Math.min(Math.round(parent.height * 0.45), 22)
+            readonly property int cornerRadius: topIslandAnchor.currentTheme.geometry.islandRadiusBottom
+
+            // 1. Solid opaque Wabi-sabi fill (DEC-011, zero blur/glow)
+            ShapePath {
+                strokeWidth: 0
+                strokeColor: "transparent"
+                fillColor: topIslandAnchor.currentTheme.colors.surfaceSolid
+                joinStyle: ShapePath.MiterJoin
+
+                startX: 0
+                startY: 0
+
+                // Top-left concave ICR flare
+                PathCubic {
+                    x: islandShape.flareWidth
+                    y: islandShape.flareHeight
+                    control1X: islandShape.flareWidth * 0.25
+                    control1Y: 0
+                    control2X: islandShape.flareWidth
+                    control2Y: islandShape.flareHeight * 0.5
+                }
+                // Left vertical wall
+                PathLine {
+                    x: islandShape.flareWidth
+                    y: islandContainer.height - islandShape.cornerRadius
+                }
+                // Bottom-left convex rounded corner
+                PathArc {
+                    x: islandShape.flareWidth + islandShape.cornerRadius
+                    y: islandContainer.height
+                    radiusX: islandShape.cornerRadius
+                    radiusY: islandShape.cornerRadius
+                    direction: PathArc.Counterclockwise
+                }
+                // Flat bottom edge
+                PathLine {
+                    x: islandContainer.width - islandShape.flareWidth - islandShape.cornerRadius
+                    y: islandContainer.height
+                }
+                // Bottom-right convex rounded corner
+                PathArc {
+                    x: islandContainer.width - islandShape.flareWidth
+                    y: islandContainer.height - islandShape.cornerRadius
+                    radiusX: islandShape.cornerRadius
+                    radiusY: islandShape.cornerRadius
+                    direction: PathArc.Counterclockwise
+                }
+                // Right vertical wall
+                PathLine {
+                    x: islandContainer.width - islandShape.flareWidth
+                    y: islandShape.flareHeight
+                }
+                // Top-right concave ICR flare
+                PathCubic {
+                    x: islandContainer.width
+                    y: 0
+                    control1X: islandContainer.width - islandShape.flareWidth
+                    control1Y: islandShape.flareHeight * 0.5
+                    control2X: islandContainer.width - islandShape.flareWidth * 0.25
+                    control2Y: 0
+                }
+                // Across top bezel back to (0, 0)
+                PathLine {
+                    x: 0
+                    y: 0
+                }
+            }
+
+            // 2. Continuous outer perimeter hairline stroke (zero internal seams)
+            ShapePath {
+                strokeWidth: topIslandAnchor.currentTheme.geometry.borderWidth
+                strokeColor: topIslandAnchor.currentTheme.colors.borderSubtle
+                fillColor: "transparent"
+                capStyle: ShapePath.FlatCap
+                joinStyle: ShapePath.RoundJoin
+
+                startX: 0
+                startY: 0
+
+                // Top-left concave ICR flare
+                PathCubic {
+                    x: islandShape.flareWidth
+                    y: islandShape.flareHeight
+                    control1X: islandShape.flareWidth * 0.25
+                    control1Y: 0
+                    control2X: islandShape.flareWidth
+                    control2Y: islandShape.flareHeight * 0.5
+                }
+                // Left vertical wall
+                PathLine {
+                    x: islandShape.flareWidth
+                    y: islandContainer.height - islandShape.cornerRadius
+                }
+                // Bottom-left convex rounded corner
+                PathArc {
+                    x: islandShape.flareWidth + islandShape.cornerRadius
+                    y: islandContainer.height
+                    radiusX: islandShape.cornerRadius
+                    radiusY: islandShape.cornerRadius
+                    direction: PathArc.Counterclockwise
+                }
+                // Flat bottom edge
+                PathLine {
+                    x: islandContainer.width - islandShape.flareWidth - islandShape.cornerRadius
+                    y: islandContainer.height
+                }
+                // Bottom-right convex rounded corner
+                PathArc {
+                    x: islandContainer.width - islandShape.flareWidth
+                    y: islandContainer.height - islandShape.cornerRadius
+                    radiusX: islandShape.cornerRadius
+                    radiusY: islandShape.cornerRadius
+                    direction: PathArc.Counterclockwise
+                }
+                // Right vertical wall
+                PathLine {
+                    x: islandContainer.width - islandShape.flareWidth
+                    y: islandShape.flareHeight
+                }
+                // Top-right concave ICR flare
+                PathCubic {
+                    x: islandContainer.width
+                    y: 0
+                    control1X: islandContainer.width - islandShape.flareWidth
+                    control1Y: islandShape.flareHeight * 0.5
+                    control2X: islandContainer.width - islandShape.flareWidth * 0.25
+                    control2Y: 0
+                }
+            }
         }
 
-        // Island Solid Body (Edge-integrated Wabi-sabi surface)
-        Rectangle {
+        // Island Solid Body (hosts typography and contextual header)
+        Item {
             id: islandBody
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             height: topIslandAnchor.expanded ? topIslandAnchor.expandedHeight : topIslandAnchor.islandHeight
             width: topIslandAnchor.expanded ? topIslandAnchor.expandedWidth : topIslandAnchor.idleBodyWidth
             clip: true
-
-            color: topIslandAnchor.currentTheme.colors.surfaceSolid
-
-            // Edge integration: flush top corners (0), rounded bottom corners (12)
-            topLeftRadius: topIslandAnchor.currentTheme.geometry.islandRadiusTop
-            topRightRadius: topIslandAnchor.currentTheme.geometry.islandRadiusTop
-            bottomLeftRadius: topIslandAnchor.currentTheme.geometry.islandRadiusBottom
-            bottomRightRadius: topIslandAnchor.currentTheme.geometry.islandRadiusBottom
-
-            // Hairline boundary (no neon glow)
-            border.width: topIslandAnchor.currentTheme.geometry.borderWidth
-            border.color: topIslandAnchor.currentTheme.colors.borderSubtle
 
             // Focus grows: body morphs in place instead of swapping surfaces
             Behavior on width {
@@ -317,16 +438,6 @@ Item {
                     if (ok) topIslandAnchor.collapse()
                 }
             }
-        }
-
-        // Right ICR Fillet (flares into top display perimeter)
-        ThemeModule.InverseCorner {
-            id: rightIcr
-            anchors.left: islandBody.right
-            anchors.top: islandBody.top
-            cornerRadius: topIslandAnchor.currentTheme.geometry.islandIcr
-            fillColor: topIslandAnchor.currentTheme.colors.surfaceSolid
-            position: "top-right"
         }
     }
 
