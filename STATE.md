@@ -72,7 +72,7 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Milestone
 
-**M3 — System Feedback** (*`ROADMAP.md` §10: `M3 — System Feedback`*)
+**M3 — System Feedback** (*`ROADMAP.md` §10: `M3 — System Feedback`*) — **100% COMPLETE & VERIFIED** (`CP-M3-001`)
 
 ## Phase
 
@@ -80,13 +80,15 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Active milestone transitioned from M2 to M3 following verified approval of `CP-M2-001`. Tasks M3-T1 (Notification Daemon & Floating Surface), M3-T2 (Top Island OSD Integration), M3-T3 (Media Player Architecture & Top Island Compact Integration), M3-T4 (Dedicated Media Widget & Bongo Cat Companion Integration), and M3-T5 (System Status & Diagnostic Feedback Architecture) are complete and verified.**
+**COMPLETE & VERIFIED — Milestone M3 (System Feedback) is 100% complete, audited (0 anti-slop violations, 0 M4 scope leaks, 100% pragma ComponentBehavior: Bound across all 44 QML files), statically verified (qmllint 6.12.0 — 0 errors, 0 warnings), and validated end-to-end under live dual-monitor Hyprland 0.57.0 (VIRTUAL-1 + VIRTUAL-2) + Quickshell 0.3.2 on WSL2 Arch Linux. Anchored at checkpoint CP-M3-001. Awaiting owner instruction before starting Milestone M4 (Personalization).**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
 The **M1 — Desktop Core** baseline is complete, approved, and anchored at verified checkpoint `CP-M1-001` (commit `d29a54f6a2a32658ba9ddc03ebf2e7a1bb41301b`) with zero anti-slop violations, 100% `pragma ComponentBehavior: Bound` compliance, and verified live dual-monitor Hyprland 0.57.0 runtime behavior.
 
 The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations, 0 scope leakage, 100% `pragma ComponentBehavior: Bound` across all 33 QML files), statically verified (`qmllint 6.12.0` — 0 errors, 0 warnings), and validated end-to-end under live dual-monitor `Hyprland 0.57.0` (`VIRTUAL-1` + `VIRTUAL-2`) + `Quickshell 0.3.2` on WSL2 Arch Linux. Anchored at checkpoint `CP-M2-001`.
+
+The **M3 — System Feedback** baseline is complete, audited, and anchored at verified checkpoint `CP-M3-001` covering floating top-left notifications (`DEC-020`) with hold-to-silence feedback, Top Island OSD bubble-drop with rapid in-place morphing (`DEC-021`), centralized MPRIS media player architecture with strict `DEC-039` notification suppression, fixed 328x38px compact header media controls, dedicated modular Media Widget with Bongo Cat 0-CPU idle timer gating (`ANTI-SLOP.md` §37), and calm contextual System Status with non-intrusive low-power alerts (`ANTI-SLOP.md` §6.7–6.8).
 
 ---
 
@@ -99,7 +101,7 @@ The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations
 3. **`M3-T3` — Media Player Architecture & Top Island Compact Integration:** `COMPLETE / VERIFIED`
 4. **`M3-T4` — Dedicated Media Widget & Bongo Cat Companion Integration:** `COMPLETE / VERIFIED`
 5. **`M3-T5` — System Status & Diagnostic Feedback Architecture:** `COMPLETE / VERIFIED`
-6. **`M3-T6` — M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`:** `NOT STARTED`
+6. **`M3-T6` — M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`:** `COMPLETE / VERIFIED`
 
 No M3 task should be considered complete merely because it has been designed or documented.
 
@@ -142,7 +144,8 @@ Current factual implementation status:
 - `StatusService.qml` (`src/core/StatusService.qml`) implements event-driven system status and hardware monitoring for battery/power (percentage, charging state, low/critical alert thresholds), network connectivity (wifi, ethernet, offline, SSID/interface name), and core subsystem health (`HyprlandBridge`, `AudioService`, `MediaService`), with automated mock/sysfs fallback under `BASEUS_SIMULATION=1`; contextual status row integrated calmly inside expanded `TopIslandHeader.qml` without cockpit dashboard slop (`ANTI-SLOP.md` §6.7–6.8); auto-dispatches non-intrusive notification alerts when battery <= 20% while discharging with state deduplication;
 - Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerVolumeOsd(...)`, `triggerBrightnessOsd(...)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`, `mediaWidgetState(monitorIndex)`, `toggleMediaWidget(monitorIndex)`, `bongoCatState(monitorIndex)`, `systemStatus()`, `setMockBattery(percent, isCharging)`, `setMockNetwork(connected, type, name)`;
 - Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 44 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- Tasks `M3-T1`, `M3-T2`, `M3-T3`, `M3-T4`, and `M3-T5` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- Tasks `M3-T1`, `M3-T2`, `M3-T3`, `M3-T4`, `M3-T5`, and `M3-T6` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- Milestone M3 — System Feedback is 100% COMPLETE and anchored at verified checkpoint `CP-M3-001`;
 - Milestone M2 — Interaction is 100% COMPLETE and anchored at verified checkpoint `CP-M2-001`;
 - Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;
 - No performance baseline is claimed;

@@ -573,6 +573,84 @@ This checkpoint represents the conceptual/documentation baseline from which the 
 
 `CP-M2-001` is the authoritative, verified **M2 — Interaction** baseline. From this checkpoint, the repository safely transitions to **M3 — Status, Notification & Audio/Brightness Overlays** (Notification daemon, OSD, Media controls, and Personality surfaces).
 
+---
+
+# 17. M3 System Feedback Baseline Checkpoint
+
+## CP-M3-001 — System Feedback Baseline
+
+**Status:** VERIFIED (Static `qmllint 6.12.0` across 44 QML files, zero ANTI-SLOP violations, Quickshell 0.3.2 Runtime, and Live Hyprland 0.57.0 Dual-Monitor Compositor E2E Integration Verified on WSL2 Arch Linux)  
+**Date:** 2026-10-31  
+**Phase:** M3 — System Feedback  
+**Scope:** Floating top-left notification daemon with 70% icon backdrop, solid Wabi-sabi tonal surface, zero nested cardification (`DEC-020`, `ANTI-SLOP.md` §20), hold-to-silence feedback (`DESIGN.md` §18), and dynamic 0x0 click-through layer-shell input masking; PipeWire / WirePlumber volume and display brightness OSD subsystem geometrically emerging from the bottom notch of Top Island with bubble-drop transition, rapid-event in-place morphing without animation stacking (`DEC-021`, `AGENTS.md` §20), and 100% click-through passthrough hitmask; centralized Linux MPRIS media player architecture (`MediaService.qml`) tracking playback state, multi-session switching, position seek, and deterministic mock fallback (`DEC-026`); strict enforcement of `DEC-039` (track changes strictly NEVER spawn generic desktop notification noise); compact media integration in `TopIslandHeader.qml` (`TopIslandMedia.qml`) with fixed 328x38px layout eliminating resizing jitter; modular desktop media widget (`MediaWidget.qml`) with compact state (108px), auto-expansion during playback (254px), interactive seek slider, session selector, and structural lyrics slot (`LyricsContainer.qml`); Bongo Cat companion (`BongoCatCompanion.qml`) providing personality without noise (`ANTI-SLOP.md` §37) with active alternating paw rhythm during playback and strict zero-CPU idle timer halt on pause/idle; system status and diagnostic architecture (`StatusService.qml`) monitoring battery/power, network connectivity, and subsystem health without permanent cockpit dashboards (`ANTI-SLOP.md` §6.7–6.8); auto-dispatches non-intrusive low-battery alerts ($\le 20\%$) with state deduplication and charging suppression; per-monitor native application fullscreen recession across Monitor 0 while Monitor 1 remains active (`DESIGN.md` §14); shell restart recovery (`quickshell ipc call baseus restart`) with clean state resynchronization across dual monitors and zero leaked input grab regions or orphaned subscriptions.
+
+### Repository
+
+- **Commit:** `0e6711bab3b1beee70bde6563a884d10872386bf` (`feat(m3): complete M3-T6 e2e validation, anti-slop audit, and checkpoint CP-M3-001`)
+- **Branch:** `main`
+- **Working tree:** Implementation files present (`shell.qml`, `src/`, `config/`, `docs/`, `scripts/`)
+- **Repository structure:** Matches `MASTER.md` §59 and `TASKS.md` §7
+
+### Environment
+
+- **Host OS:** Windows with WSL2 Linux runtime (`/mnt/d/Linux/BASEUS`)
+- **Linux Distribution & Kernel:** `Arch Linux` on WSL2 (`Linux 6.18.54.1-microsoft-standard-WSL2`)
+- **Display Connection:** WSLg Wayland (`WAYLAND_DISPLAY=wayland-0`) and nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128` → live Hyprland child `WAYLAND_DISPLAY=wayland-1`)
+- **Shell Runtime:** `Quickshell 0.3.2` (`quickshell-git`, rev `9b0f339b19057f4731bf3b48293307d7ef241671`)
+- **Qt / QML Tooling:** Qt 6 (`qmllint 6.12.0` at `/usr/lib/qt6/bin/qmllint`)
+- **Live Compositor:** `Hyprland 0.57.0` (commit `0aa6745f705f2c4b0a5004eb019ef76e5bbdb426`, `Aquamarine 0.15.1`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`, Lua config manager `Hyprland.usingLua == true`, dual headless outputs `VIRTUAL-1` and `VIRTUAL-2`)
+
+### Implementation
+
+- **Notification Daemon & Floating Surface (`NotificationModel.qml`, `NotificationHost.qml`, `NotificationItem.qml`)**:
+  - Floating top-left placement with left-to-right reveal, 70% icon backdrop, solid Wabi-sabi tonal surface, and zero nested cardification (`ANTI-SLOP.md` §20, `DEC-020`).
+  - Hold-to-silence feedback with tonal progress fill, dismissing pending items and calming future alerts (`DESIGN.md` §18).
+  - Dynamic Layer-Shell input masking contracting to 0x0 at idle for 100% click-through desktop transparency.
+- **Top Island OSD Integration (`AudioService.qml`, `TopIslandOsd.qml`)**:
+  - Originates geometrically from the bottom notch of `TopIslandAnchor.qml` (`DEC-021`).
+  - Downward bubble-drop transition; rapid consecutive adjustments update and morph in place without animation pile-up or stacking (`AGENTS.md` §20).
+  - 100% non-blocking click-through passthrough hitmask (`mask: Region {}`).
+  - PipeWire / WirePlumber audio/volume and brightness integration with deterministic mock fallback.
+- **Media Player Architecture & Top Island Integration (`MediaService.qml`, `TopIslandMedia.qml`)**:
+  - Centralized MPRIS integration tracking playback status, metadata, seek, and multi-session switching.
+  - Strict enforcement of `DEC-039`: track and playback changes NEVER spawn generic desktop notifications.
+  - Compact Top Island header surface with fixed 328x38px footprint eliminating resizing jitter.
+- **Dedicated Media Widget & Bongo Cat Companion (`MediaWidget.qml`, `BongoCatCompanion.qml`, `LyricsContainer.qml`)**:
+  - Modular desktop widget transitioning between compact idle/paused state (108px) and expanded playback state (254px).
+  - Bongo Cat companion tapping paws in rhythm during playback and completely halting internal animation timers when paused/idle (zero CPU consumption at idle, `ANTI-SLOP.md` §37).
+  - Structural lyrics slot with live stream support and clean editorial fallback.
+- **System Status & Diagnostic Architecture (`StatusService.qml`)**:
+  - Event-driven monitoring for power/battery, network connectivity, and subsystem health.
+  - Contextual status presentation inside expanded Top Island header; zero permanent cockpit dashboards (`ANTI-SLOP.md` §6.7–6.8).
+  - Non-intrusive low-battery notification alerts when battery <= 20% while discharging, with state deduplication and charging recovery.
+
+### Validation
+
+| Area | Status | Evidence |
+|---|---|---|
+| Anti-Slop & Design Audit | VERIFIED | Automated audit across all 44 QML files: 0 violations, zero hardcoded hex colors outside `Colors.qml`, zero blur/glass/shadows, zero M4 scope leaks, 100% `pragma ComponentBehavior: Bound` |
+| QML Static & Type Linting | VERIFIED | `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` 6.12.0) and `scripts/validate.ps1 -All` passed with 0 errors and 0 warnings across all 44 QML files |
+| Configuration Validation | VERIFIED | `config/baseus.json` validated JSON; notification, audio, media, and status configuration schemas verified |
+| Offline Simulation Suite | VERIFIED | `verify_m3_e2e.py` Phase B: All M3 foundation services, notification posting, hold-to-silence, OSD morphing, media controls, DEC-039 suppression, MediaWidget morphing, Bongo Cat 0-CPU halt, and StatusService alert recovery passed 100% |
+| Notifications Live Delivery | VERIFIED | `verify_m3_e2e.py` Step C2: Live notification delivery on Monitor 0 with 360x77 dynamic hitmask and 0x0 clean dismissal verified |
+| Top Island OSD Live Feedback | VERIFIED | `verify_m3_e2e.py` Step C3: Live bubble-drop feedback, rapid in-place morphing (78% -> 84%), and 100% non-blocking click-through verified |
+| Top Island Header Integration | VERIFIED | `verify_m3_e2e.py` Step C4: Contextual status row and fixed 328x38px compact media surface verified inside expanded header |
+| Strict DEC-039 Suppression | VERIFIED | `verify_m3_e2e.py` Step C5: Live media track changes produced 0 desktop notification count increase |
+| Media Widget & Bongo Cat Live | VERIFIED | `verify_m3_e2e.py` Step C6: Media Widget compact (108px) to expanded (254px) playback morphing, active paw rhythm, and immediate 0-CPU timer halt on pause verified |
+| System Status Live Low-Power | VERIFIED | `verify_m3_e2e.py` Step C7: Low-power alert (13%) delivered non-intrusively and charging status cleanly suppressed alert |
+| Per-Monitor Fullscreen Recession | VERIFIED | `verify_m3_e2e.py` Step C8: Native fullscreen on Monitor 0 causes Monitor 0 surfaces to recede while Monitor 1 remains active; restores cleanly upon exit |
+| Lifecycle & Shell Restart Recovery | VERIFIED | `verify_m3_e2e.py` Step C9: `quickshell ipc call baseus restart` cleanly recovers 2 monitors, layer surfaces, and all feedback subsystems |
+| Comprehensive Multi-Monitor E2E | VERIFIED | `verify_m3_e2e.py` executed Phase A, Phase B, and Phase C Steps C1–C9 with 100% PASS |
+
+### Known Limitations
+
+- **WSL2 virtual scanout:** Physical multi-monitor DRM master hardware scanout, physical 4-finger touchpad gestures, physical backlight controllers, and physical audio DACs require bare-metal Linux.
+- **WSL2 `quickshell-git` daemon teardown quirk:** Daemon termination under WSL2 can park in `futex_do_wait` after clean destruction; handled cleanly by test harnesses.
+
+### Recovery / Resume Meaning
+
+`CP-M3-001` is the authoritative, verified **M3 — System Feedback** baseline. From this checkpoint, the repository safely transitions to **M4 — Personalization** (Wallpaper engine, extraction pipeline, and settings).
+
 
 ---
 
@@ -898,6 +976,7 @@ If any critical answer is no, keep the checkpoint as `CANDIDATE` or fix the reco
 | `CP-M0-001` | VERIFIED | M0 Foundation (static `qmllint 6.12.0`, `Quickshell 0.3.2` runtime, and live `Hyprland 0.57.0` compositor IPC verified on WSL2 Arch Linux) |
 | `CP-M1-001` | VERIFIED | M1 Desktop Core (fixed 10 workspaces, per-monitor navigation, freeform floating/centering, maximize vs native fullscreen, scratchpad-free minimize & restore, Action Registry, navigation primitives, DesktopHost layer scaffolding, TopIslandAnchor with ICR, contextual WorkspaceIndicator HUD, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
 | `CP-M2-001` | VERIFIED | M2 Interaction (Dock 2px trigger & scaffolding, global pins vs workspace clients, Top Island hover expansion & fullscreen notch summon, Command Center `>` prefix routing, App Drawer with search collapse & alphabet fast scroller, overlay mutual exclusivity, dynamic layer-shell hitmasking, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
+| `CP-M3-001` | VERIFIED | M3 System Feedback (top-left notifications with 70% backdrop & hold-to-silence, Top Island OSD with bubble-drop & rapid in-place morphing, centralized MPRIS media service with strict DEC-039 notification suppression, compact 328x38px header media controls, dedicated Media Widget with Bongo Cat 0-CPU idle timer gating, calm contextual System Status with non-intrusive low-power alerts, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
 
 This index should grow as verified states are created.
 

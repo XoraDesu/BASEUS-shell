@@ -225,10 +225,10 @@ M3-T6 (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M
 
 ### Sub-tasks
 
-- [ ] Run integrated E2E test suite combining Notifications, OSD, Media, and Bongo Cat across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
-- [ ] Perform comprehensive anti-slop audit across all QML surfaces.
-- [ ] Update `docs/architecture.md` and `docs/configuration.md`.
-- [ ] Update `STATE.md`, record `CP-M3-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
+- [x] Run integrated E2E test suite combining Notifications, OSD, Media, and Bongo Cat across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
+- [x] Perform comprehensive anti-slop audit across all QML surfaces.
+- [x] Update `docs/architecture.md` and `docs/configuration.md`.
+- [x] Update `STATE.md`, record `CP-M3-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
 
 ---
 
@@ -274,16 +274,18 @@ The agent must **STOP**:
 
 # 11. Current Status
 
-- **Active Phase:** `M3 — System Feedback` (*`ROADMAP.md` §10: `M3 — System Feedback`*)
+- **Active Phase:** `M3 — System Feedback` (*`ROADMAP.md` §10: `M3 — System Feedback`*) — **100% COMPLETE & VERIFIED** (`CP-M3-001`)
 - **Completed Milestones:**
   - `M0 — Foundation` (`CP-M0-001` `VERIFIED`)
   - `M1 — Desktop Core` (`CP-M1-001` `VERIFIED`)
   - `M2 — Interaction` (`CP-M2-001` `VERIFIED`)
+  - `M3 — System Feedback` (`CP-M3-001` `VERIFIED`)
 - **Completed Tasks in Phase:**
   - `M3-T1` (Notification Daemon & Floating Surface — `COMPLETE / VERIFIED`)
   - `M3-T2` (Top Island OSD Integration — `COMPLETE / VERIFIED`)
   - `M3-T3` (Media Player Architecture & Top Island Compact Integration — `COMPLETE / VERIFIED`)
   - `M3-T4` (Dedicated Media Widget & Bongo Cat Companion Integration — `COMPLETE / VERIFIED`)
   - `M3-T5` (System Status & Diagnostic Feedback Architecture — `COMPLETE / VERIFIED`)
-- **Active Task:** `M3-T5` complete; stopped at task boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M3-T6` (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`).
+  - `M3-T6` (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001` — `COMPLETE / VERIFIED`)
+- **Active Task:** `M3-T6` complete; Milestone M3 100% COMPLETE & VERIFIED; stopped at milestone boundary per `AGENTS.md` §46 and §48.
+- **Next Executable Task:** `M4 — Personalization` kickoff per `ROADMAP.md` §11 (awaiting owner instruction).

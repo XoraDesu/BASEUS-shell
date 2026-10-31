@@ -148,8 +148,12 @@ BASEUS should never fail to start due to a configuration error.
 | `commandCenter.defaultPrefix` | `""` | string | Default prefix for universal launcher |
 | `commandCenter.actionPrefix` | `">"` | string | Action execution prefix routed to `ActionRegistry` |
 | `appDrawer.fastScroller` | `true` | bool | Enable right-edge alphabet fast scroller (A–Z–0–9–#) |
-| `notifications.timeout` | `3000` | ms | Default notification display time |
-| `notifications.position` | `"top-left"` | string | Notification placement |
+| `notifications.timeout` | `3000` | ms | Default notification display time (`DEC-020`) |
+| `notifications.position` | `"top-left"` | string | Notification placement (`DEC-020`) |
+| `audio.osdTimeout` | `1800` | ms | Top Island OSD auto-hide delay (`DEC-021`) |
+| `media.compactWidth` | `328` | px | Fixed width for Top Island compact media container (`DEC-039`) |
+| `status.lowBatteryThreshold` | `20.0` | 0.0–100.0 | Low battery warning threshold percentage |
+| `status.criticalBatteryThreshold` | `10.0` | 0.0–100.0 | Critical battery warning threshold percentage |
 | `performance.reducedMotion` | `false` | bool | Reduce animation for accessibility |
 | `performance.animationDuration` | `250` | 0–2000 ms | Default animation duration |
 | `workspaces.labels` | `{}` | key-value map (`1..10` → string) | User-defined workspace names (e.g. `{"1": "HOME", "2": "DEV"}`) |
