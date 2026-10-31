@@ -31,6 +31,7 @@ Scope {
     property var audioService: null
     property var mediaService: null
     property var statusService: null
+    property var wallpaperService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================
@@ -101,7 +102,11 @@ Scope {
                 },
                 notifications: s.notificationHostRef ? s.notificationHostRef.getSnapshot() : { available: false, count: 0 },
                 osd: s.topIslandRef ? s.topIslandRef.getOsdState() : { available: false, active: false },
-                mediaWidget: s.mediaWidgetRef ? s.mediaWidgetRef.getSnapshot() : { available: false, visible: false, expanded: false }
+                mediaWidget: s.mediaWidgetRef ? s.mediaWidgetRef.getSnapshot() : { available: false, visible: false, expanded: false },
+                wallpaper: {
+                    path: desktopHost.wallpaperService ? desktopHost.wallpaperService.getWallpaperForMonitor(s.monitorIndex) : "",
+                    mode: desktopHost.wallpaperService ? desktopHost.wallpaperService.mode : "static"
+                }
             })
         }
         return snapshot
@@ -838,6 +843,79 @@ Scope {
                     onDismissRequested: desktopHost.closeAppDrawer()
                     onAppLaunched: function(item) {
                         desktopHost.closeAppDrawer()
+                    }
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // Multi-Monitor Wallpaper Surface (M4-T2, DEC-013)
+    // =========================================================
+    Variants {
+        id: wallpaperVariants
+        model: desktopHost.enabled ? Quickshell.screens : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: wallpaperWindow
+                required property var modelData
+
+                screen: modelData
+
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+
+                color: desktopHost.theme ? desktopHost.theme.colors.surfaceBase : "#16161e"
+                layer: WlrLayer.Background
+                namespace: desktopHost.layerNamespace + "-wallpaper"
+                keyboardFocus: WlrKeyboardFocus.None
+                exclusiveZone: -1
+
+                // 100% click-through, 0x0 hitmask
+                mask: Region {}
+
+                readonly property string screenName: modelData ? modelData.name : ""
+                readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
+                readonly property int monitorIndex: {
+                    var dummy = wallpaperWindow._monitorsRef
+                    return desktopHost.resolveMonitorIndex(wallpaperWindow.screenName)
+                }
+
+                readonly property string currentWallpaperPath: {
+                    if (desktopHost.wallpaperService && typeof desktopHost.wallpaperService.getWallpaperForMonitor === "function") {
+                        return desktopHost.wallpaperService.getWallpaperForMonitor(wallpaperWindow.monitorIndex)
+                    }
+                    return ""
+                }
+
+                Item {
+                    id: wallpaperContainer
+                    anchors.fill: parent
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: desktopHost.theme ? desktopHost.theme.colors.surfaceBase : "#16161e"
+                    }
+
+                    Image {
+                        id: wallpaperImg
+                        anchors.fill: parent
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        cache: true
+                        source: wallpaperWindow.currentWallpaperPath.length > 0 ? ("file://" + wallpaperWindow.currentWallpaperPath) : ""
+                        visible: status === Image.Ready
+                        opacity: status === Image.Ready ? 1.0 : 0.0
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: desktopHost.theme ? desktopHost.theme.motion.durationTheme : 400
+                                easing.type: Easing.InOutQuad
+                            }
+                        }
                     }
                 }
             }

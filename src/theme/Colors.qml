@@ -103,6 +103,8 @@ QtObject {
         if (paletteData.surfaceSolid) surfaceSolid = paletteData.surfaceSolid
         if (paletteData.surfaceElevated) surfaceElevated = paletteData.surfaceElevated
         if (paletteData.surfaceRecessed) surfaceRecessed = paletteData.surfaceRecessed
+        if (paletteData.surfaceHighlight) surfaceHighlight = paletteData.surfaceHighlight
+        if (paletteData.borderSubtle) borderSubtle = paletteData.borderSubtle
         if (paletteData.textPrimary) textPrimary = paletteData.textPrimary
         if (paletteData.textSecondary) textSecondary = paletteData.textSecondary
         if (paletteData.textMuted) textMuted = paletteData.textMuted

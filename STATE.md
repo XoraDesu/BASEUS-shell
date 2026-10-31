@@ -72,15 +72,15 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Milestone
 
-**M3 — System Feedback** (*`ROADMAP.md` §10: `M3 — System Feedback`*) — **100% COMPLETE & VERIFIED** (`CP-M3-001`)
+**M4 — Personalization** (*`ROADMAP.md` §11: `M4 — Personalization`*)
 
 ## Phase
 
-**M3 — System Feedback**
+**M4 — Personalization**
 
 ## Execution Status
 
-**COMPLETE & VERIFIED — Milestone M3 (System Feedback) is 100% complete, audited (0 anti-slop violations, 0 M4 scope leaks, 100% pragma ComponentBehavior: Bound across all 44 QML files), statically verified (qmllint 6.12.0 — 0 errors, 0 warnings), and validated end-to-end under live dual-monitor Hyprland 0.57.0 (VIRTUAL-1 + VIRTUAL-2) + Quickshell 0.3.2 on WSL2 Arch Linux. Anchored at checkpoint CP-M3-001. Awaiting owner instruction before starting Milestone M4 (Personalization).**
+**IN PROGRESS — Milestone M4 (Personalization) is active. Tasks M4-T1 (Palette & Matugen Pipeline Architecture), M4-T2 (Wallpaper Engine), and M4-T3 (Dynamic Theme System & Visual Transitions) are COMPLETE, audited (0 anti-slop violations, 100% pragma ComponentBehavior: Bound across all 47 QML files), statically verified (qmllint 6.12.0 — 0 errors, 0 warnings), verified in offline simulation, and validated in live dual-monitor Hyprland 0.57.0 runtime. Halted at the M4-T3 -> M4-T4 boundary per AGENTS.md §46 and user prompt.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -94,16 +94,16 @@ The **M3 — System Feedback** baseline is complete, audited, and anchored at ve
 
 # 5. Current Task Tracker Position
 
-`TASKS.md` defines the executable **M3 — System Feedback** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
+`TASKS.md` defines the executable **M4 — Personalization** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
 
-1. **`M3-T1` — Notification Daemon & Floating Surface:** `COMPLETE / VERIFIED`
-2. **`M3-T2` — Top Island OSD Integration:** `COMPLETE / VERIFIED`
-3. **`M3-T3` — Media Player Architecture & Top Island Compact Integration:** `COMPLETE / VERIFIED`
-4. **`M3-T4` — Dedicated Media Widget & Bongo Cat Companion Integration:** `COMPLETE / VERIFIED`
-5. **`M3-T5` — System Status & Diagnostic Feedback Architecture:** `COMPLETE / VERIFIED`
-6. **`M3-T6` — M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`:** `COMPLETE / VERIFIED`
+1. **`M4-T1` — Palette & Matugen Pipeline Architecture:** `COMPLETE / VERIFIED`
+2. **`M4-T2` — Wallpaper Engine (Static Per-Workspace vs Global Live Wallpaper):** `COMPLETE / VERIFIED`
+3. **`M4-T3` — Dynamic Theme System & Visual Transitions:** `COMPLETE / VERIFIED`
+4. **`M4-T4` — Wallpaper Picker Floating Surface:** `PENDING`
+5. **`M4-T5` — Headquarter Settings Application:** `PENDING`
+6. **`M4-T6` — M4 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint `CP-M4-001`:** `PENDING`
 
-No M3 task should be considered complete merely because it has been designed or documented.
+Tasks M4-T1, M4-T2, and M4-T3 are verified. Stopped at the M4-T3 -> M4-T4 boundary awaiting owner instruction.
 
 ---
 
@@ -142,9 +142,14 @@ Current factual implementation status:
 - `BongoCatCompanion.qml` (`src/desktop/BongoCatCompanion.qml`) implements the vector/token-shaped visual companion reacting contextually to playback rhythm with alternating paw taps while halted at rest during pause/idle (zero CPU consumption at idle, `ANTI-SLOP.md` §37);
 - `LyricsContainer.qml` (`src/desktop/LyricsContainer.qml`) implements the dedicated structural lyrics slot within `MediaWidget` with live stream support and clean editorial fallback;
 - `StatusService.qml` (`src/core/StatusService.qml`) implements event-driven system status and hardware monitoring for battery/power (percentage, charging state, low/critical alert thresholds), network connectivity (wifi, ethernet, offline, SSID/interface name), and core subsystem health (`HyprlandBridge`, `AudioService`, `MediaService`), with automated mock/sysfs fallback under `BASEUS_SIMULATION=1`; contextual status row integrated calmly inside expanded `TopIslandHeader.qml` without cockpit dashboard slop (`ANTI-SLOP.md` §6.7–6.8); auto-dispatches non-intrusive notification alerts when battery <= 20% while discharging with state deduplication;
-- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerVolumeOsd(...)`, `triggerBrightnessOsd(...)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`, `mediaWidgetState(monitorIndex)`, `toggleMediaWidget(monitorIndex)`, `bongoCatState(monitorIndex)`, `systemStatus()`, `setMockBattery(percent, isCharging)`, `setMockNetwork(connected, type, name)`;
-- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 44 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- Tasks `M3-T1`, `M3-T2`, `M3-T3`, `M3-T4`, `M3-T5`, and `M3-T6` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- `PaletteService.qml` (`src/core/PaletteService.qml`) enforces `DEC-011` with strictly four primary colors (`dominant`, `secondary`, `accent`, `neutral`) and derived solid Wabi-sabi tonal surfaces (`surfaceSolid`, `surfaceHighlight`, `surfaceRecessed`, `borderSubtle`, `textPrimary`, `textSecondary`), validates WCAG AA contrast ratio ($\ge 4.5:1$), and caches extraction results; integrated with `scripts/palette_extract.py` and provides instant deterministic fallback under `BASEUS_SIMULATION=1` or when Matugen is absent; wires updates into `EventBus.qml` category `"theme"` (`palette_updated`);
+- `WallpaperService.qml` (`src/core/WallpaperService.qml`) implements the wallpaper engine enforcing `DEC-013`: static wallpapers are independent per workspace (`1..10`) while live wallpaper is global across the desktop; enforces `DEC-014`: live wallpaper palette extraction is bounded, sampled once, and cached (zero continuous background extraction loops); dynamically synchronizes monitor wallpaper state on workspace switches;
+- `DesktopHost.qml` hosts the multi-monitor Layer-Shell background wallpaper surface (`wallpaperVariants` on `WlrLayershell.layer: WlrLayer.Background`, `exclusiveZone: -1`, 0x0 hitmask for 100% click-through desktop transparency, smooth cross-fade image transition via `theme.motion.durationTheme`);
+- `ThemeService.qml` (`src/core/ThemeService.qml`) implements dynamic visual state serialization (wallpaper paths, 4-color palette, widget layout, icon theme), preserves strict interaction invariance (`DEC-012`, `DEC-037`: theme switching changes visual state ONLY and NEVER modifies gestures, shortcuts, window behavior, or timeouts), manages the Daily Theme Snapshot (`dailySnapshotState()`, `MASTER.md` §26), supports visual transition mask tokens (`"circle_wipe"`, `"wavy_wipe"`, `"bubble_ripple"`, `"fade"`), and includes built-in presets (`"wabi-sabi-indigo"`, `"tokyo-slate"`, `"cyber-sand"`, `"obsidian-ember"`);
+- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerVolumeOsd(...)`, `triggerBrightnessOsd(...)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`, `mediaWidgetState(monitorIndex)`, `toggleMediaWidget(monitorIndex)`, `bongoCatState(monitorIndex)`, `systemStatus()`, `setMockBattery(percent, isCharging)`, `setMockNetwork(connected, type, name)`, `getPalette()`, `extractPalette(wallpaperPath)`, `setPalette(dominant, secondary, accent, neutral)`, `setWorkspaceWallpaper(workspaceId, path)`, `setGlobalLiveWallpaper(path)`, `wallpaperState(monitorIndex)`, `saveCurrentTheme(name)`, `applyTheme(name)`, `listThemes()`, `dailySnapshotState()`;
+- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 47 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- Tasks `M4-T1`, `M4-T2`, and `M4-T3` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- Milestone M4 — Personalization capability layer (`M4-T1`, `M4-T2`, `M4-T3`) is 100% COMPLETE and VERIFIED;
 - Milestone M3 — System Feedback is 100% COMPLETE and anchored at verified checkpoint `CP-M3-001`;
 - Milestone M2 — Interaction is 100% COMPLETE and anchored at verified checkpoint `CP-M2-001`;
 - Milestone M1 — Desktop Core is 100% COMPLETE and anchored at verified checkpoint `CP-M1-001`;

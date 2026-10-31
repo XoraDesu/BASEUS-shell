@@ -113,6 +113,9 @@ validate_structure() {
     check_file "src/core/AudioService.qml"
     check_file "src/core/MediaService.qml"
     check_file "src/core/StatusService.qml"
+    check_file "src/core/PaletteService.qml"
+    check_file "src/core/WallpaperService.qml"
+    check_file "src/core/ThemeService.qml"
     check_dir "src/desktop"
     check_file "src/desktop/DesktopHost.qml"
     check_file "src/desktop/TopIslandAnchor.qml"
@@ -157,6 +160,13 @@ validate_structure() {
     echo ""
     echo "  Documentation:"
     check_dir "docs"
+
+    # Scripts & Helpers
+    echo ""
+    echo "  Scripts:"
+    check_dir "scripts"
+    check_file "scripts/validate.sh"
+    check_file "scripts/palette_extract.py"
 
     # GitHub
     echo ""

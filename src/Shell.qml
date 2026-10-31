@@ -165,7 +165,39 @@ Item {
         mediaService: _mediaService
     }
 
-    // 15. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 15. Palette & Matugen Pipeline Service (M4-T1, DEC-011)
+    Core.PaletteService {
+        id: _paletteService
+        logger: _logger
+        eventBus: _eventBus
+        config: _config
+        theme: _theme
+    }
+
+    // 16. Wallpaper Engine Service (M4-T2, DEC-013, DEC-014)
+    Core.WallpaperService {
+        id: _wallpaperService
+        logger: _logger
+        eventBus: _eventBus
+        config: _config
+        workspaceModel: _workspaceModel
+        monitorModel: _monitorModel
+        paletteService: _paletteService
+    }
+
+    // 17. Dynamic Theme & Visual State Service (M4-T3, DEC-012, DEC-037)
+    Core.ThemeService {
+        id: _themeService
+        logger: _logger
+        eventBus: _eventBus
+        config: _config
+        theme: _theme
+        paletteService: _paletteService
+        wallpaperService: _wallpaperService
+        desktopHost: _desktopHost
+    }
+
+    // 18. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -182,6 +214,7 @@ Item {
         audioService: _audioService
         mediaService: _mediaService
         statusService: _statusService
+        wallpaperService: _wallpaperService
         enabled: _lifecycle.initialized
     }
 
@@ -209,6 +242,9 @@ Item {
     readonly property alias audioService: _audioService
     readonly property alias mediaService: _mediaService
     readonly property alias statusService: _statusService
+    readonly property alias paletteService: _paletteService
+    readonly property alias wallpaperService: _wallpaperService
+    readonly property alias themeService: _themeService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -931,6 +967,82 @@ Item {
             _statusService.setMockNetwork(connected, type, name)
             return JSON.stringify(_statusService.getSnapshot())
         }
+
+        // =====================================================
+        // Palette Operations (M4-T1, DEC-011)
+        // =====================================================
+
+        function getPalette(): string {
+            return JSON.stringify(_paletteService.getPalette())
+        }
+
+        function extractPalette(wallpaperPath: string): string {
+            var pal = _paletteService.extractPalette(wallpaperPath)
+            return JSON.stringify(pal)
+        }
+
+        function setPalette(dominant: string, secondary: string, accent: string, neutral: string): string {
+            var pal = _paletteService.setPalette(dominant, secondary, accent, neutral)
+            return JSON.stringify(pal)
+        }
+
+        // =====================================================
+        // Wallpaper Operations (M4-T2, DEC-013, DEC-014)
+        // =====================================================
+
+        function setWorkspaceWallpaper(workspaceId: int, path: string): string {
+            var ok = _wallpaperService.setWorkspaceWallpaper(workspaceId, path)
+            return JSON.stringify({
+                ok: ok,
+                workspace: workspaceId,
+                path: path,
+                wallpaperState: _wallpaperService.getSnapshot(_shellState.activeMonitorIndex)
+            })
+        }
+
+        function setGlobalLiveWallpaper(path: string): string {
+            var ok = _wallpaperService.setGlobalLiveWallpaper(path)
+            return JSON.stringify({
+                ok: ok,
+                path: path,
+                wallpaperState: _wallpaperService.getSnapshot(_shellState.activeMonitorIndex)
+            })
+        }
+
+        function wallpaperState(monitorIndex: int): string {
+            var mon = (typeof monitorIndex === "number" && monitorIndex >= 0) ? monitorIndex : _shellState.activeMonitorIndex
+            return JSON.stringify(_wallpaperService.getSnapshot(mon))
+        }
+
+        // =====================================================
+        // Theme Operations (M4-T3, DEC-012, DEC-037)
+        // =====================================================
+
+        function saveCurrentTheme(name: string): string {
+            var t = _themeService.saveCurrentTheme(name)
+            return JSON.stringify({
+                ok: (t !== null),
+                theme: t
+            })
+        }
+
+        function applyTheme(name: string): string {
+            var ok = _themeService.applyTheme(name)
+            return JSON.stringify({
+                ok: ok,
+                name: name,
+                activeTheme: _themeService.activeThemeName,
+                activeTransition: _themeService.activeTransition
+            })
+        }
+
+        function listThemes(): string {
+            return JSON.stringify(_themeService.listThemes())
+        }
+
+        function dailySnapshotState(): string {
+            return JSON.stringify(_themeService.dailySnapshotState())
+        }
     }
 
     function _executeActionWithState(id, payload) {
@@ -963,12 +1075,16 @@ Item {
             _liveBridge.initialize()
         }
 
+        _wallpaperService.initialize()
+        _themeService.initialize()
         _desktopHost.initialize()
     }
 
     function _teardownSubsystems() {
         _notificationModel.dismissAll()
         _desktopHost.teardown()
+        _themeService.teardown()
+        _wallpaperService.teardown()
         _actionRegistry.teardown()
         _mockBridge.teardown()
         _liveBridge.teardown()

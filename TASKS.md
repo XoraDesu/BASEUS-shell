@@ -29,7 +29,7 @@ The active development flow is:
 ```text
 ROADMAP
    ↓
-Current Phase (M3 — System Feedback)
+Current Phase (M4 — Personalization)
    ↓
 TASKS.md
    ↓
@@ -44,7 +44,7 @@ CHECKPOINT.md
 
 Only tasks inside the active phase are normally executable.
 
-M0 Foundation, M1 Desktop Core, and M2 Primary Surfaces are protected under **Foundation Freeze** (`DEC-043`). M3 work must extend M0/M1/M2 subsystems (`Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, `MonitorModel`, `WorkspaceModel`, `WindowModel`, `NavigationController`, `ActionRegistry`, `DesktopHost`, `DockAnchor`, `TopIslandAnchor`, `CommandCenter`, `AppDrawer`, and `HyprlandBridge` / `MockHyprlandBridge`) rather than creating parallel state or event systems.
+M0 Foundation, M1 Desktop Core, M2 Primary Surfaces, and M3 System Feedback are protected under **Foundation Freeze** (`DEC-043`). M4 work must extend existing subsystems (`Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, `MonitorModel`, `WorkspaceModel`, `WindowModel`, `NavigationController`, `ActionRegistry`, `DesktopHost`, `TopIslandAnchor`, `DockAnchor`, `CommandCenter`, `AppDrawer`, `NotificationModel`, `AudioService`, `MediaService`, `StatusService`, and `Theme`) rather than creating parallel state or event architectures.
 
 ---
 
@@ -52,15 +52,15 @@ M0 Foundation, M1 Desktop Core, and M2 Primary Surfaces are protected under **Fo
 
 ## Milestone
 
-**M3 — System Feedback** (*`ROADMAP.md` §10: `M3 — System Feedback`*)
+**M4 — Personalization** (*`ROADMAP.md` §11: `M4 — Personalization`*)
 
 ## Phase
 
-**M3 — System Feedback**
+**M4 — Personalization**
 
 ## Phase Goal
 
-Build the system feedback layer that communicates transient state without turning BASEUS into a permanent dashboard. Notifications (floating top-left, 70% icon backdrop, solid surface, hold-to-silence feedback, zero cardification per `DEC-020`), Top Island OSD integration (volume/brightness feedback, bubble-drop transition, rapid-event in-place morphing per `DEC-021`), Media Player Architecture & Top Island Compact Integration (MPRIS bridge, session tracking, play/pause/seek controls, zero generic notifications on track change per `DEC-026`, `DEC-039`), Dedicated Media Widget & Bongo Cat companion integration, System Status & Diagnostic Feedback Architecture.
+Make BASEUS meaningfully personal while preserving the visual system and keeping theme state strictly separate from interaction behavior (`DEC-011`, `DEC-012`, `DEC-013`, `DEC-014`, `DEC-019`, `DEC-037`). Implement the four-color palette extraction pipeline with Matugen integration, wallpaper engine (per-workspace static vs global live wallpaper), dynamic Theme model with daily snapshot, floating Wallpaper Picker surface, and fullscreen Headquarter settings application with persistent right sidebar and contextual help.
 
 ---
 
@@ -68,28 +68,31 @@ Build the system feedback layer that communicates transient state without turnin
 
 ### IN SCOPE
 
-- **Notifications (`DEC-020`, `MASTER.md` §30, `DESIGN.md` §17–18):**
-  - Floating top-left placement (`16px` margins from screen boundaries).
-  - Left-to-right reveal animation.
-  - Large background application icon with approximately 70% transparency.
-  - Overlapping legible notification text (prominent title, smaller message).
-  - Solid palette-derived surface (`theme.colors.surfaceSolid`, `borderSubtle`, zero glassmorphism, zero blur).
-  - Interaction: click to launch/activate, double-click to dismiss, hold ~2s to silence all with solid tonal progress fill (`DESIGN.md` §18).
-  - Hover pauses timeout for all pending notifications (~3000ms configurable timeout).
-  - Strict Anti-Slop (`ANTI-SLOP.md` §20): strictly NO notification cards within cards, NO permanent notification clutter.
-- **Top Island OSD Integration (`DEC-021`, `MASTER.md` §33, `DESIGN.md` §32):**
-  - Spatial origin: all system volume & brightness feedback originates from Top Island.
-  - Bubble-drop / gooey transition into the expanded OSD state.
-  - Rapid-event in-place morphing without stacking animation queues.
-- **Media Player Architecture (`DEC-026`, `DEC-039`, `MASTER.md` §31, `DESIGN.md` §33):**
-  - MPRIS integration and multi-session playback management.
-  - Fixed compact layout inside Top Island (zero unpredictable resizing).
-  - Dedicated modular desktop Media Widget with compact, expanded, and lyrics states.
-  - Strict Rule (`DEC-039`): Changing media tracks updates dedicated media surfaces and MUST NOT generate generic notifications.
-- **Bongo Cat Companion:**
-  - Integrated visual companion reacting dynamically to playback state and tempo.
-- **System Status Feedback:**
-  - Contextual status reporting (audio output sink, backlight brightness, battery/power) with quiet failure communication.
+- **Palette & Matugen Pipeline (`DEC-011`, `DEC-014`, `DESIGN.md` §27–28):**
+  - Exactly four primary colors (`dominant`, `secondary`, `accent`, `neutral`) with derived tonal roles (`surfaceSolid`, `surfaceHighlight`, `surfaceRecessed`, `borderSubtle`, `textPrimary`, `textSecondary`).
+  - Matugen image color extraction bridge with caching and contrast validation.
+  - Deterministic fallback to calm Wabi-sabi palette (`Colors.qml`) when Matugen is absent or in simulation.
+  - EventBus category `"theme"` emission (`palette_updated`).
+- **Wallpaper Engine (`DEC-013`, `MASTER.md` §27):**
+  - Static per-workspace wallpaper mapping (`1..10`).
+  - Live global wallpaper support with bounded, sampled palette extraction (`DEC-014`).
+  - Multi-monitor wallpaper layout adaptation (multi-monitor span vs per-monitor fit).
+  - Quickshell layer-shell wallpaper surface (`WlrLayershell.layer: Background`).
+- **Dynamic Theme System (`DEC-012`, `DEC-037`, `MASTER.md` §23–26):**
+  - Visual state model: wallpaper, palette, widget layout, surface styling.
+  - Daily auto-saved theme snapshot representing current visual state.
+  - Theme transitions with transition masks (circle wipe, wavy wipe, bubble ripple) without scaling UI.
+  - Strict separation: themes alter visual appearance and NEVER change gestures, shortcuts, or window behavior (`DEC-012`, `DEC-037`).
+- **Wallpaper Picker Floating Surface (`MASTER.md` §27):**
+  - Transient floating surface with library, favorites, and recent tabs.
+  - Live thumbnail preview and instant application.
+  - Triggerable via Command Center, shortcut, or Headquarter.
+  - Dynamic Layer-Shell input masking with 0x0 idle footprint.
+- **Headquarter Settings Application (`DEC-019`, `DESIGN.md` §24–25):**
+  - Fullscreen settings application with persistent right sidebar and ICR organic fillets.
+  - Contextual help bubble system anchored to the right of settings without shifting layout.
+  - Progressive disclosure, live apply, and user-facing terminology.
+  - Universal dismissal (`navigation.back` / Escape).
 
 ---
 
@@ -97,151 +100,117 @@ Build the system feedback layer that communicates transient state without turnin
 
 ### OUT OF SCOPE
 
-The following belong to future milestones in `ROADMAP.md` and must **not** be implemented in M3:
+The following belong to future milestones in `ROADMAP.md` and must **not** be implemented in M4:
 
-- Wallpaper runtime, Matugen palette extraction pipeline, Theme presets, Widgets, and Headquarter (`M4`);
-- Full Helicopter View / Overview window layout, Alt+Tab switcher UI, and smart snap/grid arrangement (`M5`);
-- Power Menu constellation, sleeping chibi, and personality choreography (`M6`);
-- Multi-distro installer, updater, uninstaller, and doctor CLI (`M7`);
-- Performance benchmarking and release freeze (`M8`–`M9`).
+- **Desktop Experience (M5):** Helicopter overview window layout, dynamic freeform widget canvas snapping, smart window arrangement.
+- **Personality (M6):** Advanced Bongo Cat personas, retro sound design, easter eggs.
+- **Distribution (M7):** Pacman packaging, AUR PKGBUILD, installation wizard.
+- **Uncontrolled Theming:** Arbitrary per-element CSS overrides, random theme-mixing, or unconstrained color palettes (`DEC-011`).
+- **Wallpaper Slideshows:** Continuous random wallpaper shuffling (`MASTER.md` §27).
 
 ---
 
 # 6. Dependencies
 
-M3 depends on:
+M4 depends upon:
 
-- **Verified M0 Foundation (`CP-M0-001` `VERIFIED`):** `Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, domain models, and bridges;
-- **Verified M1 Desktop Core (`CP-M1-001` `VERIFIED`):** Fixed 10-workspace per-monitor model, freeform floating window tracking, `ActionRegistry` (`DEC-028`), `NavigationController` (`DEC-024`), `DesktopHost` multi-monitor Layer-Shell scaffolding (`DEC-045`), `TopIslandAnchor` (`DEC-029`), and `WorkspaceIndicator`;
-- **Verified M2 Primary Surfaces (`CP-M2-001` `VERIFIED`):** `DockAnchor`, `DockModel`, `DockItem`, `TopIslandAnchor` hover expansion and fullscreen summon, `CommandCenter`, `AppDrawer`, `AlphabetScroller`, and overlay mutual exclusivity;
-- **Locked Source of Truth:** `MASTER.md`, `DESIGN.md`, `ANTI-SLOP.md`, `DECISIONS.md`, `ROADMAP.md`, and `AGENTS.md`;
-- **Runtime & Tooling:** `Quickshell 0.3.2` with `Quickshell.Services.Notifications` & `Quickshell.Services.Mpris`, Qt 6 (`qmllint 6.12.0`), and live `Hyprland 0.57.0` (`Aquamarine 0.15.1`) in WSL2 Arch Linux.
-
----
-
-# 7. Implementation Order & Atomic Task Breakdown
-
-Per `DEC-045` (*Capability-to-Surface Implementation*) and `AGENTS.md` §11 (*Smallest coherent change*), M3 executes in six atomic tasks:
-
-```text
-M3-T1 (Notification Daemon & Floating Surface)
-  ↓
-M3-T2 (Top Island OSD Integration)
-  ↓
-M3-T3 (Media Player Architecture & Top Island Compact Integration)
-  ↓
-M3-T4 (Dedicated Media Widget & Bongo Cat Companion Integration)
-  ↓
-M3-T5 (System Status & Diagnostic Feedback Architecture)
-  ↓
-M3-T6 (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint CP-M3-001)
-```
+- **M0 Foundation (`CP-M0-001`):** `Lifecycle`, `ShellState`, `EventBus`, `Config`, `Logger`, and `Theme`.
+- **M1 Desktop Core (`CP-M1-001`):** Fixed 10 workspaces, `DesktopHost` layer-shell scaffolding, `HyprlandBridge`.
+- **M2 Interaction (`CP-M2-001`):** `DockAnchor`, `TopIslandAnchor`, `CommandCenter`, `AppDrawer`, `ActionRegistry`.
+- **M3 System Feedback (`CP-M3-001`):** `NotificationModel`, `AudioService`, `MediaService`, `StatusService`.
 
 ---
 
-## Task M3-T1 — Notification Daemon & Floating Surface
+# 7. Milestone M4 Tasks
 
-**Goal:** Implement the desktop notification domain model (`src/core/NotificationModel.qml`), notification host surface (`src/desktop/NotificationHost.qml`), and item delegate (`src/desktop/NotificationItem.qml`). Comply with `DESIGN.md` §17–18 (top-left placement, left-to-right reveal, ~3s timeout with hover pause, 70% icon backdrop, hold-to-silence feedback, zero cardification), and wire into `DesktopHost.qml` with dynamic Layer-Shell input masking.
+## Task M4-T1 — Palette & Matugen Pipeline Architecture
+
+**Goal:** Implement `src/core/PaletteService.qml` managing color palette state, integrating Matugen color extraction with caching and deterministic fallback to default Wabi-sabi palette (`DEC-011`, `DEC-014`).
 
 ### Sub-tasks
 
-- [x] Implement `src/core/NotificationModel.qml`:
-  - Manage notifications queue, FreeDesktop DBus integration via `Quickshell.Services.Notifications.NotificationServer` with fallback simulation model.
-  - Configurable ~3000ms timeout (`Config.qml` `notifications.timeout`).
-  - Hover pause mechanic: hovering any notification pauses timeouts for all pending notifications.
-  - Hold-to-silence mechanic: holding for ~2000ms silences/dismisses all notifications with quiet confirmation.
-  - Programmatic diagnostic API (`postNotification`, `dismissNotification`, `silenceAll`, `getSnapshot`).
-  - Wire into `EventBus` category `"notification"`.
-- [x] Implement `src/desktop/NotificationHost.qml` and `src/desktop/NotificationItem.qml`:
-  - Anchored top-left (`16px` margins).
-  - Left-to-right curtain/slide reveal animation driven by `Theme.motion`.
-  - Solid Wabi-sabi surface (`Theme.colors.surfaceSolid` + `borderSubtle`, zero glassmorphism, zero blur).
-  - 70% transparent large background application icon (`opacity: 0.30`).
-  - Overlapping typography (prominent title, legible body).
-  - Action buttons as solid pills.
-  - Hold-to-silence progress fill (solid tonal fill progressing left-to-right per `DESIGN.md` §18).
-  - Click to activate/launch, double-click to dismiss, hover to pause timeout.
-- [x] Wire `NotificationHost` into `src/desktop/DesktopHost.qml`:
-  - Integrate with Layer-Shell input mask: `Region { width: 0, height: 0 }` when no notifications active (100% click-through idle desktop space); dynamically covers notification footprint when visible.
-- [x] Expose diagnostic IPC hooks in `src/Shell.qml` (`postNotification`, `dismissNotification`, `silenceNotifications`, `notificationState`).
-- [x] Validate statically (`qmllint 6.12.0` — 0 errors, 0 warnings across all QML files) and runtime under both offline simulation and live dual-monitor Hyprland in WSL2.
+- [x] Implement `PaletteService.qml` managing 4-color palette state (`dominant`, `secondary`, `accent`, `neutral`) and derived tonal roles.
+- [x] Implement Matugen integration bridge, contrast ratio validation, and extraction caching (`DEC-014`).
+- [x] Wire palette updates into `EventBus.qml` under `"theme"` category and expose diagnostic IPC endpoints on `Shell.qml`.
+- [x] Validate static qmllint, offline simulation, and live Hyprland execution.
 
 ---
 
-## Task M3-T2 — Top Island OSD Integration
+## Task M4-T2 — Wallpaper Engine (Static Per-Workspace vs Global Live Wallpaper)
 
-**Goal:** Implement volume and brightness system OSD originating from Top Island (`DEC-021`), bubble-drop / gooey curtain transition into expanded feedback state, and rapid-event in-place morphing without animation stacking.
+**Goal:** Implement wallpaper rendering service and layer-shell wallpaper surface supporting per-workspace static vs global live wallpaper (`DEC-013`, `MASTER.md` §27).
 
 ### Sub-tasks
 
-- [x] Implement system OSD model and feedback controller (`src/core/AudioService.qml`).
-- [x] Extend `TopIslandAnchor` with bubble-drop OSD drop-down surface (`src/desktop/TopIslandOsd.qml`).
-- [x] Implement rapid-event in-place value updates and timeout reset without animation queue pile-up (`AGENTS.md` §20).
-- [x] Validate OSD triggers, timing, and clean recession back to idle clock.
+- [x] Implement `WallpaperService.qml` managing per-workspace static wallpaper and global live wallpaper state.
+- [x] Implement `wallpaperVariants` layer-shell background surface under `DesktopHost.qml` (`WlrLayershell.layer: Background`, 0x0 hitmask).
+- [x] Multi-monitor wallpaper layout adaptation (multi-monitor span vs per-monitor fit).
+- [x] Validate wallpaper workspace switching and resource consumption.
 
 ---
 
-## Task M3-T3 — Media Player Architecture & Top Island Compact Integration
+## Task M4-T3 — Dynamic Theme System & Visual Transitions
 
-**Goal:** Implement MPRIS media bridge, multi-session tracking, play/pause/prev/next/seek controls, fixed compact layout inside Top Island, and enforce `DEC-039` (strictly zero generic notifications on media track change).
+**Goal:** Implement `ThemeService.qml` managing visual state snapshots, daily auto-saved snapshot, and cinematic transition masks (`MASTER.md` §23–26, `DEC-012`, `DEC-037`).
 
 ### Sub-tasks
 
-- [x] Implement `src/core/MediaService.qml` consuming `Quickshell.Services.Mpris` (with deterministic 3-track mock fallback).
-- [x] Integrate compact fixed media controller in `TopIslandHeader.qml` (`src/desktop/TopIslandMedia.qml`).
-- [x] Enforce `DEC-039`: track change updates media state and suppresses standard notification emission.
-- [x] Validate multi-session switching, playback control dispatch, and metadata formatting.
+- [x] Implement `ThemeService.qml` managing saved themes, daily snapshot, and active visual state.
+- [x] Implement transition mask coordinator (circle wipe, wavy wipe, bubble ripple, fade) without scaling UI.
+- [x] Enforce DEC-037: Theme changes strictly alter visual state without modifying behavior/shortcuts.
+- [x] Validate theme serialization, persistence, and transition choreography.
 
 ---
 
-## Task M3-T4 — Dedicated Media Widget & Bongo Cat Companion Integration
+## Task M4-T4 — Wallpaper Picker Floating Surface
 
-**Goal:** Implement modular desktop Media Widget with compact, expanded, and lyrics states, synchronized with animated Bongo Cat companion reacting to playback state.
+**Goal:** Implement transient floating wallpaper picker surface (`MASTER.md` §27).
 
 ### Sub-tasks
 
-- [x] Implement desktop media widget component (`src/desktop/MediaWidget.qml`).
-- [x] Implement Bongo Cat visual companion with state-driven animation choreography (`src/desktop/BongoCatCompanion.qml`).
-- [x] Wire synchronized playback tracking and lyrics presentation (`src/desktop/LyricsContainer.qml`).
-- [x] Validate anti-slop compliance and performance (zero idle CPU consumption, verified live in Hyprland 0.57.0).
+- [ ] Implement `WallpaperPicker.qml` floating transient surface with library, favorites, and recent tabs.
+- [ ] Implement live wallpaper thumbnail preview and keyboard navigation.
+- [ ] Wire triggers from Command Center and keybinds.
+- [ ] Validate dynamic layer-shell hitmask and clean dismissal.
 
 ---
 
-## Task M3-T5 — System Status & Diagnostic Feedback Architecture
+## Task M4-T5 — Headquarter Settings Application
 
-**Goal:** Implement system status monitors (audio sink, display brightness, battery/power) with quiet failure communication.
+**Goal:** Implement fullscreen Headquarter settings application with persistent right sidebar and contextual help (`DEC-019`, `DESIGN.md` §24–25).
 
 ### Sub-tasks
 
-- [x] Implement system hardware monitoring models.
-- [x] Provide contextual feedback surfaces and failure alerts.
-- [x] Validate reporting across multi-monitor environments.
+- [ ] Implement `Headquarter.qml` fullscreen settings application with persistent right sidebar and organic ICR fillets.
+- [ ] Implement categorized settings views (General, Display, Audio, Workspaces, Theme, About).
+- [ ] Implement contextual help bubble system anchored to the right of settings controls (`DESIGN.md` §25).
+- [ ] Wire universal dismissal (`navigation.back` / Escape) and mutual exclusivity with overlays.
 
 ---
 
-## Task M3-T6 — M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001`
+## Task M4-T6 — M4 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M4-001`
 
-**Goal:** Verify all M3 system feedback surfaces across dual-monitor live Hyprland + Quickshell execution, perform full anti-slop audit, update documentation, record `CP-M3-001`, and stop at M3 → M4 phase gate.
+**Goal:** Verify all M4 personalization surfaces across dual-monitor live Hyprland + Quickshell execution, perform full anti-slop audit, update documentation, record `CP-M4-001`, and stop at M4 → M5 phase gate.
 
 ### Sub-tasks
 
-- [x] Run integrated E2E test suite combining Notifications, OSD, Media, and Bongo Cat across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
-- [x] Perform comprehensive anti-slop audit across all QML surfaces.
-- [x] Update `docs/architecture.md` and `docs/configuration.md`.
-- [x] Update `STATE.md`, record `CP-M3-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
+- [ ] Run integrated E2E test suite combining Palette, Wallpaper, Theme transitions, Wallpaper Picker, and Headquarter across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
+- [ ] Perform comprehensive anti-slop audit across all QML surfaces.
+- [ ] Update `docs/architecture.md` and `docs/configuration.md`.
+- [ ] Update `STATE.md`, record `CP-M4-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
 
 ---
 
 # 8. Acceptance Criteria
 
-M3 is acceptable only when all of the following hold:
+M4 is acceptable only when all of the following hold:
 
-1. **Floating Top-Left Notifications (`DEC-020`):** Notifications appear floating in the top-left with left-to-right reveal, 70% icon backdrop, solid Wabi-sabi surface, and NO nested cardification (`ANTI-SLOP.md` §20).
-2. **Hold-to-Silence Feedback (`DESIGN.md` §18):** Long-hold silence interaction fills with a solid tonal progress bar and calms notifications without alarming error styling.
-3. **Top Island OSD Spatial Origin (`DEC-021`):** All volume/brightness feedback drops from Top Island; rapid events morph in place without animation stacks.
-4. **Dedicated Media Context & No Notification Spam (`DEC-026`, `DEC-039`):** Media has fixed compact Top Island integration and desktop widget; track changes never produce generic notification noise.
-5. **Bongo Cat Companion Integration:** Bongo Cat companion is integrated and responds dynamically to music playback state.
-6. **Zero-cost idle desktop:** Empty desktop space remains completely click-through via precise Layer-Shell input masks when notifications/OSDs are idle.
+1. **Four-Color Palette Integrity (`DEC-011`):** Every theme and extracted palette consists of exactly four primary colors with derived tonal roles; zero component-level color invention.
+2. **Bounded Matugen Extraction (`DEC-014`):** Palette extraction from wallpapers runs once, validates contrast, and is cached; live wallpaper does not continuously churn colors.
+3. **Per-Workspace Static vs Global Live Wallpaper (`DEC-013`):** Static wallpapers map per-workspace (`1..10`); live wallpaper spans globally without duplicated rendering overhead.
+4. **Theme / Behavior Separation (`DEC-012`, `DEC-037`):** Theme switching changes visual appearance (palette, wallpaper, widget layout, surface styles) and NEVER alters shortcuts, gestures, window management, or timeouts.
+5. **Headquarter Fullscreen Architecture (`DEC-019`):** Headquarter presents a fullscreen configuration environment with persistent right sidebar and non-disruptive contextual help bubbles to the right (`DESIGN.md` §25).
+6. **Zero-cost idle desktop:** Wallpaper surface stays on background layer with zero input grab; floating picker and Headquarter maintain 0x0 hitmask when idle.
 7. **Zero-warning static & runtime stability:** `qmllint 6.12.0` passes with 0 errors and 0 warnings; live `Hyprland 0.57.0` + `Quickshell 0.3.2` execution passes without memory leaks or unhandled errors.
 
 ---
@@ -251,41 +220,39 @@ M3 is acceptable only when all of the following hold:
 | Area | Validation Method | Required Evidence |
 |---|---|---|
 | Structure & QML Lint | `scripts/validate.sh --all` & `scripts/validate.ps1` | Exit code 0; `qmllint 6.12.0` passes with 0 errors and 0 warnings |
-| Notification Reveal & Dismissal | Quickshell IPC + DBus / simulation | Top-left floating placement; left-to-right reveal; ~3s timeout; hover pause; double-click dismissal |
-| Hold-to-Silence | Simulated pointer long-press | Tonal fill progresses left-to-right; silent state confirmed; all pending dismissed |
-| OSD Bubble-Drop & Morph | Volume/brightness key simulation | OSD drops from Top Island; rapid changes update in-place without animation stacks |
-| Media MPRIS & Suppression | MPRIS mock / player events | Compact Top Island controls; track change updates media UI with ZERO notification noise |
-| Multi-Monitor & Fullscreen | Dual-monitor (`VIRTUAL-1`, `VIRTUAL-2`) test harness | Notifications and feedback respect monitor focus and native fullscreen rules |
+| Palette Extraction & Caching | Quickshell IPC + simulation / Matugen | 4-color palette generated, cached, and applied to `Theme.colors` with contrast validation |
+| Wallpaper Layer Surface | Layer-shell query | Background layer placement (`WlrLayershell.layer: Background`), per-workspace static vs global live |
+| Theme State Separation | IPC theme switch | Visual state changes; gestures, shortcuts, and window rules remain completely unchanged |
+| Wallpaper Picker | Simulated click / trigger | Floating surface reveals, previews, applies wallpaper, and dismisses cleanly to 0x0 hitmask |
+| Headquarter Settings | Open / navigate / dismiss | Fullscreen right-sidebar layout, contextual help displays on right without layout shift |
+| Multi-Monitor & Fullscreen | Dual-monitor (`VIRTUAL-1`, `VIRTUAL-2`) test harness | Wallpaper spans or adapts per-monitor; Headquarter respects monitor focus |
 
 ---
 
 # 10. Exit Criteria & Stop Conditions
 
-M3 exits only when `M3-T1` through `M3-T6` are complete, validated with live evidence, audited against `ANTI-SLOP.md`, documented in `STATE.md`, and recorded in `CP-M3-001` (`CHECKPOINT.md`).
+M4 exits only when `M4-T1` through `M4-T6` are complete, validated with live evidence, audited against `ANTI-SLOP.md`, documented in `STATE.md`, and recorded in `CP-M4-001` (`CHECKPOINT.md`).
 
 The agent must **STOP**:
 
-- after completing and auditing each requested atomic task (`M3-T1`);
+- after completing and auditing each requested atomic task (`M4-T1`);
 - immediately if a source-of-truth conflict requiring owner governance (`DEC-043`) is discovered;
 - immediately if a repeated runtime blocker prevents honest validation;
-- unconditionally upon completing M3 (`CP-M3-001`), without auto-starting M4 (`AGENTS.md` §46, §48).
+- unconditionally upon completing M4 (`CP-M4-001`), without auto-starting M5 (`AGENTS.md` §46, §48).
 
 ---
 
 # 11. Current Status
 
-- **Active Phase:** `M3 — System Feedback` (*`ROADMAP.md` §10: `M3 — System Feedback`*) — **100% COMPLETE & VERIFIED** (`CP-M3-001`)
+- **Active Phase:** `M4 — Personalization` (*`ROADMAP.md` §11: `M4 — Personalization`*)
 - **Completed Milestones:**
   - `M0 — Foundation` (`CP-M0-001` `VERIFIED`)
   - `M1 — Desktop Core` (`CP-M1-001` `VERIFIED`)
   - `M2 — Interaction` (`CP-M2-001` `VERIFIED`)
   - `M3 — System Feedback` (`CP-M3-001` `VERIFIED`)
 - **Completed Tasks in Phase:**
-  - `M3-T1` (Notification Daemon & Floating Surface — `COMPLETE / VERIFIED`)
-  - `M3-T2` (Top Island OSD Integration — `COMPLETE / VERIFIED`)
-  - `M3-T3` (Media Player Architecture & Top Island Compact Integration — `COMPLETE / VERIFIED`)
-  - `M3-T4` (Dedicated Media Widget & Bongo Cat Companion Integration — `COMPLETE / VERIFIED`)
-  - `M3-T5` (System Status & Diagnostic Feedback Architecture — `COMPLETE / VERIFIED`)
-  - `M3-T6` (M3 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M3-001` — `COMPLETE / VERIFIED`)
-- **Active Task:** `M3-T6` complete; Milestone M3 100% COMPLETE & VERIFIED; stopped at milestone boundary per `AGENTS.md` §46 and §48.
-- **Next Executable Task:** `M4 — Personalization` kickoff per `ROADMAP.md` §11 (awaiting owner instruction).
+  - `M4-T1` (Palette & Matugen Pipeline Architecture — `COMPLETE / VERIFIED`)
+  - `M4-T2` (Wallpaper Engine: Static Per-Workspace vs Global Live Wallpaper — `COMPLETE / VERIFIED`)
+  - `M4-T3` (Dynamic Theme System & Visual Transitions — `COMPLETE / VERIFIED`)
+- **Active Task:** M4 Capability Layer (`M4-T1`, `M4-T2`, `M4-T3`) complete and verified across offline simulation, live dual-monitor Hyprland 0.57.0 runtime, and full M1-M3 regressions. Stopped at the M4-T3 -> M4-T4 boundary per user directive and `AGENTS.md` §46.
+- **Next Executable Task:** `M4-T4` (Wallpaper Picker Floating Surface — awaiting user authorization).
