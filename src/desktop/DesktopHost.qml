@@ -34,6 +34,7 @@ Scope {
     property var wallpaperService: null
     property var paletteService: null
     property var themeService: null
+    property var powerService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================
@@ -114,6 +115,9 @@ Scope {
                 },
                 headquarter: {
                     active: desktopHost.headquarterActive && (desktopHost.headquarterMonitorIndex === s.monitorIndex)
+                },
+                sessionOverlay: {
+                    active: desktopHost.sessionMenuActive && (desktopHost.sessionMenuMonitorIndex === s.monitorIndex)
                 }
             })
         }
@@ -550,6 +554,72 @@ Scope {
         return snap
     }
 
+    // =========================================================
+    // Session Constellation Overlay (M5-T1, DEC-027, MASTER.md §32)
+    // =========================================================
+    property bool _sessionMenuOpen: false
+    property int _sessionMenuMonitor: 0
+
+    readonly property bool sessionMenuActive: desktopHost._sessionMenuOpen || (desktopHost.shellState && desktopHost.shellState.mode === "power-menu")
+    readonly property int sessionMenuMonitorIndex: desktopHost._sessionMenuMonitor
+
+    function openSessionMenu(monitorIndex: int) {
+        if (typeof monitorIndex === "number" && monitorIndex >= 0) {
+            desktopHost._sessionMenuMonitor = monitorIndex
+        } else if (desktopHost.shellState) {
+            desktopHost._sessionMenuMonitor = desktopHost.shellState.activeMonitorIndex
+        }
+        desktopHost._sessionMenuOpen = true
+        if (desktopHost.shellState && desktopHost.shellState.mode !== "power-menu") {
+            desktopHost.shellState.setMode("power-menu")
+        }
+        var so = desktopHost._sessionOverlayFor(desktopHost._sessionMenuMonitor)
+        if (so) {
+            so.open(0)
+        }
+    }
+
+    function closeSessionMenu() {
+        desktopHost._sessionMenuOpen = false
+        if (desktopHost.shellState && desktopHost.shellState.mode === "power-menu") {
+            desktopHost.shellState.dismissOverlay()
+        }
+        var so = desktopHost._sessionOverlayFor(desktopHost._sessionMenuMonitor)
+        if (so) {
+            so.close()
+        }
+    }
+
+    function toggleSessionMenu(monitorIndex: int) {
+        if (desktopHost.sessionMenuActive) {
+            desktopHost.closeSessionMenu()
+        } else {
+            desktopHost.openSessionMenu(monitorIndex)
+        }
+    }
+
+    function _sessionOverlayFor(monitorIndex: int): var {
+        var list = sessionOverlayVariants.instances
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].monitorIndex === monitorIndex) {
+                return list[i].sessionOverlayRef
+            }
+        }
+        return null
+    }
+
+    function getSessionOverlayState(monitorIndex: int): var {
+        var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+            ? monitorIndex
+            : desktopHost.sessionMenuMonitorIndex
+        var so = desktopHost._sessionOverlayFor(mon)
+        if (!so) return { available: false, active: false }
+        var snap = so.getSnapshot()
+        snap.available = true
+        snap.monitorIndex = mon
+        return snap
+    }
+
     Connections {
         target: desktopHost.shellState ? desktopHost.shellState : null
         function onModeChanged() {
@@ -584,6 +654,14 @@ Scope {
                     desktopHost._headquarterOpen = false
                     var hq = desktopHost._headquarterFor(desktopHost._headquarterMonitor)
                     if (hq) hq.close()
+                }
+
+                if (desktopHost.shellState.mode === "power-menu" && !desktopHost._sessionMenuOpen) {
+                    desktopHost.openSessionMenu(desktopHost.shellState.activeMonitorIndex)
+                } else if (desktopHost.shellState.mode !== "power-menu" && desktopHost._sessionMenuOpen) {
+                    desktopHost._sessionMenuOpen = false
+                    var so = desktopHost._sessionOverlayFor(desktopHost._sessionMenuMonitor)
+                    if (so) so.close()
                 }
             }
         }
@@ -1134,6 +1212,64 @@ Scope {
                     active: hqWindow.visible
 
                     onDismissRequested: desktopHost.closeHeadquarter()
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // Session Constellation Fullscreen Overlay (M5-T1, DEC-027, MASTER.md §32)
+    // =========================================================
+    Variants {
+        id: sessionOverlayVariants
+        model: desktopHost.enabled ? Quickshell.screens : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: sessionWindow
+                required property var modelData
+
+                screen: modelData
+
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+
+                color: "transparent"
+                layer: WlrLayer.Overlay
+                namespace: desktopHost.layerNamespace + "-session"
+                keyboardFocus: (sessionOverlay.active && sessionWindow.isTargetMonitor)
+                    ? WlrKeyboardFocus.Exclusive
+                    : WlrKeyboardFocus.None
+                exclusiveZone: 0
+
+                mask: Region {
+                    item: (sessionOverlay.active && sessionWindow.isTargetMonitor) ? sessionOverlay : null
+                }
+
+                readonly property string screenName: modelData ? modelData.name : ""
+                readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
+                readonly property int monitorIndex: {
+                    var dummy = sessionWindow._monitorsRef
+                    return desktopHost.resolveMonitorIndex(sessionWindow.screenName)
+                }
+                readonly property bool isTargetMonitor: sessionWindow.monitorIndex === desktopHost.sessionMenuMonitorIndex
+                readonly property var sessionOverlayRef: sessionOverlay
+
+                visible: desktopHost.enabled && desktopHost.sessionMenuActive && sessionWindow.isTargetMonitor
+
+                SessionOverlay {
+                    id: sessionOverlay
+                    anchors.fill: parent
+                    theme: desktopHost.theme
+                    shellState: desktopHost.shellState
+                    powerService: desktopHost.powerService
+                    hostRef: desktopHost
+                    monitorIndex: sessionWindow.monitorIndex
+                    active: sessionWindow.visible
+
+                    onDismissRequested: desktopHost.closeSessionMenu()
                 }
             }
         }

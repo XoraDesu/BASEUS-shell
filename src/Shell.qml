@@ -197,7 +197,18 @@ Item {
         desktopHost: _desktopHost
     }
 
-    // 18. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 18. Power & Session Management Service (M5-T1, DEC-027, MASTER.md §32)
+    Core.PowerService {
+        id: _powerService
+        logger: _logger
+        eventBus: _eventBus
+        shellState: _shellState
+        bridge: shell.activeBridge
+        config: _config
+        simulationMode: _config.simulationEnabled
+    }
+
+    // 19. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -217,6 +228,7 @@ Item {
         wallpaperService: _wallpaperService
         paletteService: _paletteService
         themeService: _themeService
+        powerService: _powerService
         enabled: _lifecycle.initialized
     }
 
@@ -247,6 +259,7 @@ Item {
     readonly property alias paletteService: _paletteService
     readonly property alias wallpaperService: _wallpaperService
     readonly property alias themeService: _themeService
+    readonly property alias powerService: _powerService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -1161,6 +1174,48 @@ Item {
             hq.setSearch(query)
             return JSON.stringify({ ok: true, state: hq.getSnapshot() })
         }
+
+        // =====================================================
+        // Session & Power Management (M5-T1, DEC-027, MASTER.md §32)
+        // =====================================================
+
+        function openSessionMenu(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.openSessionMenu(monArg)
+            return JSON.stringify({
+                active: _desktopHost.sessionMenuActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.sessionMenuMonitorIndex
+            })
+        }
+
+        function closeSessionMenu(): string {
+            _desktopHost.closeSessionMenu()
+            return JSON.stringify({
+                active: _desktopHost.sessionMenuActive,
+                mode: _shellState.mode
+            })
+        }
+
+        function toggleSessionMenu(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.toggleSessionMenu(monArg)
+            return JSON.stringify({
+                active: _desktopHost.sessionMenuActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.sessionMenuMonitorIndex
+            })
+        }
+
+        function sessionMenuState(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            return JSON.stringify(_desktopHost.getSessionOverlayState(monArg))
+        }
+
+        function executePowerAction(action: string): string {
+            var res = _powerService.execute(action)
+            return JSON.stringify(res)
+        }
     }
 
     function _executeActionWithState(id, payload) {
@@ -1195,12 +1250,14 @@ Item {
 
         _wallpaperService.initialize()
         _themeService.initialize()
+        _powerService.initialize()
         _desktopHost.initialize()
     }
 
     function _teardownSubsystems() {
         _notificationModel.dismissAll()
         _desktopHost.teardown()
+        _powerService.teardown()
         _themeService.teardown()
         _wallpaperService.teardown()
         _actionRegistry.teardown()

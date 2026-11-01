@@ -72,15 +72,15 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Milestone
 
-**M4 — Personalization** (*`ROADMAP.md` §11: `M4 — Personalization`*)
+**M5 — Session, Lock & Polish** (*`ROADMAP.md` §12: `M5 — Session, Lock & Polish`*)
 
 ## Phase
 
-**M4 — Personalization**
+**M5 — Session, Lock & Polish**
 
 ## Execution Status
 
-**MILESTONE M4 COMPLETE & VERIFIED — Milestone M4 (Personalization) is 100% COMPLETE, audited (0 anti-slop violations, 0 M5 scope leaks, 100% pragma ComponentBehavior: Bound across all 49 QML files), statically verified (qmllint 6.12.0 — 0 errors, 0 warnings), verified in offline simulation, and validated end-to-end in live dual-monitor Hyprland 0.57.0 (VIRTUAL-1 + VIRTUAL-2) + Quickshell 0.3.2 runtime. Anchored at verified checkpoint `CP-M4-001`. Halted at the M4 → M5 phase boundary per AGENTS.md §46 and §48.**
+**IN PROGRESS — Milestone M5 (Session, Lock & Polish) is active. Task M5-T1 (Session & Power Management Overlay) is COMPLETE and VERIFIED. Task M5-T2 (Idle & Inhibitor Service) is PENDING. Stopped at the M5-T1 → M5-T2 boundary per AGENTS.md §46.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -96,16 +96,16 @@ The **M4 — Personalization** baseline is complete, audited, and anchored at ve
 
 # 5. Current Task Tracker Position
 
-`TASKS.md` defines the executable **M4 — Personalization** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
+`TASKS.md` defines the executable **M5 — Session, Lock & Polish** scope across six atomic tasks (`Capability → Surface` per `DEC-045`):
 
-1. **`M4-T1` — Palette & Matugen Pipeline Architecture:** `COMPLETE / VERIFIED`
-2. **`M4-T2` — Wallpaper Engine (Static Per-Workspace vs Global Live Wallpaper):** `COMPLETE / VERIFIED`
-3. **`M4-T3` — Dynamic Theme System & Visual Transitions:** `COMPLETE / VERIFIED`
-4. **`M4-T4` — Wallpaper Picker Floating Surface:** `COMPLETE / VERIFIED`
-5. **`M4-T5` — Headquarter Settings Application:** `COMPLETE / VERIFIED`
-6. **`M4-T6` — M4 Multi-Monitor E2E Validation, Anti-Slop Audit & Checkpoint `CP-M4-001`:** `COMPLETE / VERIFIED`
+1. **`M5-T1` — Session & Power Management Overlay:** `COMPLETE / VERIFIED`
+2. **`M5-T2` — Idle & Inhibitor Service:** `PENDING`
+3. **`M5-T3` — Lock Screen Surface & Authentication Architecture:** `PENDING`
+4. **`M5-T4` — Hardware Bindings & Gesture Scaffolding:** `PENDING`
+5. **`M5-T5` — Shell Cold-Start Optimization & Performance Profiling:** `PENDING`
+6. **`M5-T6` — M5 Multi-Monitor E2E Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001`:** `PENDING`
 
-All Milestone M4 tasks (`M4-T1` through `M4-T6`) are 100% complete and verified. Anchored at checkpoint `CP-M4-001`. Stopped at the M4 → M5 milestone gate awaiting owner kickoff authorization.
+Task `M5-T1` (Session & Power Management Overlay) is complete and verified across all test suites. Execution stops at the M5-T1 → M5-T2 boundary per AGENTS.md §46.
 
 ---
 
@@ -150,9 +150,11 @@ Current factual implementation status:
 - `ThemeService.qml` (`src/core/ThemeService.qml`) implements dynamic visual state serialization (wallpaper paths, 4-color palette, widget layout, icon theme), preserves strict interaction invariance (`DEC-012`, `DEC-037`: theme switching changes visual state ONLY and NEVER modifies gestures, shortcuts, window behavior, or timeouts), manages the Daily Theme Snapshot (`dailySnapshotState()`, `MASTER.md` §26), supports visual transition mask tokens (`"circle_wipe"`, `"wavy_wipe"`, `"bubble_ripple"`, `"fade"`), and includes built-in presets (`"wabi-sabi-indigo"`, `"tokyo-slate"`, `"cyber-sand"`, `"obsidian-ember"`);
 - `WallpaperPicker.qml` (`src/desktop/WallpaperPicker.qml`) implements the transient floating wallpaper picker surface (`WlrLayer.Overlay`, solid Wabi-sabi body `surfaceSolid` + 1px hairline `borderSubtle`, zero blur, zero glassmorphism, zero drop shadows per `ANTI-SLOP.md`), top categorized tabs (`Library`, `Favorites`, `Recent` ordered by recency), 196x118px responsive thumbnail cards, live preview, favorite toggle, apply to active workspace, apply to all workspaces, live wallpaper activation (`DEC-013`), keyboard navigation (Arrows, Tab, Enter, Shift+Enter, Escape), and dynamic Layer-Shell input mask contracting to 0x0 at idle;
 - `Headquarter.qml` (`src/desktop/Headquarter.qml`) implements the fullscreen settings application (`WlrLayer.Overlay`, solid Wabi-sabi body `surfaceSolid` + `borderSubtle`, zero blur, zero glassmorphism, zero drop shadows per `ANTI-SLOP.md`), persistent 240px right sidebar with organic `InverseCorner` (`ICR`) fillets connecting to top/bottom screen perimeter (strictly never icon-only mode, `DEC-019`, `DESIGN.md` §24), 6 categorized settings views (`Home`, `Appearance`, `Workspaces`, `Shortcuts`, `Feedback`, `About`) adhering strictly to editorial minimalism without spaceship KPI telemetry dashboards (`ANTI-SLOP.md` §6.8), live apply principle (`MASTER.md` §22: mutating backend models immediately without modal dialogs), real-time settings search filtering across categories with hierarchical breadcrumbs, contextual help bubble system anchored cleanly to the right of settings controls without layout shift (`DESIGN.md` §25), universal dismissal via `Escape` / `navigation.back`, and dynamic Layer-Shell input mask (exclusive keyboard focus when open; reverts to 0x0 click-through when closed);
-- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerOsd(type, value, isMuted)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`, `mediaWidgetState(monitorIndex)`, `toggleMediaWidget(monitorIndex)`, `bongoCatState(monitorIndex)`, `systemStatus()`, `setMockBattery(percent, isCharging)`, `setMockNetwork(connected, type, name)`, `getPalette()`, `extractPalette(wallpaperPath)`, `setPalette(dominant, secondary, accent, neutral)`, `setWorkspaceWallpaper(workspaceId, path)`, `setGlobalLiveWallpaper(path)`, `wallpaperState(monitorIndex)`, `toggleWallpaperPicker(monitorIndex)`, `openWallpaperPicker(monitorIndex)`, `closeWallpaperPicker()`, `wallpaperPickerState(monitorIndex)`, `wallpaperPickerSetTab(tab, monitorIndex)`, `wallpaperPickerSelect(index, monitorIndex)`, `wallpaperPickerApply(allWorkspaces, monitorIndex)`, `saveCurrentTheme(name)`, `applyTheme(name)`, `listThemes()`, `dailySnapshotState()`, `openHeadquarter(category, monitorIndex)`, `closeHeadquarter()`, `toggleHeadquarter(monitorIndex)`, `headquarterState(monitorIndex)`, `headquarterSetCategory(category, monitorIndex)`, `headquarterSearch(query, monitorIndex)`;
-- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 49 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
-- Tasks `M4-T1`, `M4-T2`, `M4-T3`, `M4-T4`, `M4-T5`, and `M4-T6` are complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across offline simulation, live dual-monitor Hyprland 0.57.0 E2E tests, and regression suites;
+- `PowerService.qml` (`src/core/PowerService.qml`) implements event-driven power and session management backend supporting `lock`, `suspend`, `logout`, `reboot`, and `poweroff`, safe live dispatch (`systemctl`, `loginctl`, Hyprland bridge), destructive action identification, and deterministic simulation fallback under `BASEUS_SIMULATION=1`;
+- `SessionOverlay.qml` (`src/desktop/SessionOverlay.qml`) implements the constellation-inspired modal session overlay (`WlrLayer.Overlay`, `DEC-027`, `MASTER.md` §32) with quiet dark space, palette-aware stars, sparse layout, 1000ms hold-to-confirm progress timer protecting destructive actions (`reboot`, `poweroff`), direct keyboard mnemonics (L, S, O, R, P, arrows, Enter, Escape), quiet sleeping chibi companion with zero-CPU idle timer gating (`ANTI-SLOP.md` §37), and dynamic Layer-Shell input mask (exclusive keyboard focus on target monitor, 0x0 click-through at idle);
+- Diagnostic Quickshell IPC endpoints in `Shell.qml`: `topIslandState(monitorIndex)`, `setTopIslandHover(monitorIndex, hovered)`, `tapTopIsland(monitorIndex)`, `clickTopIslandTrigger(monitorIndex, actionId)`, `dockItems(monitorIndex)`, `clickDockItem(monitorIndex, itemId)`, `toggleCommandCenter()`, `openCommandCenter(prefix, monitorIndex)`, `closeCommandCenter()`, `commandCenterState(monitorIndex)`, `commandCenterInput(text, monitorIndex)`, `commandCenterExecute(index, monitorIndex)`, `toggleAppDrawer(monitorIndex)`, `openAppDrawer(monitorIndex)`, `closeAppDrawer()`, `appDrawerState(monitorIndex)`, `appDrawerSearch(query, monitorIndex)`, `appDrawerScrub(letter, monitorIndex)`, `appDrawerLaunch(idOrIndex, monitorIndex)`, `postNotification(...)`, `dismissNotification(...)`, `silenceNotifications()`, `notificationState(...)`, `osdState(...)`, `triggerOsd(type, value, isMuted)`, `mediaStatus()`, `mediaPlay()`, `mediaPause()`, `mediaToggle()`, `mediaNext()`, `mediaPrevious()`, `mediaSeek(pos)`, `mediaWidgetState(monitorIndex)`, `toggleMediaWidget(monitorIndex)`, `bongoCatState(monitorIndex)`, `systemStatus()`, `setMockBattery(percent, isCharging)`, `setMockNetwork(connected, type, name)`, `getPalette()`, `extractPalette(wallpaperPath)`, `setPalette(dominant, secondary, accent, neutral)`, `setWorkspaceWallpaper(workspaceId, path)`, `setGlobalLiveWallpaper(path)`, `wallpaperState(monitorIndex)`, `toggleWallpaperPicker(monitorIndex)`, `openWallpaperPicker(monitorIndex)`, `closeWallpaperPicker()`, `wallpaperPickerState(monitorIndex)`, `wallpaperPickerSetTab(tab, monitorIndex)`, `wallpaperPickerSelect(index, monitorIndex)`, `wallpaperPickerApply(allWorkspaces, monitorIndex)`, `saveCurrentTheme(name)`, `applyTheme(name)`, `listThemes()`, `dailySnapshotState()`, `openHeadquarter(category, monitorIndex)`, `closeHeadquarter()`, `toggleHeadquarter(monitorIndex)`, `headquarterState(monitorIndex)`, `headquarterSetCategory(category, monitorIndex)`, `headquarterSearch(query, monitorIndex)`, `openSessionMenu(monitorIndex)`, `closeSessionMenu()`, `toggleSessionMenu(monitorIndex)`, `sessionMenuState(monitorIndex)`, `executePowerAction(action)`;
+- Static validation via `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` `6.12.0` across all 51 QML files) and `scripts/validate.ps1` succeeds with 0 errors and 0 warnings;
+- Task `M5-T1` is complete and verified with 0 anti-slop violations, 0 linter warnings, and 100% pass across static analysis, offline simulation, and full M1–M4 regression suites;
 - Milestone M4 — Personalization is 100% COMPLETE and anchored at verified checkpoint `CP-M4-001`;
 - Milestone M3 — System Feedback is 100% COMPLETE and anchored at verified checkpoint `CP-M3-001`;
 - Milestone M2 — Interaction is 100% COMPLETE and anchored at verified checkpoint `CP-M2-001`;
