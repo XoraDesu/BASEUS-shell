@@ -38,6 +38,7 @@ QtObject {
 
     // Active compositor bridge (live or mock). Provided by the composition root.
     property var bridge: null
+    property var idleService: null
 
     // =========================================================
     // Schema
@@ -135,7 +136,7 @@ QtObject {
         if (!spec || typeof spec !== "object") return _fail("register", "", "invalid-spec")
         var id = spec.id
         if (typeof owner !== "string" || owner.length === 0) return _fail("register", id, "invalid-owner")
-        if (typeof id !== "string" || !/^[a-z][a-zA-Z0-9]*(\.[a-zA-Z0-9-]+)+$/.test(id)) {
+        if (typeof id !== "string" || !/^[a-z][a-zA-Z0-9]*(\.[a-zA-Z0-9_-]+)+$/.test(id)) {
             return _fail("register", id, "invalid-id")
         }
         if (categories.indexOf(spec.category) < 0) return _fail("register", id, "invalid-category")
@@ -414,6 +415,19 @@ QtObject {
             callback: function(payload) {
                 var addr = (payload && typeof payload.address === "string") ? payload.address : ""
                 return _bridgeCall("restoreWindow", [addr])
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "system.inhibit_idle", category: "system",
+            title: "Toggle awake mode", description: "Inhibit display dimming and automatic session lock.",
+            isEnabled: function() { return actionRegistry.idleService !== null },
+            callback: function() {
+                if (actionRegistry.idleService) {
+                    var inh = actionRegistry.idleService.toggleInhibitor()
+                    return { ok: true, inhibited: inh }
+                }
+                return { ok: false, reason: "idle-service-unavailable" }
             }
         }, coreOwner)
     }

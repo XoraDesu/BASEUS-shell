@@ -241,6 +241,10 @@ QtObject {
         return labels[workspaceId] || labels[String(workspaceId)] || ""
     }
 
+    function getWorkspaceLabel(workspaceId) {
+        return getLabel(workspaceId)
+    }
+
     function setLabel(workspaceId, label) {
         if (!isValidWorkspaceId(workspaceId)) return false
         var cleanLabel = String(label || "")

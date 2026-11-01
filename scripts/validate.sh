@@ -117,6 +117,7 @@ validate_structure() {
     check_file "src/core/WallpaperService.qml"
     check_file "src/core/ThemeService.qml"
     check_file "src/core/PowerService.qml"
+    check_file "src/core/IdleService.qml"
     check_dir "src/desktop"
     check_file "src/desktop/DesktopHost.qml"
     check_file "src/desktop/TopIslandAnchor.qml"

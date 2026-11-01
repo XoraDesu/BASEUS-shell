@@ -35,6 +35,7 @@ Scope {
     property var paletteService: null
     property var themeService: null
     property var powerService: null
+    property var idleService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================
@@ -845,6 +846,7 @@ Scope {
                     windowModel: desktopHost.windowModel
                     mediaService: desktopHost.mediaService
                     statusService: desktopHost.statusService
+                    idleService: desktopHost.idleService
                     monitorIndex: layerWindow.monitorIndex
                 }
 
@@ -957,6 +959,7 @@ Scope {
                     windowModel: desktopHost.windowModel
                     mediaService: desktopHost.mediaService
                     statusService: desktopHost.statusService
+                    idleService: desktopHost.idleService
                     monitorIndex: summonWindow.monitorIndex
                 }
             }

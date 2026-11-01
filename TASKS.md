@@ -140,9 +140,9 @@ M5 depends upon:
 
 ### Sub-tasks
 
-- [ ] Implement `IdleService.qml` monitoring user activity and idle timeouts.
-- [ ] Implement presentation mode idle inhibitor toggle suppressing sleep and lock during active presentations or media playback.
-- [ ] Expose diagnostic IPC endpoints on `Shell.qml`.
+- [x] Implement `IdleService.qml` monitoring user activity and idle timeouts.
+- [x] Implement presentation mode idle inhibitor toggle suppressing sleep and lock during active presentations or media playback.
+- [x] Expose diagnostic IPC endpoints on `Shell.qml`.
 
 ---
 

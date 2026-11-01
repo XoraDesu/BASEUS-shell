@@ -40,6 +40,7 @@ Item {
     property var windowModel: null
     property var mediaService: null
     property var statusService: null
+    property var idleService: null
     property int monitorIndex: 0
 
     // Dimensions
@@ -47,7 +48,7 @@ Item {
     readonly property int minIslandWidth: 80
     readonly property int expandedWidth: 360
     readonly property int triggerHeight: 2
-    readonly property int idleBodyWidth: Math.max(clockLabel.implicitWidth + 36, topIslandAnchor.minIslandWidth)
+    readonly property int idleBodyWidth: Math.max(clockLabel.implicitWidth + (awakePip.visible ? 44 : 36), topIslandAnchor.minIslandWidth)
     readonly property int expandedHeight: topIslandAnchor.islandHeight + islandHeader.implicitHeight
 
     // Timing
@@ -165,6 +166,7 @@ Item {
             hovered: topIslandAnchor.hoverActive,
             timeText: topIslandAnchor._timeText,
             dateText: topIslandAnchor._dateText,
+            awake: topIslandAnchor.idleService && topIslandAnchor.idleService.inhibited ? true : false,
             hitRegion: {
                 width: hitRegion.width,
                 height: hitRegion.height
@@ -418,6 +420,19 @@ Item {
                 color: topIslandAnchor.currentTheme.colors.textPrimary
             }
 
+            // Subtle awake pip (M5-T2, MASTER.md §34): indicates idle inhibitor is active
+            Rectangle {
+                id: awakePip
+                width: 4
+                height: 4
+                radius: 2
+                anchors.verticalCenter: clockLabel.verticalCenter
+                anchors.left: clockLabel.right
+                anchors.leftMargin: 6
+                color: topIslandAnchor.currentTheme.colors.accent
+                visible: topIslandAnchor.idleService && topIslandAnchor.idleService.inhibited
+            }
+
             // Contextual header (revealed only while expanded)
             TopIslandHeader {
                 id: islandHeader
@@ -432,6 +447,7 @@ Item {
                 windowModel: topIslandAnchor.windowModel
                 mediaService: topIslandAnchor.mediaService
                 statusService: topIslandAnchor.statusService
+                idleService: topIslandAnchor.idleService
                 monitorIndex: topIslandAnchor.monitorIndex
                 dateText: topIslandAnchor._dateText
                 active: topIslandAnchor.expanded

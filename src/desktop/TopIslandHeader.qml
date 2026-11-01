@@ -25,6 +25,7 @@ Item {
     property var windowModel: null
     property var mediaService: null
     property var statusService: null
+    property var idleService: null
     property int monitorIndex: 0
 
     // Provided by the island clock (updated on minute boundaries, no polling here)
@@ -106,7 +107,8 @@ Item {
             activeWorkspace: header.activeWorkspace,
             triggers: ids,
             media: header.mediaService ? header.mediaService.getSnapshot() : null,
-            status: header.statusService ? header.statusService.getSnapshot() : null
+            status: header.statusService ? header.statusService.getSnapshot() : null,
+            idle: header.idleService ? header.idleService.getSnapshot() : null
         }
     }
 
@@ -224,6 +226,63 @@ Item {
                 color: header.statusService && header.statusService.systemHealthy
                     ? header.currentTheme.colors.dominant
                     : header.currentTheme.colors.accent
+            }
+
+            // Divider dot
+            Text {
+                text: "·"
+                font.pixelSize: header.currentTheme.typography.sizeMicro
+                color: header.currentTheme.colors.textMuted
+                anchors.verticalCenter: parent.verticalCenter
+                visible: header.idleService !== null
+            }
+
+            // Idle Inhibitor (Awake Mode) Trigger (M5-T2, MASTER.md §34)
+            Item {
+                id: awakeTrigger
+                visible: header.idleService !== null
+                width: awakeRow.implicitWidth + 8
+                height: 18
+                anchors.verticalCenter: parent.verticalCenter
+
+                Row {
+                    id: awakeRow
+                    spacing: 4
+                    anchors.centerIn: parent
+
+                    Rectangle {
+                        width: 6
+                        height: 6
+                        radius: 3
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: header.idleService && header.idleService.inhibited
+                            ? header.currentTheme.colors.accent
+                            : header.currentTheme.colors.textMuted
+                    }
+
+                    Text {
+                        text: header.idleService && header.idleService.inhibited ? "AWAKE" : "IDLE"
+                        font.family: header.currentTheme.typography.fontFamilyMono
+                        font.pixelSize: header.currentTheme.typography.sizeMicro
+                        font.weight: header.idleService && header.idleService.inhibited
+                            ? header.currentTheme.typography.weightBold
+                            : header.currentTheme.typography.weightRegular
+                        color: header.idleService && header.idleService.inhibited
+                            ? header.currentTheme.colors.textPrimary
+                            : header.currentTheme.colors.textMuted
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    onClicked: {
+                        if (header.idleService) {
+                            header.idleService.toggleInhibitor()
+                        }
+                    }
+                }
             }
         }
 

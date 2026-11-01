@@ -70,6 +70,15 @@
         "performance": {
             "reducedMotion": false,
             "animationDuration": 250
+        },
+
+        "idle": {
+            "dimTimeout": 300,
+            "lockTimeout": 600,
+            "suspendTimeout": 900,
+            "autoLock": true,
+            "autoSuspend": false,
+            "inhibitByDefault": false
         }
     }
 }

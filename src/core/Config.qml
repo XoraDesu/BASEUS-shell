@@ -95,6 +95,14 @@ QtObject {
     property bool reducedMotion: false
     property int animationDuration: 250        // ms — default animation duration
 
+    // Idle & Inhibitor Service (M5-T2, MASTER.md §34)
+    property int idleDimTimeout: 300           // seconds
+    property int idleLockTimeout: 600          // seconds
+    property int idleSuspendTimeout: 900       // seconds
+    property bool idleAutoLock: true
+    property bool idleAutoSuspend: false
+    property bool idleInhibitByDefault: false
+
     // Logging
     property string logLevel: "info"           // debug, info, warn, error
 
@@ -124,6 +132,12 @@ QtObject {
         workspaceTags = ({})
         reducedMotion = false
         animationDuration = 250
+        idleDimTimeout = 300
+        idleLockTimeout = 600
+        idleSuspendTimeout = 900
+        idleAutoLock = true
+        idleAutoSuspend = false
+        idleInhibitByDefault = false
         logLevel = "info"
         simulationEnabled = false
     }
@@ -207,6 +221,15 @@ QtObject {
         if (root.performance && typeof root.performance === "object") {
             if (typeof root.performance.reducedMotion === "boolean") reducedMotion = root.performance.reducedMotion
             if (typeof root.performance.animationDuration === "number") animationDuration = Math.round(root.performance.animationDuration)
+        }
+
+        if (root.idle && typeof root.idle === "object") {
+            if (typeof root.idle.dimTimeout === "number") idleDimTimeout = Math.round(root.idle.dimTimeout)
+            if (typeof root.idle.lockTimeout === "number") idleLockTimeout = Math.round(root.idle.lockTimeout)
+            if (typeof root.idle.suspendTimeout === "number") idleSuspendTimeout = Math.round(root.idle.suspendTimeout)
+            if (typeof root.idle.autoLock === "boolean") idleAutoLock = root.idle.autoLock
+            if (typeof root.idle.autoSuspend === "boolean") idleAutoSuspend = root.idle.autoSuspend
+            if (typeof root.idle.inhibitByDefault === "boolean") idleInhibitByDefault = root.idle.inhibitByDefault
         }
     }
 

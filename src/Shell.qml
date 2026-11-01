@@ -127,6 +127,7 @@ Item {
         windowModel: _windowModel
         navigationController: _navigationController
         bridge: shell.activeBridge
+        idleService: _idleService
     }
 
     // 11. Notification Domain Model (M3-T1, DEC-020)
@@ -208,7 +209,18 @@ Item {
         simulationMode: _config.simulationEnabled
     }
 
-    // 19. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 19. Idle & Inhibitor Service (M5-T2, MASTER.md §34)
+    Core.IdleService {
+        id: _idleService
+        logger: _logger
+        eventBus: _eventBus
+        shellState: _shellState
+        powerService: _powerService
+        config: _config
+        simulationMode: _config.simulationEnabled
+    }
+
+    // 20. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -229,6 +241,7 @@ Item {
         paletteService: _paletteService
         themeService: _themeService
         powerService: _powerService
+        idleService: _idleService
         enabled: _lifecycle.initialized
     }
 
@@ -260,6 +273,7 @@ Item {
     readonly property alias wallpaperService: _wallpaperService
     readonly property alias themeService: _themeService
     readonly property alias powerService: _powerService
+    readonly property alias idleService: _idleService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -1216,6 +1230,42 @@ Item {
             var res = _powerService.execute(action)
             return JSON.stringify(res)
         }
+
+        // =====================================================
+        // Idle & Inhibitor Service (M5-T2, MASTER.md §34)
+        // =====================================================
+
+        function idleState(): string {
+            return JSON.stringify(_idleService.getSnapshot())
+        }
+
+        function toggleIdleInhibitor(): string {
+            var active = _idleService.toggleInhibitor()
+            return JSON.stringify({
+                ok: true,
+                inhibited: active,
+                state: _idleService.getSnapshot()
+            })
+        }
+
+        function setInhibitor(value: bool): string {
+            var active = _idleService.setInhibitor(value)
+            return JSON.stringify({
+                ok: true,
+                inhibited: active,
+                state: _idleService.getSnapshot()
+            })
+        }
+
+        function simulateUserActivity(): string {
+            _idleService.simulateActivity()
+            return JSON.stringify(_idleService.getSnapshot())
+        }
+
+        function setMockIdle(seconds: int): string {
+            _idleService.setMockIdle(seconds)
+            return JSON.stringify(_idleService.getSnapshot())
+        }
     }
 
     function _executeActionWithState(id, payload) {
@@ -1251,12 +1301,14 @@ Item {
         _wallpaperService.initialize()
         _themeService.initialize()
         _powerService.initialize()
+        _idleService.initialize()
         _desktopHost.initialize()
     }
 
     function _teardownSubsystems() {
         _notificationModel.dismissAll()
         _desktopHost.teardown()
+        _idleService.teardown()
         _powerService.teardown()
         _themeService.teardown()
         _wallpaperService.teardown()
