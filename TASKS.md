@@ -181,10 +181,10 @@ M4 depends upon:
 
 ### Sub-tasks
 
-- [ ] Implement `Headquarter.qml` fullscreen settings application with persistent right sidebar and organic ICR fillets.
-- [ ] Implement categorized settings views (General, Display, Audio, Workspaces, Theme, About).
-- [ ] Implement contextual help bubble system anchored to the right of settings controls (`DESIGN.md` §25).
-- [ ] Wire universal dismissal (`navigation.back` / Escape) and mutual exclusivity with overlays.
+- [x] Implement `Headquarter.qml` fullscreen settings application with persistent right sidebar and organic ICR fillets.
+- [x] Implement categorized settings views (General, Display, Audio, Workspaces, Theme, About).
+- [x] Implement contextual help bubble system anchored to the right of settings controls (`DESIGN.md` §25).
+- [x] Wire universal dismissal (`navigation.back` / Escape) and mutual exclusivity with overlays.
 
 ---
 
@@ -255,5 +255,6 @@ The agent must **STOP**:
   - `M4-T2` (Wallpaper Engine: Static Per-Workspace vs Global Live Wallpaper — `COMPLETE / VERIFIED`)
   - `M4-T3` (Dynamic Theme System & Visual Transitions — `COMPLETE / VERIFIED`)
   - `M4-T4` (Wallpaper Picker Floating Surface — `COMPLETE / VERIFIED`)
-- **Active Task:** `M4-T4` complete and verified across offline simulation, live dual-monitor Hyprland 0.57.0 runtime, and full M1-M4 regressions. Stopped at the M4-T4 -> M4-T5 boundary per user directive and `AGENTS.md` §46.
-- **Next Executable Task:** `M4-T5` (Headquarter Settings Application — awaiting user authorization).
+  - `M4-T5` (Headquarter Settings Application — `COMPLETE / VERIFIED`)
+- **Active Task:** `M4-T5` complete and verified across offline simulation, live dual-monitor Hyprland 0.57.0 runtime, and full M1-M4 regressions. Stopped at the M4-T5 -> M4-T6 boundary per user directive and `AGENTS.md` §46.
+- **Next Executable Task:** `M4-T6` (M4 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M4-001` — awaiting user authorization).

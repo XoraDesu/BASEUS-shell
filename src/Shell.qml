@@ -216,6 +216,7 @@ Item {
         statusService: _statusService
         wallpaperService: _wallpaperService
         paletteService: _paletteService
+        themeService: _themeService
         enabled: _lifecycle.initialized
     }
 
@@ -1104,6 +1105,61 @@ Item {
 
         function dailySnapshotState(): string {
             return JSON.stringify(_themeService.dailySnapshotState())
+        }
+
+        // =====================================================
+        // Headquarter Operations & Diagnostic Control (M4-T5, DEC-019)
+        // =====================================================
+
+        function openHeadquarter(category: string, monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            var cat = (typeof category === "string" && category.length > 0) ? category : "home"
+            _desktopHost.openHeadquarter(cat, monArg)
+            return JSON.stringify({
+                active: _desktopHost.headquarterActive,
+                mode: _shellState.mode,
+                category: cat,
+                monitorIndex: _desktopHost.headquarterMonitorIndex
+            })
+        }
+
+        function closeHeadquarter(): string {
+            _desktopHost.closeHeadquarter()
+            return JSON.stringify({
+                active: _desktopHost.headquarterActive,
+                mode: _shellState.mode
+            })
+        }
+
+        function toggleHeadquarter(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            _desktopHost.toggleHeadquarter(monArg)
+            return JSON.stringify({
+                active: _desktopHost.headquarterActive,
+                mode: _shellState.mode,
+                monitorIndex: _desktopHost.headquarterMonitorIndex
+            })
+        }
+
+        function headquarterState(monitorIndex: int): string {
+            var monArg = monitorIndex >= 0 ? monitorIndex : undefined
+            return JSON.stringify(_desktopHost.getHeadquarterState(monArg))
+        }
+
+        function headquarterSetCategory(category: string, monitorIndex: int): string {
+            var mon = monitorIndex >= 0 ? monitorIndex : _desktopHost.headquarterMonitorIndex
+            var hq = _desktopHost._headquarterFor(mon)
+            if (!hq) return JSON.stringify({ ok: false, reason: "not-available" })
+            hq.setCategory(category)
+            return JSON.stringify({ ok: true, state: hq.getSnapshot() })
+        }
+
+        function headquarterSearch(query: string, monitorIndex: int): string {
+            var mon = monitorIndex >= 0 ? monitorIndex : _desktopHost.headquarterMonitorIndex
+            var hq = _desktopHost._headquarterFor(mon)
+            if (!hq) return JSON.stringify({ ok: false, reason: "not-available" })
+            hq.setSearch(query)
+            return JSON.stringify({ ok: true, state: hq.getSnapshot() })
         }
     }
 

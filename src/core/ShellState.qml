@@ -31,11 +31,11 @@ QtObject {
     // =========================================================
     // Broad interaction context.
     // Possible values: "desktop", "fullscreen", "overview", "command-center",
-    //                  "app-drawer", "wallpaper-picker", "power-menu"
+    //                  "app-drawer", "wallpaper-picker", "headquarter", "power-menu"
     property string mode: "desktop"
 
     // Modes that overlay the desktop context and are dismissed by Back / Home (DEC-024).
-    readonly property var overlayModes: ["overview", "command-center", "app-drawer", "wallpaper-picker", "power-menu"]
+    readonly property var overlayModes: ["overview", "command-center", "app-drawer", "wallpaper-picker", "headquarter", "power-menu"]
 
     // Overview ("Helicopter View") is a primitive shell mode only in M1; its surface arrives in M5.
     readonly property bool overviewActive: mode === "overview"

@@ -33,6 +33,7 @@ Scope {
     property var statusService: null
     property var wallpaperService: null
     property var paletteService: null
+    property var themeService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================
@@ -110,6 +111,9 @@ Scope {
                 },
                 wallpaperPicker: {
                     active: desktopHost.wallpaperPickerActive && (desktopHost.wallpaperPickerMonitorIndex === s.monitorIndex)
+                },
+                headquarter: {
+                    active: desktopHost.headquarterActive && (desktopHost.headquarterMonitorIndex === s.monitorIndex)
                 }
             })
         }
@@ -477,6 +481,75 @@ Scope {
         return snap
     }
 
+    // =========================================================
+    // Headquarter State & Control (M4-T5, DEC-019, MASTER.md §18)
+    // =========================================================
+    property bool _headquarterOpen: false
+    property int _headquarterMonitor: 0
+    property string _headquarterInitialCategory: "home"
+
+    readonly property bool headquarterActive: desktopHost._headquarterOpen || (desktopHost.shellState && desktopHost.shellState.mode === "headquarter")
+    readonly property int headquarterMonitorIndex: desktopHost._headquarterMonitor
+
+    function openHeadquarter(category: string, monitorIndex: int) {
+        if (typeof monitorIndex === "number" && monitorIndex >= 0) {
+            desktopHost._headquarterMonitor = monitorIndex
+        } else if (desktopHost.shellState) {
+            desktopHost._headquarterMonitor = desktopHost.shellState.activeMonitorIndex
+        }
+        var cat = (typeof category === "string" && category.length > 0) ? category : "home"
+        desktopHost._headquarterInitialCategory = cat
+        desktopHost._headquarterOpen = true
+        if (desktopHost.shellState && desktopHost.shellState.mode !== "headquarter") {
+            desktopHost.shellState.setMode("headquarter")
+        }
+        var hq = desktopHost._headquarterFor(desktopHost._headquarterMonitor)
+        if (hq) {
+            hq.open(cat)
+        }
+    }
+
+    function closeHeadquarter() {
+        desktopHost._headquarterOpen = false
+        if (desktopHost.shellState && desktopHost.shellState.mode === "headquarter") {
+            desktopHost.shellState.dismissOverlay()
+        }
+        var hq = desktopHost._headquarterFor(desktopHost._headquarterMonitor)
+        if (hq) {
+            hq.close()
+        }
+    }
+
+    function toggleHeadquarter(monitorIndex: int) {
+        if (desktopHost.headquarterActive) {
+            desktopHost.closeHeadquarter()
+        } else {
+            desktopHost.openHeadquarter("home", monitorIndex)
+        }
+    }
+
+    function _headquarterFor(monitorIndex: int): var {
+        var list = headquarterVariants.instances
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].monitorIndex === monitorIndex) {
+                return list[i].headquarterRef
+            }
+        }
+        return null
+    }
+
+    function getHeadquarterState(monitorIndex: int): var {
+        var mon = (typeof monitorIndex === "number" && monitorIndex >= 0)
+            ? monitorIndex
+            : desktopHost.headquarterMonitorIndex
+        var hq = desktopHost._headquarterFor(mon)
+        if (!hq) return { available: false, active: false }
+        var snap = hq.getSnapshot()
+        snap.available = true
+        snap.monitorIndex = mon
+        return snap
+    }
+
     Connections {
         target: desktopHost.shellState ? desktopHost.shellState : null
         function onModeChanged() {
@@ -503,6 +576,14 @@ Scope {
                     desktopHost._wallpaperPickerOpen = false
                     var wp = desktopHost._wallpaperPickerFor(desktopHost._wallpaperPickerMonitor)
                     if (wp) wp.close()
+                }
+
+                if (desktopHost.shellState.mode === "headquarter" && !desktopHost._headquarterOpen) {
+                    desktopHost.openHeadquarter("home", desktopHost.shellState.activeMonitorIndex)
+                } else if (desktopHost.shellState.mode !== "headquarter" && desktopHost._headquarterOpen) {
+                    desktopHost._headquarterOpen = false
+                    var hq = desktopHost._headquarterFor(desktopHost._headquarterMonitor)
+                    if (hq) hq.close()
                 }
             }
         }
@@ -989,6 +1070,76 @@ Scope {
     }
 
     // =========================================================
+    // Headquarter Fullscreen Surface Overlay (M4-T5, DEC-019, MASTER.md §18)
+    // =========================================================
+    Variants {
+        id: headquarterVariants
+        model: desktopHost.enabled ? Quickshell.screens : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: hqWindow
+                required property var modelData
+
+                screen: modelData
+
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+
+                color: "transparent"
+                layer: WlrLayer.Overlay
+                namespace: desktopHost.layerNamespace + "-headquarter"
+                keyboardFocus: (headquarter.active && hqWindow.isTargetMonitor)
+                    ? WlrKeyboardFocus.Exclusive
+                    : WlrKeyboardFocus.None
+                exclusiveZone: 0
+
+                mask: Region {
+                    item: (headquarter.active && hqWindow.isTargetMonitor) ? headquarter : null
+                }
+
+                readonly property string screenName: modelData ? modelData.name : ""
+                readonly property var _monitorsRef: desktopHost.monitorModel ? desktopHost.monitorModel.monitors : null
+                readonly property int monitorIndex: {
+                    var dummy = hqWindow._monitorsRef
+                    return desktopHost.resolveMonitorIndex(hqWindow.screenName)
+                }
+                readonly property bool isTargetMonitor: hqWindow.monitorIndex === desktopHost.headquarterMonitorIndex
+                readonly property var headquarterRef: headquarter
+
+                visible: desktopHost.enabled && desktopHost.headquarterActive && hqWindow.isTargetMonitor
+
+                Headquarter {
+                    id: headquarter
+                    anchors.fill: parent
+                    theme: desktopHost.theme
+                    shellState: desktopHost.shellState
+                    config: desktopHost.config
+                    themeService: desktopHost.themeService
+                    paletteService: desktopHost.paletteService
+                    wallpaperService: desktopHost.wallpaperService
+                    workspaceModel: desktopHost.workspaceModel
+                    monitorModel: desktopHost.monitorModel
+                    windowModel: desktopHost.windowModel
+                    actionRegistry: desktopHost.actionRegistry
+                    notificationModel: desktopHost.notificationModel
+                    audioService: desktopHost.audioService
+                    mediaService: desktopHost.mediaService
+                    statusService: desktopHost.statusService
+                    bridge: desktopHost.bridge
+                    hostRef: desktopHost
+                    monitorIndex: hqWindow.monitorIndex
+                    active: hqWindow.visible
+
+                    onDismissRequested: desktopHost.closeHeadquarter()
+                }
+            }
+        }
+    }
+
+    // =========================================================
     // Multi-Monitor Wallpaper Surface (M4-T2, DEC-013)
     // =========================================================
     Variants {
@@ -1007,7 +1158,7 @@ Scope {
                 anchors.left: true
                 anchors.right: true
 
-                color: desktopHost.theme ? desktopHost.theme.colors.surfaceBase : "#16161e"
+                color: desktopHost.theme ? desktopHost.theme.colors.surfaceBase : "black"
                 layer: WlrLayer.Background
                 namespace: desktopHost.layerNamespace + "-wallpaper"
                 keyboardFocus: WlrKeyboardFocus.None
@@ -1036,7 +1187,7 @@ Scope {
 
                     Rectangle {
                         anchors.fill: parent
-                        color: desktopHost.theme ? desktopHost.theme.colors.surfaceBase : "#16161e"
+                        color: desktopHost.theme ? desktopHost.theme.colors.surfaceBase : "black"
                     }
 
                     Image {
