@@ -206,6 +206,7 @@ Item {
         shellState: _shellState
         bridge: shell.activeBridge
         config: _config
+        authService: _authService
         simulationMode: _config.simulationEnabled
     }
 
@@ -220,7 +221,17 @@ Item {
         simulationMode: _config.simulationEnabled
     }
 
-    // 20. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 20. Session Authentication & Lock Service (M5-T3, MASTER.md §35, DEC-025)
+    Core.AuthService {
+        id: _authService
+        logger: _logger
+        eventBus: _eventBus
+        shellState: _shellState
+        config: _config
+        simulationMode: _config.simulationEnabled
+    }
+
+    // 21. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -242,6 +253,7 @@ Item {
         themeService: _themeService
         powerService: _powerService
         idleService: _idleService
+        authService: _authService
         enabled: _lifecycle.initialized
     }
 
@@ -274,6 +286,7 @@ Item {
     readonly property alias themeService: _themeService
     readonly property alias powerService: _powerService
     readonly property alias idleService: _idleService
+    readonly property alias authService: _authService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -1266,6 +1279,41 @@ Item {
             _idleService.setMockIdle(seconds)
             return JSON.stringify(_idleService.getSnapshot())
         }
+
+        // =====================================================
+        // Session Lock & Authentication (M5-T3, MASTER.md §35)
+        // =====================================================
+
+        function lockSession(): string {
+            _authService.lock()
+            return JSON.stringify({
+                ok: true,
+                locked: _authService.isLocked,
+                state: _authService.getSnapshot()
+            })
+        }
+
+        function unlockSession(password: string): string {
+            var ok = _authService.authenticate(password)
+            return JSON.stringify({
+                ok: ok,
+                locked: _authService.isLocked,
+                state: _authService.getSnapshot()
+            })
+        }
+
+        function lockScreenState(): string {
+            return JSON.stringify(_authService.getSnapshot())
+        }
+
+        function mockAuthResult(result: bool): string {
+            _authService.setMockAuthResult(result)
+            return JSON.stringify({
+                ok: true,
+                override: result,
+                state: _authService.getSnapshot()
+            })
+        }
     }
 
     function _executeActionWithState(id, payload) {
@@ -1302,12 +1350,14 @@ Item {
         _themeService.initialize()
         _powerService.initialize()
         _idleService.initialize()
+        _authService.initialize()
         _desktopHost.initialize()
     }
 
     function _teardownSubsystems() {
         _notificationModel.dismissAll()
         _desktopHost.teardown()
+        _authService.teardown()
         _idleService.teardown()
         _powerService.teardown()
         _themeService.teardown()

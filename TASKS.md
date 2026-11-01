@@ -152,9 +152,9 @@ M5 depends upon:
 
 ### Sub-tasks
 
-- [ ] Implement PAM authentication bridge and credential handling.
-- [ ] Implement `LockScreen.qml` surface securing all outputs with typographic time and battery status.
-- [ ] Expose diagnostic IPC endpoints on `Shell.qml`.
+- [x] Implement PAM authentication bridge and credential handling.
+- [x] Implement `LockScreen.qml` surface securing all outputs with typographic time and battery status.
+- [x] Expose diagnostic IPC endpoints on `Shell.qml`.
 
 ---
 

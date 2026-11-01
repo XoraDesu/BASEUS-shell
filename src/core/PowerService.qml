@@ -27,6 +27,7 @@ Item {
     property var shellState: null
     property var bridge: null
     property var config: null
+    property var authService: null
 
     // =========================================================
     // Service State
@@ -88,6 +89,10 @@ Item {
         }
 
         var res = { ok: true, action: action, simulated: isSim, timestamp: powerService.lastActionTimestamp }
+
+        if (action === "lock" && powerService.authService) {
+            powerService.authService.lock()
+        }
 
         if (isSim) {
             powerService.lastActionStatus = "simulated"

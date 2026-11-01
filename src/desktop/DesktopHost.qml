@@ -36,6 +36,7 @@ Scope {
     property var themeService: null
     property var powerService: null
     property var idleService: null
+    property var authService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================
@@ -1346,6 +1347,66 @@ Scope {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // Wayland ext-session-lock-v1 Protocol Surface (DEC-025, DESIGN.md §35)
+    // =========================================================
+    WlSessionLock {
+        id: sessionLock
+        locked: desktopHost.authService ? desktopHost.authService.isLocked : false
+
+        surface: Component {
+            WlSessionLockSurface {
+                id: sessionLockSurface
+                color: desktopHost.theme ? desktopHost.theme.colors.surfaceSolid : "black"
+
+                LockScreen {
+                    anchors.fill: parent
+                    theme: desktopHost.theme
+                    authService: desktopHost.authService
+                    statusService: desktopHost.statusService
+                    screen: sessionLockSurface.screen
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    // Session Lock Overlay Fallback (for simulation & headless testing)
+    // =========================================================
+    Variants {
+        id: lockOverlayVariants
+        model: (desktopHost.enabled && desktopHost.authService && desktopHost.authService.isLocked && !sessionLock.secure)
+            ? Quickshell.screens
+            : []
+
+        delegate: Component {
+            WlrLayershell {
+                id: lockOverlayWindow
+                required property var modelData
+                screen: modelData
+
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+
+                color: desktopHost.theme ? desktopHost.theme.colors.surfaceSolid : "black"
+                layer: WlrLayer.Overlay
+                namespace: desktopHost.layerNamespace + "-lock-overlay"
+                keyboardFocus: WlrKeyboardFocus.Exclusive
+                exclusiveZone: -1
+
+                LockScreen {
+                    anchors.fill: parent
+                    theme: desktopHost.theme
+                    authService: desktopHost.authService
+                    statusService: desktopHost.statusService
+                    screen: lockOverlayWindow.screen
                 }
             }
         }
