@@ -63,9 +63,12 @@ Root composition. Instantiates all foundation singletons in dependency order:
 13. **AudioService** (`src/core/AudioService.qml`) — PipeWire / WirePlumber audio/volume and brightness feedback service (`DEC-021`)
 14. **MediaService** (`src/core/MediaService.qml`) — Linux MPRIS media player session tracking and control service (`DEC-026`, `DEC-039`)
 15. **StatusService** (`src/core/StatusService.qml`) — event-driven system status, power/battery, network, and subsystem health model (`MASTER.md` §9, `ANTI-SLOP.md` §6.7–6.8)
-16. **Theme** — unified design tokens (Colors, Typography, Spacing, Geometry, Motion)
-17. **DesktopHost** (`src/desktop/DesktopHost.qml`) — per-monitor layer-shell scaffolding hosting `TopIslandAnchor`, `WorkspaceIndicator`, `DockAnchor`, `NotificationHost`, `MediaWidget`, and overlay summon surfaces
-18. **Diagnostic IPC (`IpcHandler`)** — Quickshell IPC target `baseus` exposing diagnostic and automation endpoints (`status`, `restart`, `switchWorkspace`, `switchMonitorWorkspace`, `nextWorkspace`, `previousWorkspace`, `workspaces`, `windows`, `focusWindow`, `closeWindow`, `centerWindow`, `moveWindow`, `resizeWindow`, `toggleFloating`, `toggleMaximize`, `toggleFullscreen`, `minimizeWindow`, `restoreWindow`, `moveWindowToWorkspace`, `moveWindowToMonitor`, `listActions`, `getAction`, `shortcutOwners`, `executeAction`, `executeActionWithPayload`, `desktopSurfaces`, `triggerWorkspaceIndicator`, `setWorkspaceLabel`, `dockItems`, `clickDockItem`, `revealDock`, `hideDock`, `topIslandState`, `setTopIslandHover`, `tapTopIsland`, `clickTopIslandTrigger`, `toggleCommandCenter`, `openCommandCenter`, `closeCommandCenter`, `commandCenterState`, `commandCenterInput`, `commandCenterExecute`, `toggleAppDrawer`, `openAppDrawer`, `closeAppDrawer`, `appDrawerState`, `appDrawerSearch`, `appDrawerScrub`, `appDrawerLaunch`, `postNotification`, `dismissNotification`, `silenceNotifications`, `notificationState`, `osdState`, `triggerVolumeOsd`, `triggerBrightnessOsd`, `mediaStatus`, `mediaPlay`, `mediaPause`, `mediaToggle`, `mediaNext`, `mediaPrevious`, `mediaSeek`, `mediaWidgetState`, `toggleMediaWidget`, `bongoCatState`, `systemStatus`, `setMockBattery`, `setMockNetwork`)
+16. **PaletteService** (`src/core/PaletteService.qml`) — 4-color palette pipeline, Matugen extraction bridge, WCAG AA contrast validation, and cache management (`DEC-011`)
+17. **WallpaperService** (`src/core/WallpaperService.qml`) — static per-workspace (`1..10`) vs global live wallpaper engine (`DEC-013`, `DEC-014`)
+18. **ThemeService** (`src/core/ThemeService.qml`) — dynamic visual state serialization, preset management, daily snapshot, and strict interaction invariance (`DEC-012`, `DEC-037`)
+19. **Theme** — unified design tokens (Colors, Typography, Spacing, Geometry, Motion)
+20. **DesktopHost** (`src/desktop/DesktopHost.qml`) — per-monitor layer-shell scaffolding hosting `TopIslandAnchor`, `WorkspaceIndicator`, `DockAnchor`, `NotificationHost`, `MediaWidget`, `WallpaperPicker`, `Headquarter`, and background wallpaper surfaces
+21. **Diagnostic IPC (`IpcHandler`)** — Quickshell IPC target `baseus` exposing diagnostic and automation endpoints (`status`, `restart`, `switchWorkspace`, `switchMonitorWorkspace`, `nextWorkspace`, `previousWorkspace`, `workspaces`, `windows`, `focusWindow`, `closeWindow`, `centerWindow`, `moveWindow`, `resizeWindow`, `toggleFloating`, `toggleMaximize`, `toggleFullscreen`, `minimizeWindow`, `restoreWindow`, `moveWindowToWorkspace`, `moveWindowToMonitor`, `listActions`, `getAction`, `shortcutOwners`, `executeAction`, `executeActionWithPayload`, `desktopSurfaces`, `triggerWorkspaceIndicator`, `setWorkspaceLabel`, `dockItems`, `clickDockItem`, `revealDock`, `hideDock`, `topIslandState`, `setTopIslandHover`, `tapTopIsland`, `clickTopIslandTrigger`, `toggleCommandCenter`, `openCommandCenter`, `closeCommandCenter`, `commandCenterState`, `commandCenterInput`, `commandCenterExecute`, `toggleAppDrawer`, `openAppDrawer`, `closeAppDrawer`, `appDrawerState`, `appDrawerSearch`, `appDrawerScrub`, `appDrawerLaunch`, `postNotification`, `dismissNotification`, `silenceNotifications`, `notificationState`, `osdState`, `triggerVolumeOsd`, `triggerBrightnessOsd`, `mediaStatus`, `mediaPlay`, `mediaPause`, `mediaToggle`, `mediaNext`, `mediaPrevious`, `mediaSeek`, `mediaWidgetState`, `toggleMediaWidget`, `bongoCatState`, `systemStatus`, `setMockBattery`, `setMockNetwork`, `getPalette`, `extractPalette`, `setPalette`, `setWorkspaceWallpaper`, `setGlobalLiveWallpaper`, `wallpaperState`, `toggleWallpaperPicker`, `openWallpaperPicker`, `closeWallpaperPicker`, `wallpaperPickerState`, `wallpaperPickerSetTab`, `wallpaperPickerSelect`, `wallpaperPickerApply`, `saveCurrentTheme`, `applyTheme`, `listThemes`, `dailySnapshotState`, `openHeadquarter`, `closeHeadquarter`, `toggleHeadquarter`, `headquarterState`, `headquarterSetCategory`, `headquarterSearch`)
 
 ---
 
@@ -82,23 +85,25 @@ BASEUS introduces desktop visual surfaces following the **Capability → Surface
   - Plain text: application search with MRU tracking and enter-key launch.
 - **AppDrawer (`AppDrawer.qml`), AppDrawerItem (`AppDrawerItem.qml`), AlphabetScroller (`AlphabetScroller.qml`)**: Fullscreen application discovery surface (`DEC-018`) with rounded top corners (`floatingRadius: 12`) and flush bottom edge. Smooth bottom-to-top curtain reveal. Features a persistent top search bar, initial landing state with recent/suggested applications (max 3 columns) that smoothly collapses upward upon typing, continuous dynamic catalog grid in strict fixed `A–Z–0–9–#` order without cardified headers, zero running state indicators (`DEC-018`), and right-edge 1px-to-3px alphabet fast scroller (`DEC-022`) with pointer and touch scrub jumping.
 - **WorkspaceIndicator (`WorkspaceIndicator.qml`)**: Contextual workspace HUD triggered on workspace switch events, auto-hiding after ~2000ms (`DEC-029`). Employs hierarchical scaling (*"Focus grows. Context recedes."*), morphs into a compact labeled pill (`2 — WEB`) when user labels exist, updates/resets in place without animation stacking during rapid switches, and suppresses initial compositor startup discovery bursts.
+- **WallpaperPicker (`WallpaperPicker.qml`)**: Transient floating overlay centered on the display (`WlrLayer.Overlay`, `DEC-013`, `DEC-014`). Categorized tabs (`Library`, `Favorites`, `Recent`), responsive 196x118px thumbnail cards with live preview, favorite toggle, apply to active workspace, apply to all workspaces, live wallpaper activation, keyboard navigation (Arrows, Tab, Enter, Shift+Enter, Escape), and dynamic Layer-Shell input mask contracting to 0x0 at idle.
+- **Headquarter (`Headquarter.qml`)**: Fullscreen settings application (`WlrLayer.Overlay`, `DEC-019`, `DESIGN.md` §24–25). Persistent 240px right sidebar flanked by organic `InverseCorner` (`ICR`) fillets connecting to top/bottom screen perimeter (strictly never icon-only mode). 6 categorized settings views (`Home`, `Appearance`, `Workspaces`, `Shortcuts`, `Feedback`, `About`). Real-time settings search with breadcrumbs, contextual help bubble system anchored to the right of settings controls, universal dismissal via `Escape` / `navigation.back`, and dynamic Layer-Shell input mask with exclusive keyboard focus when open and 0x0 click-through when closed.
 
 ### Overlay Mode Transitions & Mutual Exclusivity
 
-Overlay surfaces (`CommandCenter`, `AppDrawer`) are governed by `ShellState.mode`:
+Overlay surfaces (`CommandCenter`, `AppDrawer`, `WallpaperPicker`, `Headquarter`, `Overview`) are governed by `ShellState.mode`:
 
 ```text
 Desktop Mode ("desktop")
        │
        ├─► Super+Space / Action  ──► CommandCenter ("command-center")
-       │                                     │
-       │                                     ├─► Super+A / Action ──► AppDrawer ("app-drawer")
-       │                                     │
        ├─► Super+A / Action      ──► AppDrawer ("app-drawer")
+       ├─► Action / Picker IPC   ──► WallpaperPicker ("wallpaper-picker")
+       ├─► Super+, / Settings    ──► Headquarter ("headquarter")
        │                                     │
-       │                                     ├─► Super+Space      ──► CommandCenter ("command-center")
+       │                                     ├─► Mutually exclusive: Opening any overlay
+       │                                     │   immediately dismisses the active one
        │                                     │
-       └─► navigation.back / Esc ◄───────────┴──────────────────────── Dismiss Overlay
+       └─► navigation.back / Esc ◄───────────┴── Dismiss Overlay
 ```
 
 - **Mutual Exclusivity:** Opening any overlay immediately and cleanly dismisses any previously active overlay without animation collision or leaked keyboard focus.
@@ -137,6 +142,44 @@ Milestone M3 establishes calm, contextual, event-driven feedback across four pri
 - **Battery & Power Monitoring:** Tracks percentage, charging status, low-battery threshold ($\le 20\%$), and critical threshold ($\le 10\%$). Dispatches a non-intrusive alert via `NotificationModel` when low while discharging, with automatic state deduplication and charging recovery.
 - **Network Connectivity:** Tracks connection state, interface type (wifi, ethernet, offline), and SSID label.
 - **Subsystem Health:** Monitors live status across HyprlandBridge, AudioService, and MediaService.
+
+---
+
+## Personalization Architecture (Milestone M4)
+
+Milestone M4 delivers dynamic styling, wallpaper management, and settings architecture following the **Capability → Surface** pattern (`DEC-045`):
+
+### 1. Palette Pipeline & Matugen Architecture (`PaletteService.qml`, `scripts/palette_extract.py`)
+- **Four-Color Model (`DEC-011`):** Strictly enforces four primary colors (`dominant`, `secondary`, `accent`, `neutral`) with derived tonal roles (`surfaceSolid`, `surfaceHighlight`, `surfaceRecessed`, `borderSubtle`, `textPrimary`, `textSecondary`).
+- **Contrast Ratio Validation:** Enforces WCAG AA compliance ($\ge 4.5:1$ between text and background surfaces) with automatic lightness stepping adjustments.
+- **Matugen Bridge & Caching:** Extracts colors from active wallpaper images via `scripts/palette_extract.py` with in-memory caching and JSON persistence; falls back deterministically to default Wabi-sabi tones (`Colors.qml`) under headless WSL2 / `BASEUS_SIMULATION=1`.
+- **Event Dispatch:** Dispatches updates over `EventBus` category `"theme"` (`palette_updated`).
+
+### 2. Wallpaper Engine (`WallpaperService.qml`, `DesktopHost.qml`)
+- **Dual-Model Scoping (`DEC-013`):** Static wallpapers are configured independently per workspace (`1..10`), dynamically updating on workspace switches. Live wallpaper is configured globally across the entire desktop.
+- **Single-Sample Extraction (`DEC-014`):** Live wallpaper palette extraction is sampled once upon initialization and cached (zero continuous background extraction loops or idle CPU consumption).
+- **Layer-Shell Surface (`DesktopHost.qml`):** Background layer-shell surface (`WlrLayer.Background`, `exclusiveZone: -1`) configured with `mask: Region {}` for 100% click-through transparency and smooth cross-fade image transitions.
+
+### 3. Dynamic Theme System & Visual Transitions (`ThemeService.qml`)
+- **Visual State Serialization:** Serializes complete visual configurations (wallpaper paths, 4-color palette, widget layout, icon theme) into JSON snapshots.
+- **Interaction Invariance (`DEC-012`, `DEC-037`):** Switching themes alters visual tokens ONLY and strictly NEVER mutates gestures, keybinds, window rules, notification timeouts, or Dock triggers.
+- **Visual Transition Tokens:** Dispatches transition metadata for mask shaders (`"fade"`, `"circle_wipe"`, `"wavy_wipe"`, `"bubble_ripple"`).
+- **Daily Theme Snapshot:** Generates a date-stamped visual theme snapshot once per day (`MASTER.md` §26) accessible via `dailySnapshotState()`.
+- **Built-in Presets:** Includes four foundational aesthetic themes (`"wabi-sabi-indigo"`, `"tokyo-slate"`, `"cyber-sand"`, `"obsidian-ember"`).
+
+### 4. Wallpaper Picker Surface (`WallpaperPicker.qml`)
+- **Floating Overlay:** Centered transient dialog (`WlrLayer.Overlay`) with solid Wabi-sabi surface (`colors.surfaceSolid` + `borderSubtle`), zero blur, and zero drop shadows.
+- **Categorization:** Tabs for `Library`, `Favorites`, and `Recent` (ordered by timestamp).
+- **Interactive Capabilities:** Responsive 196x118px thumbnail cards, live preview, favorite toggle, apply to active workspace, apply to all workspaces, live wallpaper activation, and full keyboard navigation (Arrows, Tab, Enter, Shift+Enter, Escape).
+- **Hitmask Recovery:** Contracts to `0x0` input mask immediately upon closure.
+
+### 5. Headquarter Settings Application (`Headquarter.qml`)
+- **Fullscreen Overlay (`DEC-019`, `DESIGN.md` §24–25):** Literally fullscreen surface (`WlrLayer.Overlay`) per-monitor with exclusive keyboard focus when active.
+- **Persistent Right Sidebar:** 240px width, flanked by organic `InverseCorner` (`ICR`) fillets connecting to top/bottom screen perimeter; strictly never collapses into an icon-only mode.
+- **Information Architecture:** 6 categorized settings views (`Home`, `Appearance`, `Workspaces`, `Shortcuts`, `Feedback`, `About`) adhering strictly to editorial minimalism without spaceship KPI telemetry dashboards (`ANTI-SLOP.md` §6.8).
+- **Live Apply Principle (`MASTER.md` §22):** Setting adjustments mutate backend services immediately with zero modal "Apply / Cancel" dialogs.
+- **Settings Search & Progressive Disclosure:** Real-time search bar filtering across settings items with hierarchical breadcrumbs, coupled with a non-modal contextual help bubble system (`?` icons) anchored to the right of controls without layout shift.
+- **Universal Dismissal:** Universal dismissal via `Escape` / `navigation.back`, releasing exclusive keyboard focus and contracting input mask to 0x0.
 
 ---
 

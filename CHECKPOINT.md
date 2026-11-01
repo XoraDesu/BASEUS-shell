@@ -654,6 +654,88 @@ This checkpoint represents the conceptual/documentation baseline from which the 
 
 ---
 
+# 18. M4 Personalization Baseline Checkpoint
+
+## CP-M4-001 — Personalization Baseline
+
+**Status:** VERIFIED (Static `qmllint 6.12.0` across 49 QML files, zero ANTI-SLOP violations, Quickshell 0.3.2 Runtime, and Live Hyprland 0.57.0 Dual-Monitor Compositor E2E Integration Verified on WSL2 Arch Linux)  
+**Date:** 2026-11-01  
+**Phase:** M4 — Personalization  
+**Scope:** Palette pipeline architecture (`PaletteService.qml`, `scripts/palette_extract.py`) enforcing the four-color model (`DEC-011`: `dominant`, `secondary`, `accent`, `neutral`) with derived tonal roles (`surfaceSolid`, `surfaceHighlight`, `surfaceRecessed`, `borderSubtle`, `textPrimary`, `textSecondary`), WCAG AA contrast validation ($\ge 4.5:1$), and caching; wallpaper engine (`WallpaperService.qml`, `DesktopHost.qml`) enforcing `DEC-013` (independent per-workspace static wallpapers across `1..10` vs global live wallpaper) and `DEC-014` (single-sample extraction for live wallpaper, zero continuous background extraction loops); background layer-shell surface with `exclusiveZone: -1` and `mask: Region {}` for 100% click-through desktop transparency; dynamic theme system & visual transitions (`ThemeService.qml`) with complete visual state serialization, daily theme snapshot persistence (`MASTER.md` §26), transition mask shader tokens (`fade`, `circle_wipe`, `wavy_wipe`, `bubble_ripple`), built-in presets (`wabi-sabi-indigo`, `tokyo-slate`, `cyber-sand`, `obsidian-ember`), and strict preservation of interaction invariants (`DEC-012`, `DEC-037`: theme switching changes visual styling ONLY and never alters gestures, shortcuts, window behavior, or timeouts); floating wallpaper picker overlay (`WallpaperPicker.qml`, `WlrLayer.Overlay`) with categorized tabs (`Library`, `Favorites`, `Recent`), responsive 196x118px cards with live preview, favorite toggle, apply to active workspace, apply to all workspaces, live wallpaper activation, keyboard navigation, and dynamic 0x0 hitmask recovery; Headquarter settings application (`Headquarter.qml`, `WlrLayer.Overlay`, `DEC-019`, `DESIGN.md` §24–25) featuring a literally fullscreen overlay per-monitor, persistent 240px right sidebar flanked by organic `InverseCorner` (`ICR`) fillets connecting to top/bottom screen perimeter (strictly never icon-only mode), 6 categorized settings views (`Home`, `Appearance`, `Workspaces`, `Shortcuts`, `Feedback`, `About`) adhering strictly to editorial minimalism without spaceship KPI telemetry dashboards (`ANTI-SLOP.md` §6.8), live apply principle (`MASTER.md` §22: mutating backend state immediately without modal dialogs), real-time settings search filtering across categories with hierarchical breadcrumbs, contextual help bubble system anchored cleanly to the right of settings controls without layout shift, universal dismissal via `Escape` / `navigation.back`, and dynamic Layer-Shell input mask with exclusive keyboard focus when open and 0x0 click-through when closed; overlay mutual exclusivity across Headquarter, WallpaperPicker, CommandCenter, AppDrawer, and Overview without animation collisions or leaked keyboard grabs; and shell restart recovery (`quickshell ipc call baseus restart`) with clean state resynchronization across dual monitors and zero orphaned subscriptions.
+
+### Repository
+
+- **Commit:** `ad5f93d64fb088e913b3cf333497f68432ad9594` (`feat(m4): implement headquarter settings application (M4-T5)`)
+- **Branch:** `main`
+- **Working tree:** Implementation files present (`shell.qml`, `src/`, `config/`, `docs/`, `scripts/`)
+- **Repository structure:** Matches `MASTER.md` §59 and `TASKS.md` §7
+
+### Environment
+
+- **Host OS:** Windows with WSL2 Linux runtime (`/mnt/d/Linux/BASEUS`)
+- **Linux Distribution & Kernel:** `Arch Linux` on WSL2 (`Linux 6.18.54.1-microsoft-standard-WSL2`)
+- **Display Connection:** WSLg Wayland (`WAYLAND_DISPLAY=wayland-0`) and nested Wayland `zwp_linux_dmabuf_v1` host (`/dev/dri/renderD128` → live Hyprland child `WAYLAND_DISPLAY=wayland-1`)
+- **Shell Runtime:** `Quickshell 0.3.2` (`quickshell-git`, rev `9b0f339b19057f4731bf3b48293307d7ef241671`)
+- **Qt / QML Tooling:** Qt 6 (`qmllint 6.12.0` at `/usr/lib/qt6/bin/qmllint`)
+- **Live Compositor:** `Hyprland 0.57.0` (commit `0aa6745f705f2c4b0a5004eb019ef76e5bbdb426`, `Aquamarine 0.15.1`, `AQ_NO_MODIFIERS=1 MESA_LOADER_DRIVER_OVERRIDE=kms_swrast`, Lua config manager `Hyprland.usingLua == true`, dual headless outputs `VIRTUAL-1` and `VIRTUAL-2`)
+
+### Implementation
+
+- **Palette & Matugen Pipeline Architecture (`PaletteService.qml`, `scripts/palette_extract.py`)**:
+  - Enforces the four-color model (`DEC-011`: `dominant`, `secondary`, `accent`, `neutral`) with derived tonal roles.
+  - WCAG AA contrast ratio validation ($\ge 4.5:1$ between text and solid surfaces) with automatic lightness adjustments.
+  - Matugen CLI extraction bridge with deterministic fallback under `BASEUS_SIMULATION=1` or when Matugen is absent.
+  - Wires updates into `EventBus.qml` under category `"theme"` (`palette_updated`).
+- **Wallpaper Engine (`WallpaperService.qml`, `DesktopHost.qml`)**:
+  - Enforces `DEC-013`: static wallpapers are independent per workspace (`1..10`), whereas live wallpaper is global across the desktop.
+  - Enforces `DEC-014`: live wallpaper extraction is sampled once upon initialization and cached (zero continuous background extraction loops).
+  - Background layer-shell surface with `exclusiveZone: -1` and `mask: Region {}` for 100% click-through desktop transparency.
+- **Dynamic Theme System & Visual Transitions (`ThemeService.qml`)**:
+  - Visual state serialization (wallpaper paths, 4-color palette, widget layout, icon theme) into JSON snapshots.
+  - Preserves strict interaction invariance (`DEC-012`, `DEC-037`: theme switching changes visual tokens ONLY and never modifies gestures, keybinds, window rules, or timeouts).
+  - Transition mask shader tokens (`fade`, `circle_wipe`, `wavy_wipe`, `bubble_ripple`).
+  - Daily theme snapshot persistence (`MASTER.md` §26) and built-in aesthetic presets (`wabi-sabi-indigo`, `tokyo-slate`, `cyber-sand`, `obsidian-ember`).
+- **Wallpaper Picker Floating Surface (`WallpaperPicker.qml`)**:
+  - Floating centered overlay (`WlrLayer.Overlay`) with solid Wabi-sabi body (`surfaceSolid` + `borderSubtle`), zero blur, and zero drop shadows (`ANTI-SLOP.md`).
+  - Categorized tabs (`Library`, `Favorites`, `Recent` ordered by timestamp), responsive 196x118px thumbnail cards with live preview, favorite toggle, apply to active workspace, apply to all workspaces, live wallpaper activation, and full keyboard navigation.
+  - Contracts to `0x0` input mask immediately upon closure.
+- **Headquarter Settings Application (`Headquarter.qml`)**:
+  - Literally fullscreen surface overlay per-monitor with exclusive keyboard focus when active (`DEC-019`, `DESIGN.md` §24).
+  - Persistent 240px right sidebar flanked by organic `InverseCorner` (`ICR`) fillets connecting to top/bottom screen perimeter; strictly never collapses into an icon-only mode.
+  - 6 categorized settings views (`Home`, `Appearance`, `Workspaces`, `Shortcuts`, `Feedback`, `About`) adhering strictly to editorial minimalism without spaceship KPI telemetry dashboards (`ANTI-SLOP.md` §6.8).
+  - Live apply principle (`MASTER.md` §22: mutating backend state immediately without modal dialogs).
+  - Real-time search bar filtering across settings items with hierarchical breadcrumbs.
+  - Non-modal contextual help bubble system anchored cleanly to the right of settings controls without layout shift (`DESIGN.md` §25).
+  - Universal dismissal via `Escape` / `navigation.back`, releasing exclusive keyboard focus and contracting input mask to 0x0.
+
+### Validation
+
+| Area | Status | Evidence |
+|---|---|---|
+| Anti-Slop & Design Audit | VERIFIED | Automated audit across all 49 QML files: 0 violations, zero hardcoded hex colors outside definition tokens, zero blur/glass/shadows, zero M5 scope leaks, 100% `pragma ComponentBehavior: Bound` |
+| QML Static & Type Linting | VERIFIED | `scripts/validate.sh --all` (`/usr/lib/qt6/bin/qmllint` 6.12.0) and `scripts/validate.ps1` passed with 0 errors and 0 warnings across all 49 QML files |
+| Configuration Validation | VERIFIED | `config/baseus.json` validated JSON; theme, wallpaper, and headquarter configuration schemas verified |
+| Offline Simulation Suite | VERIFIED | `verify_m4_e2e.py` Phase B: PaletteService 4-color model & contrast validation, WallpaperService per-workspace vs global live, ThemeService presets & interaction invariance, WallpaperPicker tabs & apply, Headquarter persistent sidebar & search, and overlay mutual exclusivity passed 100% |
+| Background Wallpaper Surfaces | VERIFIED | `verify_m4_e2e.py` Step C1: Dual-monitor background layer-shell surfaces registered with 0x0 hitmask for 100% click-through desktop transparency |
+| Wallpaper Picker Live Delivery | VERIFIED | `verify_m4_e2e.py` Step C2: Live open on Monitor 0, selection, workspace apply dispatch, and 0x0 hitmask recovery verified |
+| Headquarter Live Delivery | VERIFIED | `verify_m4_e2e.py` Step C3: Live open on Monitor 0 with exclusive keyboard focus, persistent 240px right sidebar, category navigation, search with breadcrumbs, and universal back dismissal verified |
+| Overlay Mutual Exclusivity Live | VERIFIED | `verify_m4_e2e.py` Step C4: CommandCenter <-> Headquarter <-> WallpaperPicker seamless transitions without leaked keyboard grabs verified |
+| Lifecycle & Shell Restart Recovery | VERIFIED | `verify_m4_e2e.py` Step C5: `quickshell ipc call baseus restart` cleanly recovers 2 monitors, layer surfaces, and all personalization subsystems |
+| Full Desktop Regressions M1–M4 | VERIFIED | `verify_m4_e2e.py` Step C6: Workspaces (10-ws async switching), Dock & Top Island, MediaService & StatusService, PaletteService, WallpaperService, and ThemeService operational |
+| Comprehensive Multi-Monitor E2E | VERIFIED | `verify_m4_e2e.py` executed Phase A, Phase B, and Phase C with 100% PASS |
+
+### Known Limitations
+
+- **WSL2 virtual scanout:** Physical multi-monitor DRM master hardware scanout, physical 4-finger touchpad gestures, and hardware backlight controllers require bare-metal Linux.
+- **Hardware video decoding for live wallpaper:** Headless WSL2 utilizes software decoding fallback for animated live wallpaper feeds.
+
+### Recovery / Resume Meaning
+
+`CP-M4-001` is the authoritative, verified **M4 — Personalization** baseline. From this checkpoint, the repository safely transitions to **M5 — Session, Lock & Polish** (Lock screen, Session/power management, Idle inhibitor, Native hardware gesture binding).
+
+
+---
+
 # 15. Recovery Principle
 
 A checkpoint is useful only if it can be returned to or reconstructed.
@@ -977,6 +1059,7 @@ If any critical answer is no, keep the checkpoint as `CANDIDATE` or fix the reco
 | `CP-M1-001` | VERIFIED | M1 Desktop Core (fixed 10 workspaces, per-monitor navigation, freeform floating/centering, maximize vs native fullscreen, scratchpad-free minimize & restore, Action Registry, navigation primitives, DesktopHost layer scaffolding, TopIslandAnchor with ICR, contextual WorkspaceIndicator HUD, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
 | `CP-M2-001` | VERIFIED | M2 Interaction (Dock 2px trigger & scaffolding, global pins vs workspace clients, Top Island hover expansion & fullscreen notch summon, Command Center `>` prefix routing, App Drawer with search collapse & alphabet fast scroller, overlay mutual exclusivity, dynamic layer-shell hitmasking, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
 | `CP-M3-001` | VERIFIED | M3 System Feedback (top-left notifications with 70% backdrop & hold-to-silence, Top Island OSD with bubble-drop & rapid in-place morphing, centralized MPRIS media service with strict DEC-039 notification suppression, compact 328x38px header media controls, dedicated Media Widget with Bongo Cat 0-CPU idle timer gating, calm contextual System Status with non-intrusive low-power alerts, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
+| `CP-M4-001` | VERIFIED | M4 Personalization (PaletteService 4-color model & WCAG AA contrast validation, WallpaperService per-workspace static vs global live engine, ThemeService presets & strict DEC-037 interaction invariance, WallpaperPicker floating overlay & multi-workspace apply, Headquarter fullscreen settings with persistent 240px right sidebar & ICR fillets, real-time search with breadcrumbs, overlay mutual exclusivity, zero anti-slop violations, zero-warning `qmllint 6.12.0`, live dual-monitor Hyprland 0.57.0 E2E verified) |
 
 This index should grow as verified states are created.
 

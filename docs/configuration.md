@@ -154,6 +154,13 @@ BASEUS should never fail to start due to a configuration error.
 | `media.compactWidth` | `328` | px | Fixed width for Top Island compact media container (`DEC-039`) |
 | `status.lowBatteryThreshold` | `20.0` | 0.0–100.0 | Low battery warning threshold percentage |
 | `status.criticalBatteryThreshold` | `10.0` | 0.0–100.0 | Critical battery warning threshold percentage |
+| `theme.active` | `"wabi-sabi-indigo"` | string (`wabi-sabi-indigo`, `tokyo-slate`, `cyber-sand`, `obsidian-ember`) | Active theme preset (`DEC-012`) |
+| `theme.transition` | `"circle_wipe"` | string (`fade`, `circle_wipe`, `wavy_wipe`, `bubble_ripple`) | Visual transition mask shader token |
+| `wallpaper.mode` | `"static"` | `"static"`, `"live"` | Wallpaper rendering mode (`DEC-013`) |
+| `wallpaper.workspaces` | `{}` | key-value map (`1..10` → file path) | Independent per-workspace static wallpapers (`DEC-013`) |
+| `wallpaper.globalLive` | `""` | file path | Global desktop live wallpaper video/canvas path (`DEC-013`) |
+| `headquarter.sidebarWidth` | `240` | px (fixed) | Persistent right sidebar width (`DEC-019`) |
+| `headquarter.defaultCategory` | `"home"` | string | Initial settings view category (`DEC-019`) |
 | `performance.reducedMotion` | `false` | bool | Reduce animation for accessibility |
 | `performance.animationDuration` | `250` | 0–2000 ms | Default animation duration |
 | `workspaces.labels` | `{}` | key-value map (`1..10` → string) | User-defined workspace names (e.g. `{"1": "HOME", "2": "DEV"}`) |

@@ -194,10 +194,10 @@ M4 depends upon:
 
 ### Sub-tasks
 
-- [ ] Run integrated E2E test suite combining Palette, Wallpaper, Theme transitions, Wallpaper Picker, and Headquarter across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
-- [ ] Perform comprehensive anti-slop audit across all QML surfaces.
-- [ ] Update `docs/architecture.md` and `docs/configuration.md`.
-- [ ] Update `STATE.md`, record `CP-M4-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
+- [x] Run integrated E2E test suite combining Palette, Wallpaper, Theme transitions, Wallpaper Picker, and Headquarter across dual virtual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
+- [x] Perform comprehensive anti-slop audit across all QML surfaces.
+- [x] Update `docs/architecture.md` and `docs/configuration.md`.
+- [x] Update `STATE.md`, record `CP-M4-001` in `CHECKPOINT.md`, report concisely, and **STOP**.
 
 ---
 
@@ -244,17 +244,19 @@ The agent must **STOP**:
 
 # 11. Current Status
 
-- **Active Phase:** `M4 — Personalization` (*`ROADMAP.md` §11: `M4 — Personalization`*)
+- **Active Phase:** `M4 — Personalization` (*`ROADMAP.md` §11: `M4 — Personalization` — COMPLETE & VERIFIED*)
 - **Completed Milestones:**
   - `M0 — Foundation` (`CP-M0-001` `VERIFIED`)
   - `M1 — Desktop Core` (`CP-M1-001` `VERIFIED`)
   - `M2 — Interaction` (`CP-M2-001` `VERIFIED`)
   - `M3 — System Feedback` (`CP-M3-001` `VERIFIED`)
+  - `M4 — Personalization` (`CP-M4-001` `VERIFIED`)
 - **Completed Tasks in Phase:**
   - `M4-T1` (Palette & Matugen Pipeline Architecture — `COMPLETE / VERIFIED`)
   - `M4-T2` (Wallpaper Engine: Static Per-Workspace vs Global Live Wallpaper — `COMPLETE / VERIFIED`)
   - `M4-T3` (Dynamic Theme System & Visual Transitions — `COMPLETE / VERIFIED`)
   - `M4-T4` (Wallpaper Picker Floating Surface — `COMPLETE / VERIFIED`)
   - `M4-T5` (Headquarter Settings Application — `COMPLETE / VERIFIED`)
-- **Active Task:** `M4-T5` complete and verified across offline simulation, live dual-monitor Hyprland 0.57.0 runtime, and full M1-M4 regressions. Stopped at the M4-T5 -> M4-T6 boundary per user directive and `AGENTS.md` §46.
-- **Next Executable Task:** `M4-T6` (M4 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M4-001` — awaiting user authorization).
+  - `M4-T6` (M4 End-to-End Multi-Monitor Validation, Anti-Slop Audit & Checkpoint `CP-M4-001` — `COMPLETE / VERIFIED`)
+- **Active Task:** `M4-T6` complete and verified. Milestone M4 — Personalization is 100% COMPLETE & VERIFIED. Halted at the M4 → M5 phase gate per `AGENTS.md` §46 and §48.
+- **Next Executable Milestone:** `Milestone M5 — Session, Lock & Polish` (*`ROADMAP.md` §12: `M5 — Session, Lock & Polish`* — awaiting owner kickoff authorization).
