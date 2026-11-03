@@ -45,7 +45,8 @@ Item {
     property int activePlayerIndex: 0
 
     readonly property bool isSimulation: mediaService.config ? mediaService.config.simulationEnabled : false
-    readonly property bool hasLivePlayers: Mpris.players && Mpris.players.values ? (Mpris.players.values.length > 0) : false
+    readonly property var _mpris: Mpris
+    readonly property bool hasLivePlayers: (_mpris && _mpris.players && _mpris.players.values) ? (_mpris.players.values.length > 0) : false
 
     // Signals
     signal playbackChanged(string status)
@@ -100,7 +101,7 @@ Item {
     // Live MPRIS Synchronization
     // =========================================================
     Connections {
-        target: Mpris.players ? Mpris.players : null
+        target: (mediaService._mpris && mediaService._mpris.players) ? mediaService._mpris.players : null
 
         function onValuesChanged() {
             mediaService._syncLivePlayers()
@@ -115,7 +116,7 @@ Item {
             return
         }
 
-        var players = Mpris.players.values
+        var players = mediaService._mpris.players.values
         var names = []
         for (var i = 0; i < players.length; i++) {
             var p = players[i]
@@ -149,7 +150,7 @@ Item {
         mediaService.playbackStatus = "Playing"
 
         if (mediaService.hasLivePlayers && !mediaService.isSimulation) {
-            var players = Mpris.players.values
+            var players = mediaService._mpris.players.values
             if (players.length > mediaService.activePlayerIndex && players[mediaService.activePlayerIndex]) {
                 players[mediaService.activePlayerIndex].play()
             }
@@ -163,7 +164,7 @@ Item {
         mediaService.playbackStatus = "Paused"
 
         if (mediaService.hasLivePlayers && !mediaService.isSimulation) {
-            var players = Mpris.players.values
+            var players = mediaService._mpris.players.values
             if (players.length > mediaService.activePlayerIndex && players[mediaService.activePlayerIndex]) {
                 players[mediaService.activePlayerIndex].pause()
             }
@@ -183,7 +184,7 @@ Item {
 
     function next(): void {
         if (mediaService.hasLivePlayers && !mediaService.isSimulation) {
-            var players = Mpris.players.values
+            var players = mediaService._mpris.players.values
             if (players.length > mediaService.activePlayerIndex && players[mediaService.activePlayerIndex]) {
                 players[mediaService.activePlayerIndex].next()
             }
@@ -200,7 +201,7 @@ Item {
 
     function previous(): void {
         if (mediaService.hasLivePlayers && !mediaService.isSimulation) {
-            var players = Mpris.players.values
+            var players = mediaService._mpris.players.values
             if (players.length > mediaService.activePlayerIndex && players[mediaService.activePlayerIndex]) {
                 players[mediaService.activePlayerIndex].previous()
             }
@@ -220,7 +221,7 @@ Item {
         mediaService.trackPosition = clamped
 
         if (mediaService.hasLivePlayers && !mediaService.isSimulation) {
-            var players = Mpris.players.values
+            var players = mediaService._mpris.players.values
             if (players.length > mediaService.activePlayerIndex && players[mediaService.activePlayerIndex]) {
                 if (typeof players[mediaService.activePlayerIndex].setPosition === "function") {
                     players[mediaService.activePlayerIndex].setPosition(clamped)
