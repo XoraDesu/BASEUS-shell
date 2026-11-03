@@ -161,6 +161,14 @@ BASEUS should never fail to start due to a configuration error.
 | `wallpaper.globalLive` | `""` | file path | Global desktop live wallpaper video/canvas path (`DEC-013`) |
 | `headquarter.sidebarWidth` | `240` | px (fixed) | Persistent right sidebar width (`DEC-019`) |
 | `headquarter.defaultCategory` | `"home"` | string | Initial settings view category (`DEC-019`) |
+| `idle.dimTimeout` | `300` | seconds | Inactivity duration before screen dimming (`MASTER.md` §34) |
+| `idle.lockTimeout` | `600` | seconds | Inactivity duration before automatic session locking |
+| `idle.suspendTimeout` | `900` | seconds | Inactivity duration before system suspend |
+| `idle.autoLock` | `true` | bool | Automatically lock session after `lockTimeout` |
+| `idle.autoSuspend` | `false` | bool | Automatically suspend system after `suspendTimeout` |
+| `idle.inhibitByDefault` | `false` | bool | Start session with presentation mode inhibitor active |
+| `session.holdDuration` | `1000` | ms | Hold-to-confirm duration for destructive actions (`DEC-027`) |
+| `gestures.cooldownMs` | `350` | ms | Cooldown gating duration between consecutive gestures |
 | `performance.reducedMotion` | `false` | bool | Reduce animation for accessibility |
 | `performance.animationDuration` | `250` | 0–2000 ms | Default animation duration |
 | `workspaces.labels` | `{}` | key-value map (`1..10` → string) | User-defined workspace names (e.g. `{"1": "HOME", "2": "DEV"}`) |
@@ -177,3 +185,4 @@ BASEUS provides authoritative compositor presets matching the desktop core archi
 
 - **`config/hypr/baseus-desktop.lua`**: Modern Lua configuration preset for Hyprland `0.57.0+`. Configures 25 keybinds (22 workspace/window binds + `Super+Escape` Back, `Super+D` Home, `Super+Tab` Overview via Quickshell IPC), 4-finger horizontal workspace gestures (`hl.gesture`), non-wrapping workspace transitions with `fade` context animation (`MASTER.md` §7), default freeform floating + centered window placement (`DEC-008`), `baseus-minimized-hidden` rule suppressing minimized windows without scratchpads (`DEC-038`), and 1px solid tonal borders without blur or neon glow (`DESIGN.md` §34).
 - **`config/hypr/baseus-desktop.conf`**: Hyprlang reference preset maintained for compatibility and cross-version audit.
+- **`config/hyprland-baseus.conf`**: Standalone comprehensive keybinding and gesture preset aligning all 35 registered core actions in `ActionRegistry.qml` with native Hyprland binds, touchpad gestures, and session/power triggers.

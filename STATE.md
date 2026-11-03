@@ -80,7 +80,7 @@ The current execution baseline starts from the new roadmap at **M0 — Foundatio
 
 ## Execution Status
 
-**IN PROGRESS — Milestone M5 (Session, Lock & Polish) is active. Tasks M5-T1 (Session & Power Management Overlay), M5-T2 (Idle & Inhibitor Service), M5-T3 (Lock Screen Surface & Authentication Architecture), M5-T4 (Hardware Bindings & Gesture Scaffolding), and M5-T5 (Shell Cold-Start Optimization & Performance Profiling) are COMPLETE and VERIFIED. Task M5-T6 (M5 Multi-Monitor E2E Validation, Full Anti-Slop Audit & Checkpoint CP-M5-001) is PENDING. Stopped at the M5-T5 → M5-T6 boundary per AGENTS.md §46.**
+**COMPLETE / VERIFIED — Milestone M5 (Session, Lock & Polish) is 100% complete and verified. Tasks M5-T1 (Session & Power Management Overlay), M5-T2 (Idle & Inhibitor Service), M5-T3 (Lock Screen Surface & Authentication Architecture), M5-T4 (Hardware Bindings & Gesture Scaffolding), M5-T5 (Shell Cold-Start Optimization & Performance Profiling), and M5-T6 (M5 Multi-Monitor E2E Validation, Full Anti-Slop Audit & Checkpoint CP-M5-001) are COMPLETE and VERIFIED. Zero anti-slop violations, 100% pragma ComponentBehavior: Bound across all 55 QML files, zero linter warnings on qmllint 6.12.0, and verified end-to-end under live dual-monitor Hyprland 0.57.0 (VIRTUAL-1 + VIRTUAL-2) + Quickshell 0.3.2. Anchored at checkpoint CP-M5-001. Execution stops at the Milestone M5 boundary per AGENTS.md §46.**
 
 The **M0 — Foundation** baseline is complete, approved, and anchored at verified checkpoint `CP-M0-001` (commit `9a37a1420dd702ed8fe4d1ed036016d1732f60ea`) under **Foundation Freeze** (`DEC-043`).
 
@@ -91,6 +91,8 @@ The **M2 — Interaction** baseline is complete, audited (0 anti-slop violations
 The **M3 — System Feedback** baseline is complete, audited, and anchored at verified checkpoint `CP-M3-001` covering floating top-left notifications (`DEC-020`) with hold-to-silence feedback, Top Island OSD bubble-drop with rapid in-place morphing (`DEC-021`), centralized MPRIS media player architecture with strict `DEC-039` notification suppression, fixed 328x38px compact header media controls, dedicated modular Media Widget with Bongo Cat 0-CPU idle timer gating (`ANTI-SLOP.md` §37), and calm contextual System Status with non-intrusive low-power alerts (`ANTI-SLOP.md` §6.7–6.8).
 
 The **M4 — Personalization** baseline is complete, audited, and anchored at verified checkpoint `CP-M4-001` covering Palette pipeline architecture (`DEC-011`: 4-color model with WCAG AA contrast validation and caching), Wallpaper engine (`DEC-013`, `DEC-014`: independent per-workspace static wallpapers across `1..10` vs global live engine with 0x0 background hitmasking), Dynamic Theme System (`DEC-012`, `DEC-037`: complete visual state serialization, daily snapshots, and strict preservation of interaction invariants), Wallpaper Picker floating overlay with responsive thumbnail cards and workspace apply dispatch, and Headquarter fullscreen settings application (`DEC-019`, `DESIGN.md` §24–25) featuring a persistent 240px right sidebar with organic ICR fillets, 6 categorized views, real-time settings search with breadcrumbs, non-modal contextual help bubbles, and universal dismissal.
+
+The **M5 — Session, Lock & Polish** baseline is complete, audited, and anchored at verified checkpoint `CP-M5-001` covering constellation SessionOverlay with 1000ms hold-to-confirm protection for destructive power actions (`DEC-027`), IdleService tiered progression with presentation mode inhibitor toggle and Top Island awake pip indicator (`MASTER.md` §34), LockScreen with airtight `ext-session-lock-v1` opaque occlusion and PAM authentication (`DEC-025`), GestureService multi-finger gesture routing with 350ms cooldown latching (`MASTER.md` §7, §28), synchronized canonical Hyprland keybindings (`config/hyprland-baseus.conf`), <150ms cold-start latency, zero-cost desktop idle (0.00% CPU utilization, 0 ticks/s), and multi-monitor shell restart recovery.
 
 ---
 
@@ -103,9 +105,9 @@ The **M4 — Personalization** baseline is complete, audited, and anchored at ve
 3. **`M5-T3` — Lock Screen Surface & Authentication Architecture:** `COMPLETE / VERIFIED`
 4. **`M5-T4` — Hardware Bindings & Gesture Scaffolding:** `COMPLETE / VERIFIED`
 5. **`M5-T5` — Shell Cold-Start Optimization & Performance Profiling:** `COMPLETE / VERIFIED`
-6. **`M5-T6` — M5 Multi-Monitor E2E Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001`:** `PENDING`
+6. **`M5-T6` — M5 Multi-Monitor E2E Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001`:** `COMPLETE / VERIFIED`
 
-Task `M5-T5` (Shell Cold-Start Optimization & Performance Profiling) is complete and verified across all test suites. Execution stops at the M5-T5 → M5-T6 boundary per AGENTS.md §46.
+Milestone M5 is 100% COMPLETE & VERIFIED. Anchored at `CP-M5-001`. Execution stops at the Milestone M5 boundary per `AGENTS.md` §46. Milestone M6 kickoff is pending owner review.
 
 ---
 

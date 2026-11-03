@@ -186,10 +186,10 @@ M5 depends upon:
 
 ### Sub-tasks
 
-- [ ] Run integrated E2E test suite across dual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
-- [ ] Perform comprehensive anti-slop audit across all QML surfaces.
-- [ ] Update `docs/architecture.md` and `docs/configuration.md`.
-- [ ] Update `STATE.md`, record `CP-M5-001` in `CHECKPOINT.md`, and **STOP**.
+- [x] Run integrated E2E test suite across dual outputs (`VIRTUAL-1`, `VIRTUAL-2`).
+- [x] Perform comprehensive anti-slop audit across all QML surfaces.
+- [x] Update `docs/architecture.md` and `docs/configuration.md`.
+- [x] Update `STATE.md`, record `CP-M5-001` in `CHECKPOINT.md`, and **STOP**.
 
 ---
 
@@ -244,6 +244,7 @@ The agent must **STOP**:
   - `M5-T2` — Idle & Inhibitor Service (`COMPLETE / VERIFIED` — commit `b9b8af0`)
   - `M5-T3` — Lock Screen Surface & Authentication Architecture (`COMPLETE / VERIFIED` — commit `ae6f11a`)
   - `M5-T4` — Hardware Bindings & Gesture Scaffolding (`COMPLETE / VERIFIED` — commit `e61444b`)
-  - `M5-T5` — Shell Cold-Start Optimization & Performance Profiling (`COMPLETE / VERIFIED`)
-- **Active Task:** Stopped at the `M5-T5 → M5-T6` boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M5-T6` (M5 End-to-End Multi-Monitor Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001`).
+  - `M5-T5` — Shell Cold-Start Optimization & Performance Profiling (`COMPLETE / VERIFIED` — commit `da05c10`)
+  - `M5-T6` — M5 End-to-End Multi-Monitor Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001` (`COMPLETE / VERIFIED`)
+- **Active Task:** Milestone M5 (Session, Lock & Polish) is 100% COMPLETE & VERIFIED. Anchored at `CP-M5-001`.
+- **Next Executable Task:** Milestone M5 completed; stopped at Milestone M5 boundary per `AGENTS.md` §46. Milestone M6 kickoff pending owner review.

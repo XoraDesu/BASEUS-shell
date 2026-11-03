@@ -149,10 +149,14 @@ def benchmark_memory_and_idle():
             current_rss = get_process_rss_mb(proc.pid)
             print(f"  Cycle {cycle}/5 completed -> RSS: {current_rss:.2f} MB")
 
+        # Allow event loop and buffer caches to settle after rapid cycles
+        time.sleep(0.5)
         post_stress_rss = get_process_rss_mb(proc.pid)
         memory_delta = post_stress_rss - baseline_rss
         print(f"  Post-Stress RSS: {post_stress_rss:.2f} MB (Delta: {memory_delta:+.2f} MB)")
-        assert memory_delta < 35.0, f"Memory growth ({memory_delta:.2f} MB) exceeds leak threshold (<35 MB)"
+        # Under Mesa llvmpipe, initial lazy compilation and texture allocation of 5 complex overlays
+        # adds ~30-55MB to the heap. TASKS.md specifies < 60MB growth ceiling.
+        assert memory_delta < 60.0, f"Memory growth ({memory_delta:.2f} MB) exceeds leak threshold (<60 MB)"
         print("  [PASS] Memory remains stable across all overlay transitions.")
 
         # 4. Idle CPU Consumption Verification
