@@ -128,6 +128,10 @@ Item {
         navigationController: _navigationController
         bridge: shell.activeBridge
         idleService: _idleService
+        desktopHost: _desktopHost
+        authService: _authService
+        mediaService: _mediaService
+        audioService: _audioService
     }
 
     // 11. Notification Domain Model (M3-T1, DEC-020)
@@ -231,7 +235,20 @@ Item {
         simulationMode: _config.simulationEnabled
     }
 
-    // 21. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
+    // 21. Touchpad Gesture Service & Dispatcher (M5-T4, MASTER.md §28–29, §34, DEC-028)
+    Core.GestureService {
+        id: _gestureService
+        logger: _logger
+        eventBus: _eventBus
+        shellState: _shellState
+        workspaceModel: _workspaceModel
+        navigationController: _navigationController
+        desktopHost: _desktopHost
+        actionRegistry: _actionRegistry
+        config: _config
+    }
+
+    // 22. Per-Monitor Layer-Shell Desktop Scaffolding (DEC-045, DEC-023)
     DesktopModule.DesktopHost {
         id: _desktopHost
         logger: _logger
@@ -254,6 +271,7 @@ Item {
         powerService: _powerService
         idleService: _idleService
         authService: _authService
+        gestureService: _gestureService
         enabled: _lifecycle.initialized
     }
 
@@ -287,6 +305,7 @@ Item {
     readonly property alias powerService: _powerService
     readonly property alias idleService: _idleService
     readonly property alias authService: _authService
+    readonly property alias gestureService: _gestureService
 
     readonly property var activeBridge: _config.simulationEnabled ? _mockBridge : _liveBridge
     readonly property var hyprlandBridge: activeBridge
@@ -1314,6 +1333,15 @@ Item {
                 state: _authService.getSnapshot()
             })
         }
+
+        function dispatchMockGesture(direction: string, fingers: int): string {
+            var res = _gestureService.dispatchMockGesture(direction, fingers, 50.0)
+            return JSON.stringify(res)
+        }
+
+        function gestureState(): string {
+            return JSON.stringify(_gestureService.getSnapshot())
+        }
     }
 
     function _executeActionWithState(id, payload) {
@@ -1351,12 +1379,14 @@ Item {
         _powerService.initialize()
         _idleService.initialize()
         _authService.initialize()
+        _gestureService.initialize()
         _desktopHost.initialize()
     }
 
     function _teardownSubsystems() {
         _notificationModel.dismissAll()
         _desktopHost.teardown()
+        _gestureService.teardown()
         _authService.teardown()
         _idleService.teardown()
         _powerService.teardown()

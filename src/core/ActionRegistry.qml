@@ -39,11 +39,15 @@ QtObject {
     // Active compositor bridge (live or mock). Provided by the composition root.
     property var bridge: null
     property var idleService: null
+    property var desktopHost: null
+    property var authService: null
+    property var mediaService: null
+    property var audioService: null
 
     // =========================================================
     // Schema
     // =========================================================
-    readonly property var categories: ["navigation", "workspace", "window", "system"]
+    readonly property var categories: ["navigation", "workspace", "window", "system", "surface", "media"]
     readonly property string coreOwner: "core"
     readonly property int maxExecutionDepth: 4
 
@@ -339,7 +343,7 @@ QtObject {
         self.register({
             id: "navigation.back", category: "navigation",
             title: "Back", description: "Return to the previous context: close an overlay, return to the previous workspace, or refocus the previous window.",
-            defaultShortcut: "Super+Escape",
+            defaultShortcut: "Alt+Left",
             isEnabled: function() { return nav !== null },
             callback: function() { return nav.back() }
         }, coreOwner)
@@ -347,7 +351,7 @@ QtObject {
         self.register({
             id: "navigation.home", category: "navigation",
             title: "Home", description: "Return to the desktop on Workspace 1 of the active monitor.",
-            defaultShortcut: "Super+D",
+            defaultShortcut: "Super+H",
             isEnabled: function() { return nav !== null },
             callback: function() { return nav.home() }
         }, coreOwner)
@@ -428,6 +432,177 @@ QtObject {
                     return { ok: true, inhibited: inh }
                 }
                 return { ok: false, reason: "idle-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "surface.app_drawer", category: "surface",
+            title: "App Drawer", description: "Toggle the application drawer overlay.",
+            defaultShortcut: "Super+D",
+            isEnabled: function() { return actionRegistry.desktopHost !== null },
+            callback: function() {
+                if (actionRegistry.desktopHost) {
+                    var mon = actionRegistry.shellState ? actionRegistry.shellState.activeMonitorIndex : 0
+                    actionRegistry.desktopHost.toggleAppDrawer(mon)
+                    return { ok: true }
+                }
+                return { ok: false, reason: "desktop-host-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "surface.command_center", category: "surface",
+            title: "Command Center", description: "Toggle the universal Command Center launcher.",
+            defaultShortcut: "Super+Space",
+            isEnabled: function() { return actionRegistry.desktopHost !== null },
+            callback: function() {
+                if (actionRegistry.desktopHost) {
+                    var mon = actionRegistry.shellState ? actionRegistry.shellState.activeMonitorIndex : 0
+                    actionRegistry.desktopHost.toggleCommandCenter(mon)
+                    return { ok: true }
+                }
+                return { ok: false, reason: "desktop-host-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "surface.session_menu", category: "surface",
+            title: "Session Menu", description: "Toggle the session power overlay.",
+            defaultShortcut: "Super+Escape",
+            isEnabled: function() { return actionRegistry.desktopHost !== null },
+            callback: function() {
+                if (actionRegistry.desktopHost) {
+                    var mon = actionRegistry.shellState ? actionRegistry.shellState.activeMonitorIndex : 0
+                    actionRegistry.desktopHost.toggleSessionMenu(mon)
+                    return { ok: true }
+                }
+                return { ok: false, reason: "desktop-host-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "system.lock", category: "system",
+            title: "Lock session", description: "Immediately engage the secure session lock screen.",
+            defaultShortcut: "Super+L",
+            isEnabled: function() { return actionRegistry.authService !== null },
+            callback: function() {
+                if (actionRegistry.authService) {
+                    actionRegistry.authService.lock()
+                    return { ok: true }
+                }
+                return { ok: false, reason: "auth-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "media.toggle", category: "media",
+            title: "Media Play/Pause", description: "Toggle media playback on active player.",
+            defaultShortcut: "XF86AudioPlay",
+            isEnabled: function() { return actionRegistry.mediaService !== null },
+            callback: function() {
+                if (actionRegistry.mediaService) {
+                    actionRegistry.mediaService.togglePlay()
+                    return { ok: true }
+                }
+                return { ok: false, reason: "media-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "media.next", category: "media",
+            title: "Media Next", description: "Skip to next track on active player.",
+            defaultShortcut: "XF86AudioNext",
+            isEnabled: function() { return actionRegistry.mediaService !== null },
+            callback: function() {
+                if (actionRegistry.mediaService) {
+                    actionRegistry.mediaService.next()
+                    return { ok: true }
+                }
+                return { ok: false, reason: "media-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "media.previous", category: "media",
+            title: "Media Previous", description: "Return to previous track on active player.",
+            defaultShortcut: "XF86AudioPrev",
+            isEnabled: function() { return actionRegistry.mediaService !== null },
+            callback: function() {
+                if (actionRegistry.mediaService) {
+                    actionRegistry.mediaService.previous()
+                    return { ok: true }
+                }
+                return { ok: false, reason: "media-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "audio.volume_up", category: "system",
+            title: "Volume Up", description: "Step master audio volume up by 5%.",
+            defaultShortcut: "XF86AudioRaiseVolume",
+            isEnabled: function() { return actionRegistry.audioService !== null },
+            callback: function() {
+                if (actionRegistry.audioService) {
+                    actionRegistry.audioService.stepVolume(0.05)
+                    return { ok: true }
+                }
+                return { ok: false, reason: "audio-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "audio.volume_down", category: "system",
+            title: "Volume Down", description: "Step master audio volume down by 5%.",
+            defaultShortcut: "XF86AudioLowerVolume",
+            isEnabled: function() { return actionRegistry.audioService !== null },
+            callback: function() {
+                if (actionRegistry.audioService) {
+                    actionRegistry.audioService.stepVolume(-0.05)
+                    return { ok: true }
+                }
+                return { ok: false, reason: "audio-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "audio.mute", category: "system",
+            title: "Toggle Mute", description: "Toggle audio output mute.",
+            defaultShortcut: "XF86AudioMute",
+            isEnabled: function() { return actionRegistry.audioService !== null },
+            callback: function() {
+                if (actionRegistry.audioService) {
+                    var m = actionRegistry.audioService.toggleMute()
+                    return { ok: true, muted: m }
+                }
+                return { ok: false, reason: "audio-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "brightness.up", category: "system",
+            title: "Brightness Up", description: "Step display brightness up by 5%.",
+            defaultShortcut: "XF86MonBrightnessUp",
+            isEnabled: function() { return actionRegistry.audioService !== null },
+            callback: function() {
+                if (actionRegistry.audioService) {
+                    actionRegistry.audioService.stepBrightness(0.05)
+                    return { ok: true }
+                }
+                return { ok: false, reason: "audio-service-unavailable" }
+            }
+        }, coreOwner)
+
+        self.register({
+            id: "brightness.down", category: "system",
+            title: "Brightness Down", description: "Step display brightness down by 5%.",
+            defaultShortcut: "XF86MonBrightnessDown",
+            isEnabled: function() { return actionRegistry.audioService !== null },
+            callback: function() {
+                if (actionRegistry.audioService) {
+                    actionRegistry.audioService.stepBrightness(-0.05)
+                    return { ok: true }
+                }
+                return { ok: false, reason: "audio-service-unavailable" }
             }
         }, coreOwner)
     }

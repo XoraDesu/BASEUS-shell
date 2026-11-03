@@ -119,6 +119,7 @@ validate_structure() {
     check_file "src/core/PowerService.qml"
     check_file "src/core/IdleService.qml"
     check_file "src/core/AuthService.qml"
+    check_file "src/core/GestureService.qml"
     check_dir "src/desktop"
     check_file "src/desktop/DesktopHost.qml"
     check_file "src/desktop/TopIslandAnchor.qml"
@@ -162,6 +163,7 @@ validate_structure() {
     check_dir "config/hypr"
     check_file "config/hypr/baseus-desktop.lua"
     check_file "config/hypr/baseus-desktop.conf"
+    check_file "config/hyprland-baseus.conf"
 
     # Documentation
     echo ""

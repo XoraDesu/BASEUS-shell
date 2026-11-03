@@ -37,6 +37,7 @@ Scope {
     property var powerService: null
     property var idleService: null
     property var authService: null
+    property var gestureService: null
     property bool mediaWidgetEnabled: false
 
     // =========================================================

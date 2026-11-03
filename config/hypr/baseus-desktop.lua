@@ -168,6 +168,23 @@ local baseusAction = baseusIpcPrefix()
 --   hyprctl eval 'return BASEUS_ACTION_IPC'
 BASEUS_ACTION_IPC = baseusAction
 
-hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(baseusAction .. "navigation.back"),     { description = "BASEUS Back" })
-hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd(baseusAction .. "navigation.home"),     { description = "BASEUS Home" })
-hl.bind(mainMod .. " + Tab",    hl.dsp.exec_cmd(baseusAction .. "navigation.overview"), { description = "BASEUS Overview" })
+-- Primary Surfaces & Session (M2/M5, DEC-028)
+hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd(baseusAction .. "surface.app_drawer"),      { description = "BASEUS App Drawer" })
+hl.bind(mainMod .. " + Space",  hl.dsp.exec_cmd(baseusAction .. "surface.command_center"),  { description = "BASEUS Command Center" })
+hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(baseusAction .. "surface.session_menu"),    { description = "BASEUS Session Menu" })
+hl.bind(mainMod .. " + L",      hl.dsp.exec_cmd(baseusAction .. "system.lock"),             { description = "BASEUS Lock Screen" })
+
+-- Navigation primitives — Back / Home / Overview (DEC-024, DEC-028)
+hl.bind("ALT + Left",           hl.dsp.exec_cmd(baseusAction .. "navigation.back"),         { description = "BASEUS Back" })
+hl.bind(mainMod .. " + H",      hl.dsp.exec_cmd(baseusAction .. "navigation.home"),         { description = "BASEUS Home" })
+hl.bind(mainMod .. " + Tab",    hl.dsp.exec_cmd(baseusAction .. "navigation.overview"),     { description = "BASEUS Overview" })
+
+-- Hardware / Media / Volume / Brightness function keys (M3/M5)
+hl.bind("XF86AudioPlay",        hl.dsp.exec_cmd(baseusAction .. "media.toggle"),        { description = "Media Play/Pause" })
+hl.bind("XF86AudioNext",        hl.dsp.exec_cmd(baseusAction .. "media.next"),          { description = "Media Next" })
+hl.bind("XF86AudioPrev",        hl.dsp.exec_cmd(baseusAction .. "media.previous"),      { description = "Media Previous" })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(baseusAction .. "audio.volume_up"),    { description = "Volume Up" })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(baseusAction .. "audio.volume_down"),  { description = "Volume Down" })
+hl.bind("XF86AudioMute",        hl.dsp.exec_cmd(baseusAction .. "audio.mute"),         { description = "Toggle Mute" })
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(baseusAction .. "brightness.up"),      { description = "Brightness Up" })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(baseusAction .. "brightness.down"),    { description = "Brightness Down" })

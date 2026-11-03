@@ -164,8 +164,8 @@ M5 depends upon:
 
 ### Sub-tasks
 
-- [ ] Align Hyprland keybinds for session, lock, and power triggers.
-- [ ] Implement 3-finger and 4-finger gesture mappings.
+- [x] Align Hyprland keybinds for session, lock, and power triggers.
+- [x] Implement 3-finger and 4-finger gesture mappings.
 
 ---
 
@@ -240,6 +240,9 @@ The agent must **STOP**:
   - `M3 — System Feedback` (`CP-M3-001` `VERIFIED`)
   - `M4 — Personalization` (`CP-M4-001` `VERIFIED`)
 - **Completed Tasks in Phase:**
-  - (None yet)
-- **Active Task:** `M5-T1` (Session & Power Management Overlay — in progress).
-- **Next Executable Task:** `M5-T2` (Idle & Inhibitor Service — awaiting M5-T1 completion).
+  - `M5-T1` — Session & Power Management Overlay (`COMPLETE / VERIFIED` — commit `76323d7`)
+  - `M5-T2` — Idle & Inhibitor Service (`COMPLETE / VERIFIED` — commit `b9b8af0`)
+  - `M5-T3` — Lock Screen Surface & Authentication Architecture (`COMPLETE / VERIFIED` — commit `ae6f11a`)
+  - `M5-T4` — Hardware Bindings & Gesture Scaffolding (`COMPLETE / VERIFIED`)
+- **Active Task:** Stopped at the `M5-T4 → M5-T5` boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M5-T5` (Shell Cold-Start Optimization & Performance Profiling).
