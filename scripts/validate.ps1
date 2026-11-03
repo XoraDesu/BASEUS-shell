@@ -148,6 +148,7 @@ Write-Host "`n  Scripts:"
 Check-Dir "scripts"
 Check-File "scripts/validate.sh"
 Check-File "scripts/palette_extract.py"
+Check-File "scripts/profile_performance.py"
 
 Write-Host "`n  GitHub:"
 Check-Dir ".github"

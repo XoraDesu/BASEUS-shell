@@ -47,6 +47,8 @@ QtObject {
     property int _consecutiveFailures: 0
     readonly property int maxInitAttempts: 5
     property int restartCount: 0
+    property real startupDurationMs: 0
+    property real _initStartTime: 0
 
     // =========================================================
     // Initialization
@@ -68,6 +70,7 @@ QtObject {
         }
 
         _state = "initializing"
+        _initStartTime = Date.now()
         if (logger) logger.info("Lifecycle", "Initialization started.")
 
         // Step 1: Load configuration and sync logger verbosity
@@ -109,9 +112,15 @@ QtObject {
         // Step 3: Mark running and reset consecutive failure counter
         _consecutiveFailures = 0
         _state = "running"
-        if (logger) logger.info("Lifecycle", "Shell lifecycle is now RUNNING.")
+        startupDurationMs = Date.now() - _initStartTime
+        if (logger) logger.info("Lifecycle",
+            "Shell lifecycle is now RUNNING (initialized in %1 ms).".arg(startupDurationMs))
         if (eventBus) {
-            eventBus.emit("lifecycle", { type: "started", restartCount: restartCount })
+            eventBus.emit("lifecycle", {
+                type: "started",
+                restartCount: restartCount,
+                startupDurationMs: startupDurationMs
+            })
         }
         return true
     }

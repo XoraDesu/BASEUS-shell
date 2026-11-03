@@ -175,8 +175,8 @@ M5 depends upon:
 
 ### Sub-tasks
 
-- [ ] Audit startup timeline and optimize component loading.
-- [ ] Verify zero CPU consumption during desktop idle state.
+- [x] Audit startup timeline and optimize component loading.
+- [x] Verify zero CPU consumption during desktop idle state.
 
 ---
 
@@ -243,6 +243,7 @@ The agent must **STOP**:
   - `M5-T1` — Session & Power Management Overlay (`COMPLETE / VERIFIED` — commit `76323d7`)
   - `M5-T2` — Idle & Inhibitor Service (`COMPLETE / VERIFIED` — commit `b9b8af0`)
   - `M5-T3` — Lock Screen Surface & Authentication Architecture (`COMPLETE / VERIFIED` — commit `ae6f11a`)
-  - `M5-T4` — Hardware Bindings & Gesture Scaffolding (`COMPLETE / VERIFIED`)
-- **Active Task:** Stopped at the `M5-T4 → M5-T5` boundary per `AGENTS.md` §46.
-- **Next Executable Task:** `M5-T5` (Shell Cold-Start Optimization & Performance Profiling).
+  - `M5-T4` — Hardware Bindings & Gesture Scaffolding (`COMPLETE / VERIFIED` — commit `e61444b`)
+  - `M5-T5` — Shell Cold-Start Optimization & Performance Profiling (`COMPLETE / VERIFIED`)
+- **Active Task:** Stopped at the `M5-T5 → M5-T6` boundary per `AGENTS.md` §46.
+- **Next Executable Task:** `M5-T6` (M5 End-to-End Multi-Monitor Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001`).

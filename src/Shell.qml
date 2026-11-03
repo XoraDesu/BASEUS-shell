@@ -321,6 +321,7 @@ Item {
             return JSON.stringify({
                 lifecycle: _lifecycle.state,
                 restartCount: _lifecycle.restartCount,
+                startupDurationMs: _lifecycle.startupDurationMs,
                 simulation: _config.simulationEnabled,
                 configLoaded: _config.loaded,
                 configFallback: _config.usedFallback,

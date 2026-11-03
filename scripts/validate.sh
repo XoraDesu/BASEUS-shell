@@ -176,6 +176,7 @@ validate_structure() {
     check_dir "scripts"
     check_file "scripts/validate.sh"
     check_file "scripts/palette_extract.py"
+    check_file "scripts/profile_performance.py"
 
     # GitHub
     echo ""

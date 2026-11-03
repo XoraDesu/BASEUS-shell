@@ -49,7 +49,7 @@ Item {
         id: clockTimer
         interval: 1000
         repeat: true
-        running: true
+        running: lockScreen.visible
         onTriggered: lockScreen._updateClock()
     }
 
