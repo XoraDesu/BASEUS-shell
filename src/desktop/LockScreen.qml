@@ -99,7 +99,7 @@ Item {
     Rectangle {
         id: lockBackground
         anchors.fill: parent
-        color: lockScreen.currentTheme.colors.surfaceSolid
+        color: lockScreen.currentTheme.colors.surfaceContainerLow
 
         // Universal focus capture mouse area
         MouseArea {
@@ -175,7 +175,7 @@ Item {
                 width: 260
                 height: 40
                 radius: lockScreen.currentTheme.geometry.radiusSmall
-                color: lockScreen.currentTheme.colors.surfaceRecessed
+                color: lockScreen.currentTheme.colors.surfaceContainerLowest
                 border.width: 1
                 border.color: {
                     if (failureTimer.running) {
@@ -187,12 +187,13 @@ Item {
                     if (passwordInput.activeFocus) {
                         return lockScreen.currentTheme.colors.dominant
                     }
-                    return lockScreen.currentTheme.colors.borderSubtle
+                    return lockScreen.currentTheme.colors.outlineVariant
                 }
 
                 Behavior on border.color {
                     ColorAnimation {
-                        duration: lockScreen.currentTheme.motion.durationFast
+                        duration: lockScreen.currentTheme.motion.durationMicro
+                        easing.type: lockScreen.currentTheme.motion.easingMicro
                     }
                 }
 

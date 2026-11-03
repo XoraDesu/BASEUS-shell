@@ -6,7 +6,8 @@ pragma ComponentBehavior: Bound
 // Governed by DESIGN.md §6, §39 and ANTI-SLOP.md §7:
 //   - Motion restraint: animation exists to communicate causality, not spectacle
 //   - "Focus grows, context recedes"
-//   - Fast, responsive execution (120–200ms default)
+//   - Crisp decelerate/accelerate curves: zero oscillating bounce (OutBack/OutElastic forbidden)
+//   - Immediate Layer-Shell 0x0 hitmask contraction on exit
 //   - Support for reduced motion accessibility
 
 import QtQuick
@@ -26,33 +27,43 @@ QtObject {
     // Instant / zero duration for reduced motion or instantaneous feedback
     readonly property int durationInstant: 0
 
-    // Micro-interactions: hover highlights, press states, icon color shift
-    readonly property int durationFast: reducedMotion ? 0 : 120
+    // Micro-interactions: hover highlights, press states, border tint, state layers
+    readonly property int durationMicro: reducedMotion ? 0 : 90
 
-    // Standard transitions: Dock reveal, Top Island expand, tooltip pop
-    readonly property int durationNormal: reducedMotion ? 0 : 200
+    // Fast exit / collapse transitions: rapid clean retraction (130ms–150ms)
+    readonly property int durationFast: reducedMotion ? 0 : 140
 
-    // Structural transitions: App Drawer slide, Command Center open
+    // Standard enter / expand transitions: calm landing, zero overshoot (200ms–220ms)
+    readonly property int durationNormal: reducedMotion ? 0 : 210
+
+    // Structural transitions: App Drawer slide, Command Center open, Headquarter curtain
     readonly property int durationSlow: reducedMotion ? 0 : 300
 
     // Visual state crossfades: Theme palette transition
     readonly property int durationTheme: reducedMotion ? 0 : 400
 
     // =========================================================
-    // Easing Curves
+    // Easing Curves (Crisp Decelerate / Accelerate)
     // =========================================================
 
     // Standard balanced transition
     readonly property int easingStandard: Easing.InOutQuad
 
-    // Focus grows smoothly and settles briskly
-    readonly property int easingFocus: Easing.OutCubic
+    // Enter / Expand: Fast initial response, calm Wabi-Sabi landing, zero overshoot
+    readonly property int easingEnter: Easing.OutCubic
 
-    // Inactive context recedes into background
-    readonly property int easingRecede: Easing.InCubic
+    // Exit / Collapse: Rapid clean retraction so mask contracts to 0x0 without blocking
+    readonly property int easingExit: Easing.InCubic
 
-    // Gentle bounce for small physical feedback (used sparingly)
-    readonly property int easingSpring: Easing.OutBack
+    // Micro-state transitions: Smooth micro-transitions for hover / press / borders
+    readonly property int easingMicro: Easing.OutQuad
+
+    // Aliases for backward compatibility
+    readonly property int easingFocus: easingEnter
+    readonly property int easingRecede: easingExit
+
+    // Non-oscillating curve enforcing hitmask safety (OutBack/OutBounce forbidden by ANTI-SLOP)
+    readonly property int easingSpring: Easing.OutCubic
 
     // =========================================================
     // Spatial Scale & Opacity ("Focus grows, context recedes")

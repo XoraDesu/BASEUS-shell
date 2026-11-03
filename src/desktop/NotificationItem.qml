@@ -55,11 +55,11 @@ Rectangle {
     implicitHeight: Math.min(220, Math.max(76, contentColumn.implicitHeight + 24))
 
     radius: notificationItem.currentTheme.geometry.radiusLarge
-    color: notificationItem.currentTheme.colors.surfaceSolid
+    color: notificationItem.currentTheme.colors.surfaceContainer
     border.width: 1
     border.color: notificationItem.isCritical
         ? notificationItem.currentTheme.colors.statusWarning
-        : (itemMouseArea.containsMouse ? notificationItem.currentTheme.colors.dominant : notificationItem.currentTheme.colors.borderSubtle)
+        : (itemMouseArea.containsMouse ? notificationItem.currentTheme.colors.dominant : notificationItem.currentTheme.colors.outline)
 
     clip: true
 
@@ -80,7 +80,7 @@ Rectangle {
         from: -400
         to: 0
         duration: notificationItem.currentTheme.motion.durationNormal
-        easing.type: Easing.OutCubic
+        easing.type: notificationItem.currentTheme.motion.easingEnter
     }
 
     // =========================================================
@@ -95,7 +95,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         width: parent.width * notificationItem.holdProgress
-        color: notificationItem.currentTheme.colors.surfaceHighlight
+        color: notificationItem.currentTheme.colors.surfaceContainerHighest
         visible: notificationItem.holdProgress > 0.0
     }
 
@@ -219,7 +219,7 @@ Rectangle {
                 width: 18
                 height: 18
                 radius: notificationItem.currentTheme.geometry.radiusSmall
-                color: closeHover.hovered ? notificationItem.currentTheme.colors.surfaceElevated : "transparent"
+                color: closeHover.hovered ? notificationItem.currentTheme.colors.stateHover : "transparent"
                 anchors.verticalCenter: parent.verticalCenter
 
                 Text {

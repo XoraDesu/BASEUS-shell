@@ -106,6 +106,7 @@ The **M5 — Session, Lock & Polish** baseline is complete, audited, and anchore
 4. **`M5-T4` — Hardware Bindings & Gesture Scaffolding:** `COMPLETE / VERIFIED`
 5. **`M5-T5` — Shell Cold-Start Optimization & Performance Profiling:** `COMPLETE / VERIFIED`
 6. **`M5-T6` — M5 Multi-Monitor E2E Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001`:** `COMPLETE / VERIFIED`
+7. **`M5-REFINE` — Tonal Depth, Interactive State Layers & Motion Choreography:** `COMPLETE / VERIFIED` (5-container solid luminance hierarchy, 0-CPU flat state layers, asymmetric cubic easing curves, optical concentric radii, and WCAG AA contrast validation across all 55 QML files)
 
 Milestone M5 is 100% COMPLETE & VERIFIED. Anchored at `CP-M5-001`. Execution stops at the Milestone M5 boundary per `AGENTS.md` §46. Milestone M6 kickoff is pending owner review.
 
@@ -620,7 +621,7 @@ BASEUS
 ├── Agent protocol           LOCKED
 ├── Current tasks            ACTIVE (M5 — Session, Lock & Polish: M5-T1..M5-T6)
 │
-├── Active phase             M5 — Session, Lock & Polish (IN PROGRESS: M5-T1..M5-T5 COMPLETE / VERIFIED)
+├── Active phase             M5 — Session, Lock & Polish (COMPLETE / VERIFIED: M5-T1..M5-T6 + M5-REFINE)
 ├── Primary surfaces         CP-M2-001 (VERIFIED — commit 2979965)
 ├── Desktop Core baseline    CP-M1-001 (VERIFIED — commit d29a54f)
 ├── Foundation baseline      CP-M0-001 (VERIFIED — commit 9a37a142)
@@ -628,7 +629,7 @@ BASEUS
 ├── Quickshell runtime       VERIFIED (Quickshell 0.3.2 / WSL2 Arch Linux)
 ├── Hyprland live IPC        VERIFIED (Hyprland 0.57.0 + VIRTUAL-1 & VIRTUAL-2 + Wayland clients)
 ├── Multi-monitor state      PARTIALLY VERIFIED (dual virtual outputs & M1/M2/M3 surfaces VERIFIED; DRM pending)
-├── Performance              VERIFIED (Cold-start 146ms < 300ms, idle CPU 0.00%, RSS ~204MB)
+├── Performance              VERIFIED (Cold-start 109.7ms < 300ms, idle CPU 0.00%, RSS ~206MB)
 └── Release readiness        NOT APPLICABLE
 ```
 

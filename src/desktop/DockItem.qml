@@ -7,6 +7,7 @@
 //   - Hierarchical running indicator pip (dominant elongated pill when focused,
 //     primary pip when running on current workspace, muted pip when on other workspace)
 //   - Subtle multi-window instance count badge (> 1)
+//   - Tactile state layer hover/press feedback with micro-motion duration
 //   - Smooth hover highlight and click activation
 
 pragma ComponentBehavior: Bound
@@ -40,17 +41,20 @@ Item {
     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
     // =========================================================
-    // Hover Highlight (No nested card border, DEC-011, ANTI-SLOP.md)
+    // Hover / Press Highlight (Tactile State Layers, ANTI-SLOP.md)
     // =========================================================
     Rectangle {
         id: hoverBg
         anchors.fill: parent
         radius: dockItem.currentTheme.geometry.radiusSmall
-        color: mouseArea.containsMouse ? dockItem.currentTheme.colors.surfaceHighlight : "transparent"
+        color: mouseArea.pressed
+            ? dockItem.currentTheme.colors.statePressed
+            : (mouseArea.containsMouse ? dockItem.currentTheme.colors.stateHover : "transparent")
 
         Behavior on color {
             ColorAnimation {
-                duration: dockItem.currentTheme.motion.reducedMotion ? 0 : dockItem.currentTheme.motion.durationFast
+                duration: dockItem.currentTheme.motion.durationMicro
+                easing.type: dockItem.currentTheme.motion.easingMicro
             }
         }
     }
@@ -100,8 +104,8 @@ Item {
 
         Behavior on width {
             NumberAnimation {
-                duration: dockItem.currentTheme.motion.reducedMotion ? 0 : dockItem.currentTheme.motion.durationFast
-                easing.type: Easing.OutCubic
+                duration: dockItem.currentTheme.motion.durationFast
+                easing.type: dockItem.currentTheme.motion.easingStandard
             }
         }
     }

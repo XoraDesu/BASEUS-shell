@@ -8,6 +8,7 @@ pragma ComponentBehavior: Bound
 //   - Clean application icon with typographical fallback glyph
 //   - Readable application title
 //   - Zero running indicators (running state belongs exclusively to Dock per DEC-018)
+//   - Tactile state layer hover/press feedback with micro-motion duration
 //   - Solid Wabi-sabi hover highlight without nested card containers (ANTI-SLOP.md §6.1)
 
 import QtQuick
@@ -39,26 +40,34 @@ Item {
     implicitHeight: 96
 
     // =========================================================
-    // Surface & Hover Feedback
+    // Surface & Tactile State Feedback
     // =========================================================
     Rectangle {
         id: itemBackground
         anchors.fill: parent
         anchors.margins: appDrawerItem.currentTheme.spacing.xs
-        color: mouseArea.containsMouse
-            ? appDrawerItem.currentTheme.colors.surfaceHighlight
-            : (appDrawerItem.active ? appDrawerItem.currentTheme.colors.surfaceElevated : "transparent")
+        color: mouseArea.pressed
+            ? appDrawerItem.currentTheme.colors.statePressed
+            : (mouseArea.containsMouse
+                ? appDrawerItem.currentTheme.colors.stateHover
+                : (appDrawerItem.active ? appDrawerItem.currentTheme.colors.stateSelected : "transparent"))
         border.color: mouseArea.containsMouse
-            ? appDrawerItem.currentTheme.colors.borderSubtle
+            ? appDrawerItem.currentTheme.colors.outlineVariant
             : (appDrawerItem.active ? appDrawerItem.currentTheme.colors.borderFocus : "transparent")
         border.width: 1
         radius: appDrawerItem.currentTheme.geometry.radiusMedium
 
         Behavior on color {
-            ColorAnimation { duration: appDrawerItem.currentTheme.motion.durationFast }
+            ColorAnimation {
+                duration: appDrawerItem.currentTheme.motion.durationMicro
+                easing.type: appDrawerItem.currentTheme.motion.easingMicro
+            }
         }
         Behavior on border.color {
-            ColorAnimation { duration: appDrawerItem.currentTheme.motion.durationFast }
+            ColorAnimation {
+                duration: appDrawerItem.currentTheme.motion.durationMicro
+                easing.type: appDrawerItem.currentTheme.motion.easingMicro
+            }
         }
 
         // =====================================================
@@ -84,10 +93,10 @@ Item {
                 Rectangle {
                     id: fallbackGlyph
                     anchors.fill: parent
-                    color: appDrawerItem.currentTheme.colors.surfaceRecessed
-                    border.color: appDrawerItem.currentTheme.colors.borderSubtle
+                    color: appDrawerItem.currentTheme.colors.surfaceContainerLowest
+                    border.color: appDrawerItem.currentTheme.colors.outlineVariant
                     border.width: 1
-                    radius: appDrawerItem.currentTheme.geometry.radiusSmall
+                    radius: appDrawerItem.currentTheme.geometry.concentricRadius(appDrawerItem.currentTheme.geometry.radiusMedium, 4)
                     visible: !iconImg.visible
 
                     Text {

@@ -32,9 +32,18 @@ Item {
         "secondary": "#bb9af7",
         "accent": "#7dcfff",
         "neutral": "#1a1b26",
+        "surfaceContainerLowest": "#13131a",
+        "surfaceContainerLow": "#16161e",
+        "surfaceContainer": "#1f2335",
+        "surfaceContainerHigh": "#24283b",
+        "surfaceContainerHighest": "#292e42",
         "surfaceSolid": "#1f2335",
+        "surfaceElevated": "#24283b",
         "surfaceHighlight": "#292e42",
         "surfaceRecessed": "#13131a",
+        "surfaceBase": "#16161e",
+        "outline": "#292e42",
+        "outlineVariant": "#24283b",
         "borderSubtle": "#292e42",
         "textPrimary": "#c0caf5",
         "textSecondary": "#9aa5ce",
@@ -143,32 +152,59 @@ Item {
         var neuRgb = _hexToRgb(neutralHex)
 
         var neuHsl = _rgbToHsl(neuRgb[0], neuRgb[1], neuRgb[2])
-        var hue = neuHsl[0]
+        var domHsl = _rgbToHsl(domRgb[0], domRgb[1], domRgb[2])
+        var baseHue = neuHsl[0]
+        var tintHue = (baseHue * 0.97 + domHsl[0] * 0.03)
 
-        // Derive solid wabi-sabi tonal surfaces
-        var solidRgb = _hslToRgb(hue, Math.min(0.25, neuHsl[1] + 0.05), Math.max(0.12, Math.min(0.22, neuHsl[2] + 0.04)))
-        var highlightRgb = _hslToRgb(hue, Math.min(0.30, neuHsl[1] + 0.08), Math.max(0.18, Math.min(0.28, neuHsl[2] + 0.10)))
-        var recessedRgb = _hslToRgb(hue, Math.min(0.20, neuHsl[1]), Math.max(0.06, neuHsl[2] - 0.04))
-        var borderRgb = _hslToRgb(hue, Math.min(0.28, neuHsl[1] + 0.06), Math.max(0.20, Math.min(0.32, neuHsl[2] + 0.12)))
+        // 5-Step Tonal Surface Luminance Hierarchy
+        var lowestRgb = _hslToRgb(tintHue, Math.min(0.20, neuHsl[1]), Math.max(0.06, neuHsl[2] - 0.04))
+        var lowRgb = _hslToRgb(tintHue, Math.min(0.22, neuHsl[1] + 0.02), Math.max(0.08, neuHsl[2] - 0.01))
+        var containerRgb = _hslToRgb(tintHue, Math.min(0.25, neuHsl[1] + 0.05), Math.max(0.12, Math.min(0.22, neuHsl[2] + 0.04)))
+        var highRgb = _hslToRgb(tintHue, Math.min(0.28, neuHsl[1] + 0.07), Math.max(0.15, Math.min(0.25, neuHsl[2] + 0.07)))
+        var highestRgb = _hslToRgb(tintHue, Math.min(0.30, neuHsl[1] + 0.08), Math.max(0.18, Math.min(0.28, neuHsl[2] + 0.10)))
+
+        var outlineRgb = _hslToRgb(tintHue, Math.min(0.28, neuHsl[1] + 0.06), Math.max(0.20, Math.min(0.32, neuHsl[2] + 0.12)))
+        var outlineVarRgb = [
+            containerRgb[0] * 0.55 + outlineRgb[0] * 0.45,
+            containerRgb[1] * 0.55 + outlineRgb[1] * 0.45,
+            containerRgb[2] * 0.55 + outlineRgb[2] * 0.45
+        ]
 
         var textPrimRgb = [0.75, 0.79, 0.95]
         var textSecRgb = [0.60, 0.65, 0.80]
 
-        var cr = _calculateContrast(textPrimRgb, solidRgb)
+        var cr = _calculateContrast(textPrimRgb, highestRgb)
         if (cr < 4.5) {
             textPrimRgb = [0.94, 0.96, 0.99]
-            cr = _calculateContrast(textPrimRgb, solidRgb)
+            cr = _calculateContrast(textPrimRgb, highestRgb)
         }
+
+        var lowestHex = _rgbToHex(lowestRgb[0], lowestRgb[1], lowestRgb[2])
+        var lowHex = _rgbToHex(lowRgb[0], lowRgb[1], lowRgb[2])
+        var containerHex = _rgbToHex(containerRgb[0], containerRgb[1], containerRgb[2])
+        var highHex = _rgbToHex(highRgb[0], highRgb[1], highRgb[2])
+        var highestHex = _rgbToHex(highestRgb[0], highestRgb[1], highestRgb[2])
+        var outlineHex = _rgbToHex(outlineRgb[0], outlineRgb[1], outlineRgb[2])
+        var outlineVarHex = _rgbToHex(outlineVarRgb[0], outlineVarRgb[1], outlineVarRgb[2])
 
         return {
             "dominant": dominantHex,
             "secondary": secondaryHex,
             "accent": accentHex,
             "neutral": neutralHex,
-            "surfaceSolid": _rgbToHex(solidRgb[0], solidRgb[1], solidRgb[2]),
-            "surfaceHighlight": _rgbToHex(highlightRgb[0], highlightRgb[1], highlightRgb[2]),
-            "surfaceRecessed": _rgbToHex(recessedRgb[0], recessedRgb[1], recessedRgb[2]),
-            "borderSubtle": _rgbToHex(borderRgb[0], borderRgb[1], borderRgb[2]),
+            "surfaceContainerLowest": lowestHex,
+            "surfaceContainerLow": lowHex,
+            "surfaceContainer": containerHex,
+            "surfaceContainerHigh": highHex,
+            "surfaceContainerHighest": highestHex,
+            "surfaceSolid": containerHex,
+            "surfaceElevated": highHex,
+            "surfaceHighlight": highestHex,
+            "surfaceRecessed": lowestHex,
+            "surfaceBase": lowHex,
+            "outline": outlineHex,
+            "outlineVariant": outlineVarHex,
+            "borderSubtle": outlineHex,
             "textPrimary": _rgbToHex(textPrimRgb[0], textPrimRgb[1], textPrimRgb[2]),
             "textSecondary": _rgbToHex(textSecRgb[0], textSecRgb[1], textSecRgb[2]),
             "contrastRatio": Math.round(cr * 100) / 100,

@@ -32,9 +32,9 @@ Rectangle {
     height: 38
 
     radius: topIslandMedia.currentTheme.geometry.radiusMedium
-    color: topIslandMedia.currentTheme.colors.surfaceSolid
+    color: topIslandMedia.currentTheme.colors.surfaceContainerHigh
     border.width: 1
-    border.color: topIslandMedia.currentTheme.colors.borderSubtle
+    border.color: topIslandMedia.currentTheme.colors.outlineVariant
     clip: true
 
     readonly property bool isPlaying: topIslandMedia.mediaService ? topIslandMedia.mediaService.isPlaying : false
@@ -62,7 +62,7 @@ Rectangle {
             height: 24
             anchors.verticalCenter: parent.verticalCenter
             radius: topIslandMedia.currentTheme.geometry.radiusSmall
-            color: topIslandMedia.currentTheme.colors.surfaceHighlight
+            color: topIslandMedia.currentTheme.colors.surfaceContainerLowest
             clip: true
 
             IconImage {

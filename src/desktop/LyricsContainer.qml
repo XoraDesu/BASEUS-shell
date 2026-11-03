@@ -26,9 +26,9 @@ Rectangle {
     readonly property bool hasLyrics: customLyrics.length > 0
 
     radius: lyricsContainer.currentTheme.geometry.radiusSmall
-    color: lyricsContainer.currentTheme.colors.surfaceRecessed
+    color: lyricsContainer.currentTheme.colors.surfaceContainerLowest
     border.width: 1
-    border.color: lyricsContainer.currentTheme.colors.borderSubtle
+    border.color: lyricsContainer.currentTheme.colors.outlineVariant
     clip: true
 
     readonly property string activeTitle: lyricsContainer.mediaService ? lyricsContainer.mediaService.trackTitle : ""

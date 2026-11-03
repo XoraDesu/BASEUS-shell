@@ -41,6 +41,16 @@ QtObject {
     readonly property int radiusPill: 9999
 
     // =========================================================
+    // Optical Concentric Corner Discipline
+    // =========================================================
+    // Calculates concentric curvature for inner elements nested within padded containers:
+    // R_inner = max(4, R_outer - padding)
+    // Note: NEVER applies to screen-bezel-flush edges governed by ICR.
+    function concentricRadius(outerRadius: int, padding: int): int {
+        return Math.max(radiusSmall, outerRadius - padding)
+    }
+
+    // =========================================================
     // Inverse Corner Radius (ICR — DESIGN.md §10)
     // =========================================================
     // The concave/fillet curve that flares outward where an edge-integrated

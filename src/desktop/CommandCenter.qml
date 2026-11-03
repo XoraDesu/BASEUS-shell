@@ -325,24 +325,24 @@ Item {
         visible: opacity > 0.0
         clip: true
 
-        // Solid Wabi-sabi aesthetics (zero blur, zero glassmorphism, zero drop shadows)
-        color: commandCenterRoot.currentTheme.colors.surfaceSolid
+        // Solid Wabi-sabi aesthetics (surfaceContainerHigh floating overlay)
+        color: commandCenterRoot.currentTheme.colors.surfaceContainerHigh
         border.width: commandCenterRoot.currentTheme.geometry.borderWidth
-        border.color: commandCenterRoot.currentTheme.colors.borderSubtle
+        border.color: commandCenterRoot.currentTheme.colors.outline
         radius: commandCenterRoot.currentTheme.geometry.floatingRadius
 
-        // Top-to-bottom curtain reveal motion
+        // Top-to-bottom curtain reveal motion (asymmetric enter/exit)
         Behavior on opacity {
             NumberAnimation {
-                duration: commandCenterRoot.currentTheme.motion.durationSlow
-                easing.type: Easing.OutCubic
+                duration: commandCenterRoot.active ? commandCenterRoot.currentTheme.motion.durationNormal : commandCenterRoot.currentTheme.motion.durationFast
+                easing.type: commandCenterRoot.active ? commandCenterRoot.currentTheme.motion.easingEnter : commandCenterRoot.currentTheme.motion.easingExit
             }
         }
 
         Behavior on y {
             NumberAnimation {
-                duration: commandCenterRoot.currentTheme.motion.durationSlow
-                easing.type: Easing.OutCubic
+                duration: commandCenterRoot.active ? commandCenterRoot.currentTheme.motion.durationNormal : commandCenterRoot.currentTheme.motion.durationFast
+                easing.type: commandCenterRoot.active ? commandCenterRoot.currentTheme.motion.easingEnter : commandCenterRoot.currentTheme.motion.easingExit
             }
         }
 
@@ -449,10 +449,10 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     width: 32
                     height: 20
-                    radius: commandCenterRoot.currentTheme.geometry.radiusSmall
-                    color: commandCenterRoot.currentTheme.colors.surfaceBase
+                    radius: commandCenterRoot.currentTheme.geometry.concentricRadius(commandCenterRoot.currentTheme.geometry.floatingRadius, 4)
+                    color: commandCenterRoot.currentTheme.colors.surfaceContainerLowest
                     border.width: 1
-                    border.color: commandCenterRoot.currentTheme.colors.borderSubtle
+                    border.color: commandCenterRoot.currentTheme.colors.outlineVariant
 
                     Text {
                         anchors.centerIn: parent
@@ -471,7 +471,7 @@ Item {
                 id: dividerLine
                 width: mainCol.width
                 height: 1
-                color: commandCenterRoot.currentTheme.colors.borderSubtle
+                color: commandCenterRoot.currentTheme.colors.outlineVariant
                 visible: commandCenterRoot.itemCount > 0 || (commandCenterRoot.query.length > 0 && commandCenterRoot.itemCount === 0)
             }
 
@@ -518,13 +518,14 @@ Item {
                         width: resultsList.width
                         height: 48
                         color: (commandCenterRoot.selectedIndex === index)
-                            ? commandCenterRoot.currentTheme.colors.surfaceHighlight
-                            : "transparent"
+                            ? commandCenterRoot.currentTheme.colors.stateSelected
+                            : (itemHoverHandler.hovered ? commandCenterRoot.currentTheme.colors.stateHover : "transparent")
 
                         border.width: (commandCenterRoot.selectedIndex === index) ? 1 : 0
                         border.color: commandCenterRoot.currentTheme.colors.borderFocus
 
                         HoverHandler {
+                            id: itemHoverHandler
                             onHoveredChanged: {
                                 if (hovered) commandCenterRoot.selectedIndex = resultItemDelegate.index
                             }
@@ -547,10 +548,10 @@ Item {
                                 width: Math.max(categoryLabel.implicitWidth + 8, 36)
                                 height: 20
                                 anchors.verticalCenter: parent.verticalCenter
-                                radius: commandCenterRoot.currentTheme.geometry.radiusSmall
-                                color: commandCenterRoot.currentTheme.colors.surfaceBase
+                                radius: commandCenterRoot.currentTheme.geometry.concentricRadius(commandCenterRoot.currentTheme.geometry.floatingRadius, 4)
+                                color: commandCenterRoot.currentTheme.colors.surfaceContainerLowest
                                 border.width: 1
-                                border.color: commandCenterRoot.currentTheme.colors.borderSubtle
+                                border.color: commandCenterRoot.currentTheme.colors.outlineVariant
 
                                 Text {
                                     id: categoryLabel
@@ -597,10 +598,10 @@ Item {
                                 width: shortcutLabel.implicitWidth + 10
                                 height: 20
                                 anchors.verticalCenter: parent.verticalCenter
-                                radius: commandCenterRoot.currentTheme.geometry.radiusSmall
-                                color: commandCenterRoot.currentTheme.colors.surfaceBase
+                                radius: commandCenterRoot.currentTheme.geometry.concentricRadius(commandCenterRoot.currentTheme.geometry.floatingRadius, 4)
+                                color: commandCenterRoot.currentTheme.colors.surfaceContainerLowest
                                 border.width: 1
-                                border.color: commandCenterRoot.currentTheme.colors.borderSubtle
+                                border.color: commandCenterRoot.currentTheme.colors.outlineVariant
                                 visible: resultItemDelegate.modelData.shortcut && resultItemDelegate.modelData.shortcut.length > 0
 
                                 Text {
@@ -624,7 +625,7 @@ Item {
                 id: footerDivider
                 width: mainCol.width
                 height: 1
-                color: commandCenterRoot.currentTheme.colors.borderSubtle
+                color: commandCenterRoot.currentTheme.colors.outlineVariant
                 visible: commandCenterRoot.itemCount > 0
             }
 

@@ -245,6 +245,7 @@ The agent must **STOP**:
   - `M5-T3` — Lock Screen Surface & Authentication Architecture (`COMPLETE / VERIFIED` — commit `ae6f11a`)
   - `M5-T4` — Hardware Bindings & Gesture Scaffolding (`COMPLETE / VERIFIED` — commit `e61444b`)
   - `M5-T5` — Shell Cold-Start Optimization & Performance Profiling (`COMPLETE / VERIFIED` — commit `da05c10`)
-  - `M5-T6` — M5 End-to-End Multi-Monitor Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001` (`COMPLETE / VERIFIED`)
+  - `M5-T6` — M5 End-to-End Multi-Monitor Validation, Full Anti-Slop Audit & Checkpoint `CP-M5-001` (`COMPLETE / VERIFIED` — commit `a21f6d9`)
+  - `M5-REFINE` — Tonal Depth, Interactive State Layers & Motion Choreography (`COMPLETE / VERIFIED`)
 - **Active Task:** Milestone M5 (Session, Lock & Polish) is 100% COMPLETE & VERIFIED. Anchored at `CP-M5-001`.
 - **Next Executable Task:** Milestone M5 completed; stopped at Milestone M5 boundary per `AGENTS.md` §46. Milestone M6 kickoff pending owner review.

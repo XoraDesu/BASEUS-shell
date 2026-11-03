@@ -62,9 +62,9 @@ Rectangle {
     }
 
     radius: mediaWidget.currentTheme.geometry.radiusLarge
-    color: mediaWidget.currentTheme.colors.surfaceSolid
+    color: mediaWidget.currentTheme.colors.surfaceContainerHigh
     border.width: 1
-    border.color: mediaWidget.currentTheme.colors.borderSubtle
+    border.color: mediaWidget.currentTheme.colors.outline
     clip: true
 
     visible: mediaWidget.widgetVisible
@@ -110,10 +110,10 @@ Rectangle {
                 width: 44
                 height: 44
                 anchors.verticalCenter: parent.verticalCenter
-                radius: mediaWidget.currentTheme.geometry.radiusMedium
-                color: mediaWidget.currentTheme.colors.surfaceHighlight
+                radius: mediaWidget.currentTheme.geometry.concentricRadius(mediaWidget.currentTheme.geometry.radiusLarge, 4)
+                color: mediaWidget.currentTheme.colors.surfaceContainerLowest
                 border.width: 1
-                border.color: mediaWidget.currentTheme.colors.borderSubtle
+                border.color: mediaWidget.currentTheme.colors.outlineVariant
                 clip: true
 
                 IconImage {

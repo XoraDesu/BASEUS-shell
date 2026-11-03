@@ -370,7 +370,7 @@ Item {
                         text: "/"
                         font.family: headquarterRoot.currentTheme.typography.fontFamilyMono
                         font.pixelSize: headquarterRoot.currentTheme.typography.sizeCaption
-                        color: headquarterRoot.currentTheme.colors.borderSubtle
+                        color: headquarterRoot.currentTheme.colors.outlineVariant
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
@@ -392,10 +392,10 @@ Item {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     radius: headquarterRoot.currentTheme.geometry.radiusMedium
-                    color: headquarterRoot.currentTheme.colors.surfaceSolid
+                    color: headquarterRoot.currentTheme.colors.surfaceContainerLowest
                     border.color: searchInput.activeFocus
                         ? headquarterRoot.currentTheme.colors.accent
-                        : headquarterRoot.currentTheme.colors.borderSubtle
+                        : headquarterRoot.currentTheme.colors.outlineVariant
                     border.width: 1
 
                     Row {
@@ -1996,9 +1996,11 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
                         radius: headquarterRoot.currentTheme.geometry.radiusMedium
                         color: sidebarNavDelegate.isSelected
-                            ? headquarterRoot.currentTheme.colors.surfaceHighlight
-                            : (sidebarItemHover.containsMouse ? headquarterRoot.currentTheme.colors.surfaceHighlight : "transparent")
-                        border.color: sidebarNavDelegate.isSelected ? headquarterRoot.currentTheme.colors.borderSubtle : "transparent"
+                            ? headquarterRoot.currentTheme.colors.stateSelected
+                            : (sidebarItemHover.pressed
+                                ? headquarterRoot.currentTheme.colors.statePressed
+                                : (sidebarItemHover.containsMouse ? headquarterRoot.currentTheme.colors.stateHover : "transparent"))
+                        border.color: sidebarNavDelegate.isSelected ? headquarterRoot.currentTheme.colors.outlineVariant : "transparent"
                         border.width: 1
 
                         Row {
@@ -2055,7 +2057,7 @@ Item {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: 1
-                    color: headquarterRoot.currentTheme.colors.borderSubtle
+                    color: headquarterRoot.currentTheme.colors.outlineVariant
                 }
 
                 Rectangle {
@@ -2063,8 +2065,10 @@ Item {
                     height: 36
                     anchors.centerIn: parent
                     radius: headquarterRoot.currentTheme.geometry.radiusPill
-                    color: headquarterRoot.currentTheme.colors.surfaceHighlight
-                    border.color: headquarterRoot.currentTheme.colors.borderSubtle
+                    color: footerCloseHover.pressed
+                        ? headquarterRoot.currentTheme.colors.statePressed
+                        : (footerCloseHover.containsMouse ? headquarterRoot.currentTheme.colors.stateHover : headquarterRoot.currentTheme.colors.surfaceContainerHighest)
+                    border.color: headquarterRoot.currentTheme.colors.outlineVariant
                     border.width: 1
 
                     Row {
@@ -2073,8 +2077,8 @@ Item {
 
                         Rectangle {
                             width: 28; height: 18; radius: 3
-                            color: headquarterRoot.currentTheme.colors.surfaceSolid
-                            border.color: headquarterRoot.currentTheme.colors.borderSubtle
+                            color: headquarterRoot.currentTheme.colors.surfaceContainerLowest
+                            border.color: headquarterRoot.currentTheme.colors.outlineVariant
                             border.width: 1
                             anchors.verticalCenter: parent.verticalCenter
                             Text {
@@ -2098,7 +2102,9 @@ Item {
                     }
 
                     MouseArea {
+                        id: footerCloseHover
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: headquarterRoot.close()
                     }

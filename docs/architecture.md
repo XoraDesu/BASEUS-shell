@@ -232,11 +232,11 @@ Milestone M5 completes the BASEUS core desktop roadmap, delivering power managem
 
 The design system implements the visual language defined in `DESIGN.md` and `ANTI-SLOP.md`:
 
-- **Colors (`Colors.qml`)**: Four main colors (`dominant`, `secondary`, `accent`, `neutral`) per `DEC-011`, with a strict tonal hierarchy for solid surfaces, legible text, and hairline boundaries.
+- **Colors (`Colors.qml`)**: Four main colors (`dominant`, `secondary`, `accent`, `neutral`) per `DEC-011`, with a strict 5-tier solid tonal container hierarchy (`surfaceContainerLowest`, `surfaceContainerLow`, `surfaceContainer`, `surfaceContainerHigh`, `surfaceContainerHighest`), 1px hairline structural boundaries (`outline`, `outlineVariant`, `borderSubtle`), backward-compatible aliases, and flat tactile state layers (`stateHover`, `stateFocus`, `statePressed`, `stateSelected`) operating with 0% idle CPU cost.
 - **Typography (`Typography.qml`)**: Editorial and archival influence. Functional scale (`display` through `micro`) with separate UI sans and monospaced telemetry font families.
 - **Spacing (`Spacing.qml`)**: Mathematical whitespace scale (`xxs` through `giant`) prioritizing breathing room over nested containers.
-- **Geometry (`Geometry.qml`)**: Controlled radii (`small`, `medium`, `large`, `pill`) and Inverse Corner Radius (`ICR`) for edge-integrated surfaces (Dock, Top Island).
-- **Motion (`Motion.qml`)**: Restrained durations (`fast`, `normal`, `slow`, `theme`) with "Focus grows, context recedes" scale/opacity tokens and reduced motion support.
+- **Geometry (`Geometry.qml`)**: Controlled radii (`small`, `medium`, `large`, `pill`), Inverse Corner Radius (`ICR`) for edge-integrated surfaces (Dock, Top Island), and optical concentric corner radius calculations (`concentricRadius(outer, padding)`).
+- **Motion (`Motion.qml`)**: Restrained durations (`micro: 90ms`, `fast: 140ms`, `normal: 210ms`, `slow: 400ms`, `theme: 600ms`) with asymmetric enter/exit choreography (`easingEnter: Easing.OutCubic`, `easingExit: Easing.InCubic`, `easingMicro: Easing.OutQuad`, non-oscillating `easingSpring: Easing.OutCubic`), "Focus grows, context recedes" scale/opacity tokens, and instant 0-duration collapse when `reducedMotion: true`.
 
 ---
 

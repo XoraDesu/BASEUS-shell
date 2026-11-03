@@ -5,8 +5,10 @@ Copyright (c) 2026 xoradesu — MIT License
 
 Governed by DEC-011, DEC-014, and DESIGN.md §27–28:
 - Exactly 4 primary colors: dominant, secondary, accent, neutral
-- Derived tonal hierarchy: surfaceSolid, surfaceHighlight, surfaceRecessed, borderSubtle, textPrimary, textSecondary
-- Validates WCAG contrast ratio (>= 4.5:1) for text readability
+- 5-step tonal surface luminance hierarchy: surfaceContainerLowest, surfaceContainerLow,
+  surfaceContainer, surfaceContainerHigh, surfaceContainerHighest
+- Hairline border tokens: outline, outlineVariant, borderSubtle
+- Validates WCAG AA contrast ratio (>= 4.5:1) for text readability
 - Uses matugen CLI if available, falls back to deterministic extraction
 """
 
@@ -65,31 +67,49 @@ def deterministic_fallback(image_path):
     accent = colorsys.hls_to_rgb(h3, 0.75, 0.65)
     neutral = colorsys.hls_to_rgb(h1, 0.12, 0.18)  # Deep base tone
 
-    # Tonal surfaces
-    surface_solid = colorsys.hls_to_rgb(h1, 0.16, 0.16)
-    surface_highlight = colorsys.hls_to_rgb(h1, 0.22, 0.16)
-    surface_recessed = colorsys.hls_to_rgb(h1, 0.09, 0.14)
-    border_subtle = colorsys.hls_to_rgb(h1, 0.24, 0.15)
+    # 5-Step Tonal Surfaces
+    surface_lowest = colorsys.hls_to_rgb(h1, 0.09, 0.14)
+    surface_low = colorsys.hls_to_rgb(h1, 0.12, 0.15)
+    surface_container = colorsys.hls_to_rgb(h1, 0.16, 0.16)
+    surface_high = colorsys.hls_to_rgb(h1, 0.19, 0.18)
+    surface_highest = colorsys.hls_to_rgb(h1, 0.22, 0.20)
+
+    # Hairline borders
+    outline = colorsys.hls_to_rgb(h1, 0.24, 0.22)
+    outline_variant = (
+        surface_container[0] * 0.55 + outline[0] * 0.45,
+        surface_container[1] * 0.55 + outline[1] * 0.45,
+        surface_container[2] * 0.55 + outline[2] * 0.45,
+    )
 
     # Text roles
     text_primary = (0.75, 0.79, 0.95)
     text_secondary = (0.60, 0.65, 0.80)
 
-    # Ensure contrast
-    cr = contrast_ratio(text_primary, surface_solid)
+    # Ensure contrast against all surfaces (check against highest luminance surface)
+    cr = contrast_ratio(text_primary, surface_highest)
     if cr < 4.5:
-        text_primary = (0.92, 0.94, 0.98)
-        cr = contrast_ratio(text_primary, surface_solid)
+        text_primary = (0.94, 0.96, 0.99)
+        cr = contrast_ratio(text_primary, surface_highest)
 
     return {
         "dominant": rgb_to_hex(*dominant),
         "secondary": rgb_to_hex(*secondary),
         "accent": rgb_to_hex(*accent),
         "neutral": rgb_to_hex(*neutral),
-        "surfaceSolid": rgb_to_hex(*surface_solid),
-        "surfaceHighlight": rgb_to_hex(*surface_highlight),
-        "surfaceRecessed": rgb_to_hex(*surface_recessed),
-        "borderSubtle": rgb_to_hex(*border_subtle),
+        "surfaceContainerLowest": rgb_to_hex(*surface_lowest),
+        "surfaceContainerLow": rgb_to_hex(*surface_low),
+        "surfaceContainer": rgb_to_hex(*surface_container),
+        "surfaceContainerHigh": rgb_to_hex(*surface_high),
+        "surfaceContainerHighest": rgb_to_hex(*surface_highest),
+        "surfaceSolid": rgb_to_hex(*surface_container),
+        "surfaceElevated": rgb_to_hex(*surface_high),
+        "surfaceHighlight": rgb_to_hex(*surface_highest),
+        "surfaceRecessed": rgb_to_hex(*surface_lowest),
+        "surfaceBase": rgb_to_hex(*surface_low),
+        "outline": rgb_to_hex(*outline),
+        "outlineVariant": rgb_to_hex(*outline_variant),
+        "borderSubtle": rgb_to_hex(*outline),
         "textPrimary": rgb_to_hex(*text_primary),
         "textSecondary": rgb_to_hex(*text_secondary),
         "contrastRatio": round(cr, 2),
@@ -114,24 +134,42 @@ def extract_with_matugen(image_path):
         secondary_hex = colors.get("secondary", "#bb9af7")
         accent_hex = colors.get("tertiary", "#7dcfff")
         neutral_hex = colors.get("surface", "#1a1b26")
-        surface_solid_hex = colors.get("surface_container", "#1f2335")
-        surface_highlight_hex = colors.get("surface_container_high", "#292e42")
-        surface_recessed_hex = colors.get("surface_container_lowest", "#13131a")
-        border_subtle_hex = colors.get("outline_variant", "#292e42")
+
+        lowest_hex = colors.get("surface_container_lowest", "#13131a")
+        low_hex = colors.get("surface_container_low", "#16161e")
+        container_hex = colors.get("surface_container", "#1f2335")
+        high_hex = colors.get("surface_container_high", "#24283b")
+        highest_hex = colors.get("surface_container_highest", "#292e42")
+
+        outline_hex = colors.get("outline", "#292e42")
+        outline_var_hex = colors.get("outline_variant", "#24283b")
+
         text_primary_hex = colors.get("on_surface", "#c0caf5")
         text_secondary_hex = colors.get("on_surface_variant", "#9aa5ce")
 
-        cr = contrast_ratio(hex_to_rgb(text_primary_hex), hex_to_rgb(surface_solid_hex))
+        cr = contrast_ratio(hex_to_rgb(text_primary_hex), hex_to_rgb(highest_hex))
+        if cr < 4.5:
+            text_primary_hex = "#f0f4fc"
+            cr = contrast_ratio(hex_to_rgb(text_primary_hex), hex_to_rgb(highest_hex))
 
         return {
             "dominant": dominant_hex,
             "secondary": secondary_hex,
             "accent": accent_hex,
             "neutral": neutral_hex,
-            "surfaceSolid": surface_solid_hex,
-            "surfaceHighlight": surface_highlight_hex,
-            "surfaceRecessed": surface_recessed_hex,
-            "borderSubtle": border_subtle_hex,
+            "surfaceContainerLowest": lowest_hex,
+            "surfaceContainerLow": low_hex,
+            "surfaceContainer": container_hex,
+            "surfaceContainerHigh": high_hex,
+            "surfaceContainerHighest": highest_hex,
+            "surfaceSolid": container_hex,
+            "surfaceElevated": high_hex,
+            "surfaceHighlight": highest_hex,
+            "surfaceRecessed": lowest_hex,
+            "surfaceBase": low_hex,
+            "outline": outline_hex,
+            "outlineVariant": outline_var_hex,
+            "borderSubtle": outline_hex,
             "textPrimary": text_primary_hex,
             "textSecondary": text_secondary_hex,
             "contrastRatio": round(cr, 2),
@@ -161,4 +199,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -334,9 +334,9 @@ Item {
         height: Math.min(520, parent.height - 48)
         anchors.centerIn: parent
 
-        color: pickerRoot.currentTheme.colors.surfaceSolid
+        color: pickerRoot.currentTheme.colors.surfaceContainerHigh
         radius: pickerRoot.currentTheme.geometry.radiusLarge
-        border.color: pickerRoot.currentTheme.colors.borderSubtle
+        border.color: pickerRoot.currentTheme.colors.outline
         border.width: 1
 
         scale: pickerRoot.active ? 1.0 : 0.96
@@ -345,15 +345,15 @@ Item {
 
         Behavior on scale {
             NumberAnimation {
-                duration: pickerRoot.currentTheme.motion.durationFast
-                easing.type: pickerRoot.currentTheme.motion.easingFocus
+                duration: pickerRoot.active ? pickerRoot.currentTheme.motion.durationNormal : pickerRoot.currentTheme.motion.durationFast
+                easing.type: pickerRoot.active ? pickerRoot.currentTheme.motion.easingEnter : pickerRoot.currentTheme.motion.easingExit
             }
         }
 
         Behavior on opacity {
             NumberAnimation {
-                duration: pickerRoot.currentTheme.motion.durationFast
-                easing.type: Easing.InOutQuad
+                duration: pickerRoot.active ? pickerRoot.currentTheme.motion.durationNormal : pickerRoot.currentTheme.motion.durationFast
+                easing.type: pickerRoot.active ? pickerRoot.currentTheme.motion.easingEnter : pickerRoot.currentTheme.motion.easingExit
             }
         }
 
@@ -410,11 +410,11 @@ Item {
                     height: 28
                     radius: pickerRoot.currentTheme.geometry.radiusPill
                     color: pickerRoot.currentTab === "library"
-                        ? pickerRoot.currentTheme.colors.surfaceHighlight
-                        : "transparent"
+                        ? pickerRoot.currentTheme.colors.stateSelected
+                        : (libTabHover.containsMouse ? pickerRoot.currentTheme.colors.stateHover : "transparent")
                     border.color: pickerRoot.currentTab === "library"
                         ? pickerRoot.currentTheme.colors.dominant
-                        : pickerRoot.currentTheme.colors.borderSubtle
+                        : pickerRoot.currentTheme.colors.outlineVariant
                     border.width: 1
 
                     Text {
@@ -429,7 +429,9 @@ Item {
                     }
 
                     MouseArea {
+                        id: libTabHover
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: pickerRoot.setTab("library")
                     }
@@ -441,11 +443,11 @@ Item {
                     height: 28
                     radius: pickerRoot.currentTheme.geometry.radiusPill
                     color: pickerRoot.currentTab === "recent"
-                        ? pickerRoot.currentTheme.colors.surfaceHighlight
-                        : "transparent"
+                        ? pickerRoot.currentTheme.colors.stateSelected
+                        : (recTabHover.containsMouse ? pickerRoot.currentTheme.colors.stateHover : "transparent")
                     border.color: pickerRoot.currentTab === "recent"
                         ? pickerRoot.currentTheme.colors.dominant
-                        : pickerRoot.currentTheme.colors.borderSubtle
+                        : pickerRoot.currentTheme.colors.outlineVariant
                     border.width: 1
 
                     Text {
@@ -460,7 +462,9 @@ Item {
                     }
 
                     MouseArea {
+                        id: recTabHover
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: pickerRoot.setTab("recent")
                     }
@@ -472,11 +476,11 @@ Item {
                     height: 28
                     radius: pickerRoot.currentTheme.geometry.radiusPill
                     color: pickerRoot.currentTab === "favorites"
-                        ? pickerRoot.currentTheme.colors.surfaceHighlight
-                        : "transparent"
+                        ? pickerRoot.currentTheme.colors.stateSelected
+                        : (favTabHover.containsMouse ? pickerRoot.currentTheme.colors.stateHover : "transparent")
                     border.color: pickerRoot.currentTab === "favorites"
                         ? pickerRoot.currentTheme.colors.dominant
-                        : pickerRoot.currentTheme.colors.borderSubtle
+                        : pickerRoot.currentTheme.colors.outlineVariant
                     border.width: 1
 
                     Text {
@@ -491,7 +495,9 @@ Item {
                     }
 
                     MouseArea {
+                        id: favTabHover
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: pickerRoot.setTab("favorites")
                     }
@@ -506,9 +512,9 @@ Item {
                 width: 28
                 height: 28
                 radius: 14
-                color: closeHoverArea.containsMouse
-                    ? pickerRoot.currentTheme.colors.surfaceHighlight
-                    : "transparent"
+                color: closeHoverArea.pressed
+                    ? pickerRoot.currentTheme.colors.statePressed
+                    : (closeHoverArea.containsMouse ? pickerRoot.currentTheme.colors.stateHover : "transparent")
 
                 Text {
                     anchors.centerIn: parent
@@ -535,7 +541,7 @@ Item {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 1
-                color: pickerRoot.currentTheme.colors.borderSubtle
+                color: pickerRoot.currentTheme.colors.outlineVariant
             }
         }
 
@@ -566,14 +572,14 @@ Item {
 
                         width: 196
                         height: 118
-                        radius: pickerRoot.currentTheme.geometry.radiusMedium
-                        color: pickerRoot.currentTheme.colors.surfaceRecessed
+                        radius: pickerRoot.currentTheme.geometry.concentricRadius(pickerRoot.currentTheme.geometry.radiusLarge, 4)
+                        color: pickerRoot.currentTheme.colors.surfaceContainerLowest
                         border.width: (pickerRoot.selectedIndex === index) ? 2 : 1
                         border.color: (pickerRoot.selectedIndex === index)
                             ? pickerRoot.currentTheme.colors.dominant
                             : (cardHover.containsMouse
-                                ? pickerRoot.currentTheme.colors.surfaceHighlight
-                                : pickerRoot.currentTheme.colors.borderSubtle)
+                                ? pickerRoot.currentTheme.colors.outline
+                                : pickerRoot.currentTheme.colors.outlineVariant)
 
                         scale: (pickerRoot.selectedIndex === index) ? 1.02 : (cardHover.containsMouse ? 1.01 : 1.0)
 
@@ -741,7 +747,7 @@ Item {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 1
-                color: pickerRoot.currentTheme.colors.borderSubtle
+                color: pickerRoot.currentTheme.colors.outlineVariant
             }
 
             // Left: Selected metadata summary
@@ -807,8 +813,10 @@ Item {
                     width: 80
                     height: 30
                     radius: pickerRoot.currentTheme.geometry.radiusPill
-                    color: pickerRoot.currentTheme.colors.surfaceHighlight
-                    border.color: pickerRoot.currentTheme.colors.borderSubtle
+                    color: applyAllHover.pressed
+                        ? pickerRoot.currentTheme.colors.statePressed
+                        : (applyAllHover.containsMouse ? pickerRoot.currentTheme.colors.stateHover : pickerRoot.currentTheme.colors.surfaceContainerHighest)
+                    border.color: pickerRoot.currentTheme.colors.outlineVariant
                     border.width: 1
 
                     Text {
@@ -821,7 +829,9 @@ Item {
                     }
 
                     MouseArea {
+                        id: applyAllHover
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: pickerRoot.applySelected(true)
                     }

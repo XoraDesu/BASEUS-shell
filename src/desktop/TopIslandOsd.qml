@@ -66,11 +66,11 @@ Item {
         id: surfaceRect
         anchors.fill: parent
         radius: topIslandOsd.currentTheme.geometry.radiusLarge
-        color: topIslandOsd.currentTheme.colors.surfaceSolid
+        color: topIslandOsd.currentTheme.colors.surfaceContainerHighest
         border.width: 1
         border.color: topIslandOsd.isMuted
             ? topIslandOsd.currentTheme.colors.statusWarning
-            : topIslandOsd.currentTheme.colors.borderSubtle
+            : topIslandOsd.currentTheme.colors.outline
         clip: true
 
         Column {
