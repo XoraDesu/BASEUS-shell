@@ -28,6 +28,7 @@ QtObject {
     // Token Subsystems
     // =========================================================
     readonly property Colors colors: Colors { id: _colors }
+    readonly property alias palette: themeRoot.colors
     readonly property Typography typography: Typography { id: _typography }
     readonly property Spacing spacing: Spacing { id: _spacing }
     readonly property Geometry geometry: Geometry { id: _geometry }

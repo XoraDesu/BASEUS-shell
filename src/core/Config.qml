@@ -95,6 +95,24 @@ QtObject {
     property bool reducedMotion: false
     property int animationDuration: 250        // ms — default animation duration
 
+    // Personality (M6-01..M6-04)
+    property var personality: ({
+        bongoCat: {
+            enabled: true,
+            size: 32,
+            decayTimeout: 250
+        },
+        constellation: {
+            enabled: true,
+            nodeCount: 8,
+            duration: 350
+        },
+        contextualCue: {
+            timeout: 2200,
+            maxCharacters: 32
+        }
+    })
+
     // Idle & Inhibitor Service (M5-T2, MASTER.md §34)
     property int idleDimTimeout: 300           // seconds
     property int idleLockTimeout: 600          // seconds
@@ -138,6 +156,11 @@ QtObject {
         idleAutoLock = true
         idleAutoSuspend = false
         idleInhibitByDefault = false
+        personality = {
+            bongoCat: { enabled: true, size: 32, decayTimeout: 250 },
+            constellation: { enabled: true, nodeCount: 8, duration: 350 },
+            contextualCue: { timeout: 2200, maxCharacters: 32 }
+        }
         logLevel = "info"
         simulationEnabled = false
     }
@@ -221,6 +244,39 @@ QtObject {
         if (root.performance && typeof root.performance === "object") {
             if (typeof root.performance.reducedMotion === "boolean") reducedMotion = root.performance.reducedMotion
             if (typeof root.performance.animationDuration === "number") animationDuration = Math.round(root.performance.animationDuration)
+        }
+
+        if (root.personality && typeof root.personality === "object") {
+            if (root.personality.bongoCat && typeof root.personality.bongoCat === "object") {
+                if (typeof root.personality.bongoCat.enabled === "boolean") {
+                    personality.bongoCat.enabled = root.personality.bongoCat.enabled
+                }
+                if (typeof root.personality.bongoCat.size === "number") {
+                    personality.bongoCat.size = Math.round(root.personality.bongoCat.size)
+                }
+                if (typeof root.personality.bongoCat.decayTimeout === "number") {
+                    personality.bongoCat.decayTimeout = Math.round(root.personality.bongoCat.decayTimeout)
+                }
+            }
+            if (root.personality.constellation && typeof root.personality.constellation === "object") {
+                if (typeof root.personality.constellation.enabled === "boolean") {
+                    personality.constellation.enabled = root.personality.constellation.enabled
+                }
+                if (typeof root.personality.constellation.nodeCount === "number") {
+                    personality.constellation.nodeCount = Math.round(root.personality.constellation.nodeCount)
+                }
+                if (typeof root.personality.constellation.duration === "number") {
+                    personality.constellation.duration = Math.round(root.personality.constellation.duration)
+                }
+            }
+            if (root.personality.contextualCue && typeof root.personality.contextualCue === "object") {
+                if (typeof root.personality.contextualCue.timeout === "number") {
+                    personality.contextualCue.timeout = Math.round(root.personality.contextualCue.timeout)
+                }
+                if (typeof root.personality.contextualCue.maxCharacters === "number") {
+                    personality.contextualCue.maxCharacters = Math.round(root.personality.contextualCue.maxCharacters)
+                }
+            }
         }
 
         if (root.idle && typeof root.idle === "object") {

@@ -842,6 +842,9 @@ Scope {
                 TopIslandAnchor {
                     id: topIsland
                     theme: desktopHost.theme
+                    config: desktopHost.config
+                    bridge: desktopHost.bridge
+                    audioService: desktopHost.audioService
                     isFullscreen: layerWindow.isFullscreen
                     actionRegistry: desktopHost.actionRegistry
                     workspaceModel: desktopHost.workspaceModel
@@ -955,6 +958,9 @@ Scope {
                 TopIslandAnchor {
                     id: summonIsland
                     theme: desktopHost.theme
+                    config: desktopHost.config
+                    bridge: desktopHost.bridge
+                    audioService: desktopHost.audioService
                     fullscreenSummon: true
                     actionRegistry: desktopHost.actionRegistry
                     workspaceModel: desktopHost.workspaceModel

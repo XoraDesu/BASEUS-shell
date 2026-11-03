@@ -72,6 +72,23 @@
             "animationDuration": 250
         },
 
+                "personality": {
+            "bongoCat": {
+                "enabled": true,
+                "size": 32,
+                "decayTimeout": 250
+            },
+            "constellation": {
+                "enabled": true,
+                "nodeCount": 8,
+                "duration": 350
+            },
+            "contextualCue": {
+                "timeout": 2200,
+                "maxCharacters": 32
+            }
+        },
+
         "idle": {
             "dimTimeout": 300,
             "lockTimeout": 600,

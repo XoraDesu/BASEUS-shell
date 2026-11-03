@@ -81,6 +81,9 @@ QtObject {
     // Detached Floating Surfaces: Command Center, OSD, Alt+Tab
     readonly property int floatingRadius: radiusMedium
 
+    // Top Island / Bar Standard Height Token (MASTER.md §12)
+    readonly property int barHeight: 32
+
     // =========================================================
     // Borders & Outlines
     // =========================================================

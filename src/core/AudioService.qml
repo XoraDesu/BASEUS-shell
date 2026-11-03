@@ -35,6 +35,7 @@ Item {
     readonly property bool pipewireAvailable: Pipewire.ready && Pipewire.defaultAudioSink !== null
     readonly property bool isSimulation: audioService.config ? audioService.config.simulationEnabled : false
     readonly property bool available: audioService.pipewireAvailable || audioService.isSimulation
+    readonly property bool isAudioActive: !audioService.muted && audioService.volume > 0.0
 
     // Signals
     signal osdRequested(string type, real value, bool isMuted)
@@ -44,20 +45,28 @@ Item {
     // Pipewire Synchronization
     // =========================================================
     Connections {
-        target: Pipewire.ready ? Pipewire.defaultAudioSink : null
+        target: (Pipewire.ready && Pipewire.defaultAudioSink) ? Pipewire.defaultAudioSink.audio : null
 
-        function onAudioChanged() {
-            var sink = Pipewire.defaultAudioSink
-            if (!sink || !sink.audio) return
-            var newVol = sink.audio.volume
-            var newMuted = sink.audio.muted
-            var changed = (newVol !== audioService.volume || newMuted !== audioService.muted)
-            audioService.volume = Math.max(0.0, Math.min(1.0, newVol))
-            audioService.muted = newMuted
-            if (changed) {
-                audioService.audioChanged(audioService.volume, audioService.muted)
-                audioService.triggerOsd("volume", audioService.volume, audioService.muted)
-            }
+        function onVolumesChanged() {
+            audioService._syncPipewire()
+        }
+
+        function onMutedChanged() {
+            audioService._syncPipewire()
+        }
+    }
+
+    function _syncPipewire(): void {
+        var sink = Pipewire.defaultAudioSink
+        if (!sink || !sink.audio) return
+        var newVol = sink.audio.volume
+        var newMuted = sink.audio.muted
+        var changed = (newVol !== audioService.volume || newMuted !== audioService.muted)
+        audioService.volume = Math.max(0.0, Math.min(1.0, newVol))
+        audioService.muted = newMuted
+        if (changed) {
+            audioService.audioChanged(audioService.volume, audioService.muted)
+            audioService.triggerOsd("volume", audioService.volume, audioService.muted)
         }
     }
 

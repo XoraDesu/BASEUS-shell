@@ -88,6 +88,15 @@ QtObject {
     // Alias for backward compatibility
     property alias borderSubtle: colors.outline
 
+    // =========================================================
+    // Palette Token Aliases (M6 Design System Alignment)
+    // =========================================================
+    property alias primary: colors.dominant
+    property alias surfaceVariant: colors.surfaceContainerHighest
+    property alias onSurfaceVariant: colors.textSecondary
+
+
+
     // Distinct boundary for focused or active interactive elements
     property color borderFocus: "#7aa2f7"
 

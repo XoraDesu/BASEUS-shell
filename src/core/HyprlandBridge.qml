@@ -39,6 +39,11 @@ QtObject {
     // Connection & Layout Configuration
     // =========================================================
     readonly property bool isMock: false
+    // Keyboard & Activity IPC telemetry (M6-01 Bongo Cat reactive stream)
+    signal keyActivity()
+    property int keypressTick: 0
+    property string activeSubmap: ""
+
     property bool connected: false
     property string lastError: ""
     property int layoutGapOut: 16
@@ -278,6 +283,8 @@ QtObject {
         }
 
         function onActiveToplevelChanged() {
+            hyprlandBridge.keypressTick++
+            hyprlandBridge.keyActivity()
             hyprlandBridge._emitActiveToplevel()
         }
 
@@ -953,7 +960,11 @@ QtObject {
         var name = String(event.name || "")
         var data = String(event.data || "")
 
-        if (name === "openwindow") {
+        if (name === "submap") {
+            hyprlandBridge.activeSubmap = data
+            hyprlandBridge.keypressTick++
+            hyprlandBridge.keyActivity()
+        } else if (name === "openwindow") {
             var parts = event.parse(4)
             if (parts && parts.length >= 4) {
                 var wsNum = parseInt(parts[1], 10)

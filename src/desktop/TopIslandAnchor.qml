@@ -20,6 +20,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Shapes
 import "../theme" as ThemeModule
+import "../../components/personality" as PersonalityModule
 
 Item {
     id: topIslandAnchor
@@ -41,6 +42,9 @@ Item {
     property var mediaService: null
     property var statusService: null
     property var idleService: null
+    property var config: null
+    property var bridge: null
+    property var audioService: null
     property int monitorIndex: 0
 
     // Dimensions
@@ -48,7 +52,7 @@ Item {
     readonly property int minIslandWidth: 80
     readonly property int expandedWidth: 360
     readonly property int triggerHeight: 2
-    readonly property int idleBodyWidth: Math.max(clockLabel.implicitWidth + (awakePip.visible ? 44 : 36), topIslandAnchor.minIslandWidth)
+    readonly property int idleBodyWidth: Math.max(centerCluster.implicitWidth + 32, topIslandAnchor.minIslandWidth)
     readonly property int expandedHeight: topIslandAnchor.islandHeight + islandHeader.implicitHeight
 
     // Timing
@@ -407,30 +411,64 @@ Item {
                 }
             }
 
-            // Typographic idle clock (monospace, calm tonal contrast); stays put on expansion
-            Text {
-                id: clockLabel
+            // Structured Center Cluster (replaces bilateral cross-anchoring with clean Row)
+            Row {
+                id: centerCluster
                 anchors.top: parent.top
-                anchors.topMargin: Math.round((topIslandAnchor.islandHeight - clockLabel.implicitHeight) / 2)
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: topIslandAnchor._timeText
-                font.family: topIslandAnchor.currentTheme.typography.fontFamilyMono
-                font.pixelSize: topIslandAnchor.currentTheme.typography.sizeCaption
-                font.weight: Font.Medium
-                color: topIslandAnchor.currentTheme.colors.textPrimary
-            }
+                height: topIslandAnchor.islandHeight
+                spacing: topIslandAnchor.currentTheme.spacing.sm
 
-            // Subtle awake pip (M5-T2, MASTER.md §34): indicates idle inhibitor is active
-            Rectangle {
-                id: awakePip
-                width: 4
-                height: 4
-                radius: 2
-                anchors.verticalCenter: clockLabel.verticalCenter
-                anchors.left: clockLabel.right
-                anchors.leftMargin: 6
-                color: topIslandAnchor.currentTheme.colors.accent
-                visible: topIslandAnchor.idleService && topIslandAnchor.idleService.inhibited
+                // 1. Contextual Cue (M6-03): Left slot
+                PersonalityModule.ContextualCue {
+                    id: islandCue
+                    anchors.verticalCenter: parent.verticalCenter
+                    theme: topIslandAnchor.currentTheme
+                    config: topIslandAnchor.config
+                    hyprlandBridge: topIslandAnchor.bridge
+                    statusService: topIslandAnchor.statusService
+                    audioService: topIslandAnchor.audioService
+                }
+
+                // 2. Center Pill (Clock + Awake Pip)
+                Row {
+                    id: clockCluster
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 6
+
+                    Text {
+                        id: clockLabel
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: topIslandAnchor._timeText
+                        font.family: topIslandAnchor.currentTheme.typography.fontFamilyMono
+                        font.pixelSize: topIslandAnchor.currentTheme.typography.sizeCaption
+                        font.weight: Font.Medium
+                        color: topIslandAnchor.currentTheme.colors.textPrimary
+                    }
+
+                    Rectangle {
+                        id: awakePip
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 4
+                        height: 4
+                        radius: 2
+                        color: topIslandAnchor.currentTheme.colors.accent
+                        visible: topIslandAnchor.idleService && topIslandAnchor.idleService.inhibited
+                    }
+                }
+
+                // 3. Bongo Cat Personality (M6-01): Secondary Utility Slot
+                PersonalityModule.BongoCat {
+                    id: islandBongoCat
+                    anchors.verticalCenter: parent.verticalCenter
+                    theme: topIslandAnchor.currentTheme
+                    config: topIslandAnchor.config
+                    hyprlandBridge: topIslandAnchor.bridge
+                    audioService: topIslandAnchor.audioService
+                    visible: (topIslandAnchor.config && topIslandAnchor.config.personality && topIslandAnchor.config.personality.bongoCat)
+                        ? (topIslandAnchor.config.personality.bongoCat.enabled === true)
+                        : true
+                }
             }
 
             // Contextual header (revealed only while expanded)
